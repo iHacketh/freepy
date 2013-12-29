@@ -18,7 +18,7 @@
 # Thomas Quintana <quintana.thomas@gmail.com>
 
 from freepy.conf.settings import *
-from freepy.lib.actors import *
+from freepy.lib.apps import *
 from freepy.lib.commands import *
 from freepy.lib.esl import *
 from freepy.lib.fsm import *
@@ -26,6 +26,7 @@ from pykka import ActorRegistry, ThreadingActor
 
 import logging
 import re
+import sys
 
 class InitializeDispatcherEvent(object):
   def __init__(self, client):
@@ -135,9 +136,6 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
   def __dispatch_incoming__(self, message):
     headers = message.get_headers()
     for rule in dispatch_rules:
-      if not self.__validate_rule__(rule):
-        self.__logger__.warning('The rule %s is invalid.', str(rule))
-        continue
       name = rule.get('header_name')
       header = headers.get(name)
       if not header:
@@ -166,17 +164,6 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
     if recipient:
       del self.__transactions__[uuid]
       recipient.tell(message)
-
-  def __validate_rule__(self, rule):
-    name = rule.get('header_name')
-    value = rule.get('header_value')
-    pattern = rule.get('header_pattern')
-    target = rule.get('target')
-    if not name or not target or not value and not pattern \
-      or value and pattern:
-      return False
-    else:
-      return True
 
   @Action(state = 'initializing')
   def __initialize__(self, message):
@@ -241,14 +228,37 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
     elif isinstance(message, KillDispatcherEvent):
       self.__on_kill__(message)
 
-def start_server():
-  # Initialize application wide logging.
-  logging.basicConfig(level = logging.DEBUG)
-  # Start the reactor.
-  # address = freeswitch_host.get('address')
-  # port = freeswitch_host.get('port')
-  # FIX ME!
-  # factory = EventSocketClientFactory(observer)
-  # reactor.connectTCP(address, port, factory)
-  # reactor.run()
+class FreepyServer():
+  def __init__(self):
+    pass
+
+  def __validate_rule__(self, rule):
+    name = rule.get('header_name')
+    value = rule.get('header_value')
+    pattern = rule.get('header_pattern')
+    target = rule.get('target')
+    if not name or not target or not value and not pattern \
+      or value and pattern:
+      return False
+    else:
+      return True
+
+  def start():
+    # Initialize application wide logging.
+    logging.basicConfig(level = logging.DEBUG)
+    # Validate the list of rules.
+    for rule in dispatch_rules:
+      if not self.__validate_rule__(rule):
+        self.__logger__.critical('The rule %s is invalid.', str(rule))
+        return
+    # Add the applications to the path and load them.
+    if apps_path not in sys.path:
+      sys.path.append(apps_path)
+    self.__load_apps__()
+    # Start the reactor.
+    # address = freeswitch_host.get('address')
+    # port = freeswitch_host.get('port')
+    # factory = EventSocketClientFactory(observer)
+    # reactor.connectTCP(address, port, factory)
+    # reactor.run()
   

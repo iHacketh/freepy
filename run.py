@@ -17,7 +17,12 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-from freepy.lib.server import start_server
+from freepy.lib.server import FreepyServer
+
+def main():
+  server = FreepyServer()
+  server.start()
 
 # Start the application server!
-start_server()
+if __name__ == "__main__":
+  main()

@@ -17,6 +17,10 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
+# The path to the directory where the applications for Freepy are installed.
+apps_path = '/home/johndoe/freepy/apps'
+
+# The Event Socket configuration used to connect to FreeSWITCH.
 freeswitch_host = {
     'name':     'localhost',
     'host':     '127.0.0.1',
@@ -24,5 +28,5 @@ freeswitch_host = {
     'password': 'ClueCon'
 }
 
-# Import the routing rules for the dispatcher.
+# Import the dispatch rules for the dispatcher.
 from rules import *
