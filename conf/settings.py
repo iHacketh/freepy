@@ -25,4 +25,4 @@ freeswitch_host = {
 }
 
 # Import the routing rules for the dispatcher.
-import rules
+from rules import *
