@@ -265,8 +265,8 @@ class FreepyServer():
     dispatcher_proxy = DispatcherProxy(dispatcher)
     # Create an event socket client factory and start the reactor.
     address = freeswitch_host.get('address')
-    factory = EventSocketClientFactory(dispatcher_proxy)
     port = freeswitch_host.get('port')
+    factory = EventSocketClientFactory(dispatcher_proxy)
     reactor.connectTCP(address, port, factory)
     reactor.run()
   
