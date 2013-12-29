@@ -17,9 +17,19 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-class ActorLifeCycleManager(object):
-  def __init__(self):
-    self.__actors__ = dict()
+from freepy.lib.commands import *
+from freepy.lib.esl import *
+from twisted.internet import reactor
+from unittest import TestCase, expectedFailure
 
-  def register(self, key, actor, store_as = 'singleton'):
-    pass
+import logging
+
+# Initialize application wide logging.
+logging.basicConfig(level = logging.DEBUG)
+
+class EventSocketClientTests(TestCase):
+  def test_successful_authentication(self):
+    # Start the test.
+    factory = EventSocketClientFactory(observer)
+    reactor.connectTCP('192.168.1.106', 8021, factory)
+    reactor.run()
