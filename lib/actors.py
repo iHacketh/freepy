@@ -17,6 +17,8 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
+from modules import *
+
 class ActorLifeCycleManager(object):
   def __init__(self):
     self.__classes__ = dict()

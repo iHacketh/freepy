@@ -240,3 +240,15 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
       self.__on_init__(message)
     elif isinstance(message, KillDispatcherEvent):
       self.__on_kill__(message)
+
+def start_server():
+  # Initialize application wide logging.
+  logging.basicConfig(level = logging.DEBUG)
+  # Start the reactor.
+  # address = freeswitch_host.get('address')
+  # port = freeswitch_host.get('port')
+  # FIX ME!
+  # factory = EventSocketClientFactory(observer)
+  # reactor.connectTCP(address, port, factory)
+  # reactor.run()
+  

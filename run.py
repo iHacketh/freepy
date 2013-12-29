@@ -17,7 +17,7 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-import logging
+from freepy.lib.server import start_server
 
-# Initialize application wide logging.
-logging.basicConfig(level = logging.DEBUG)
+# Start the application server!
+start_server()

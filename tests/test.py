@@ -22,14 +22,6 @@ from freepy.lib.esl import *
 from twisted.internet import reactor
 from unittest import TestCase, expectedFailure
 
-import logging
-
-# Initialize application wide logging.
-logging.basicConfig(level = logging.DEBUG)
-
 class EventSocketClientTests(TestCase):
   def test_successful_authentication(self):
-    # Start the test.
-    factory = EventSocketClientFactory(observer)
-    reactor.connectTCP('192.168.1.106', 8021, factory)
-    reactor.run()
+    
