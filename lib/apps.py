@@ -21,6 +21,9 @@ class ActorLifeCycleManager(object):
   def __init__(self):
     self.__actors__ = dict()
 
+  def __load_actor__(self):
+    pass
+
   def get_instance(self, key):
     actor, type = self.__actors__.get(key)
     return actor
