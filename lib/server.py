@@ -22,7 +22,7 @@ from freepy.lib.apps import *
 from freepy.lib.commands import *
 from freepy.lib.esl import *
 from freepy.lib.fsm import *
-from pykka import ActorRegistry, ThreadingActor
+from pykka import ThreadingActor
 
 import logging
 import re
@@ -98,7 +98,7 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
 
   @Action(state = 'done')
   def __cleanup__(self, message):
-    ActorRegistry.stop_all()
+    pass
 
   @Action(state = 'dispatching')
   def __dispatch__(self, message):

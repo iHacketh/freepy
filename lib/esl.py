@@ -28,6 +28,16 @@ except:
 
 import logging
 
+class IEventSocketClientObserver(object):
+  def on_event(self, event):
+    pass
+
+  def on_start(self, client):
+    pass
+
+  def on_stop(self):
+    pass
+
 class Event(object):
   def __init__(self, headers, body = None):
     self.__headers__ = headers
@@ -41,16 +51,6 @@ class Event(object):
 
   def get_headers(self):
     return self.__headers__
-
-class IEventSocketClientObserver(object):
-  def on_event(self, event):
-    pass
-
-  def on_start(self, client):
-    pass
-
-  def on_stop(self):
-    pass
 
 class EventSocketClient(Protocol):
   def __init__(self, observer):

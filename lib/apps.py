@@ -17,6 +17,8 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
+from pykka import ActorRegistry
+
 class ActorLifeCycleManager(object):
   def __init__(self):
     self.__actors__ = dict()
@@ -32,7 +34,7 @@ class ActorLifeCycleManager(object):
     actor, type = self.__actors__.get(key)
     return type
 
-  def register(self, key, actor, type = 'singleton'):
+  def register(self, key, actor, type = 'class'):
     if type == 'class':
       pass
     elif type == 'instance':
