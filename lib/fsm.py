@@ -56,7 +56,7 @@ class Action(object):
       or not type(state) == types.StringType \
       or len(state) == 0:
       raise FiniteStateMachineError('Please specify a valid action \
-       state attribute.\n Possible values are strings.')
+      state attribute.\n Possible values are strings.')
     else:
       function.__fsm_action_state__ = state
     if self.kwargs.has_key('on_enter'):
@@ -65,7 +65,7 @@ class Action(object):
         function.__fsm_action_on_enter__ = on_enter
       else:
         raise TypeError('Please specify a valid action on_enter \
-          attribute.\n Possible values are True or False.')
+        attribute.\n Possible values are True or False.')
     else:
       function.__fsm_action_on_enter__ = True
     if self.kwargs.has_key('on_exit'):
@@ -74,7 +74,7 @@ class Action(object):
         function.__fsm_action_on_exit__ = on_exit
       else:
         raise TypeError('Please specify a valid action on_exit \
-          attribute.\n Possible values are True or False.')
+        attribute.\n Possible values are True or False.')
     else:
       function.__fsm_action_on_exit__ = False
     function.__fsm_action__ = True
@@ -101,7 +101,7 @@ class Guard(object):
       or not type(state) == types.StringType \
       or len(state) == 0:
       raise TypeError('Please specify a valid guard state attribute.\n\
-        Possible values are strings.')
+      Possible values are strings.')
     else:
       function.__fsm_guard_state__ = state
     function.__fsm_guard__ = True
@@ -156,9 +156,9 @@ class FiniteStateMachine(object):
       state_name = action.__fsm_action_state__
       if state_name not in states:
         raise FiniteStateMachineError('A state named %s is not declared \
-          in the transitions list.\n Please add %s to the list of possible \
-          transitions or modify the @Action decorator on %s.' % (state_name, 
-          state_name, action.__name__))
+        in the transitions list.\n Please add %s to the list of possible \
+        transitions or modify the @Action decorator on %s.' % (state_name, 
+        state_name, action.__name__))
       state = state_map.get(state_name)
       on_enter = action.__fsm_action_on_enter__
       if not state.has_key('on_enter'):
@@ -166,28 +166,28 @@ class FiniteStateMachine(object):
           state.update({ 'on_enter': action })
       else:
         raise FiniteStateMachineError('The %s state can only have one \
-          action declared for on_enter.' % (state_name))
+        action declared for on_enter.' % (state_name))
       on_exit = action.__fsm_action_on_exit__
       if not state.has_key('on_exit'):
         if on_exit:
           state.update({ 'on_exit': action })
       else:
         raise FiniteStateMachineError('The %s state can only have one \
-          action declared for on_exit.' % (state_name))
+        action declared for on_exit.' % (state_name))
     # Attach guards to their states.
     for guard in guards:
       state_name = guard.__fsm_guard_state__
       if state_name not in states:
         raise FiniteStateMachineError('A state named %s is not declared \
-          in the transitions list.\n Please add %s to the list of possible \
-          transitions or modify the @Guard decorator on %s.' % (state_name,
-          state_name, guard.__name__))
+        in the transitions list.\n Please add %s to the list of possible \
+        transitions or modify the @Guard decorator on %s.' % (state_name,
+        state_name, guard.__name__))
       state = state_map.get(state_name)
       if not state.has_key('guard'):
         state.update({ 'guard': guard })
       else:
         raise FiniteStateMachineError('The %s state can only have one guard \
-          declared' % (state_name))
+        declared' % (state_name))
     return state_map
 
   def __get_actions__(self):
@@ -227,9 +227,9 @@ class FiniteStateMachine(object):
     # Make sure the user declared a set of possible transitions.
     if not self.transitions:
       raise FiniteStateMachineError('Please specify a list of possible \
-        transitions.\n Each entry in the list is a two-tuple where the \
-        first value is the beginning state and the second value is the \
-        end state.')
+      transitions.\n Each entry in the list is a two-tuple where the \
+      first value is the beginning state and the second value is the \
+      end state.')
     states = list()
     for begin, end in self.transitions:
       if begin not in states:
@@ -249,21 +249,21 @@ class FiniteStateMachine(object):
     transitions = self.__fsm_transition_table__.get(self.state)
     if not transitions:
       raise FiniteStateMachineError('The %s state is invalid, or we \
-        have entered a terminal state.' % (self.state))
+      have entered a terminal state.' % (self.state))
     # Try to find the desired transition.
     transition = transitions.get(to)
     if not transition:
       raise FiniteStateMachineError('The transition from %s to %s is \
-        invalid.' % (self.state, to))
+      invalid.' % (self.state, to))
     # If there are any guards lets execute those now.
     if transition.get('end_state').has_key('guard'):
       allowed = transition.get('end_state').get('guard')()
       if not type(allowed) == types.BooleanType:
         raise FiniteStateMachineError('A guard must only return True \
-          or False values.')
+        or False values.')
       if not allowed:
         raise FiniteStateMachineError('A guard declined the transition \
-          from %s to %s.' % (self.state, to))
+        from %s to %s.' % (self.state, to))
     # Try to execute the action associated with leaving the current state.
     if transition.get('beginning_state').has_key('on_exit'):
       transition.get('beginning_state').get('on_exit')(event)
