@@ -230,6 +230,9 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
 
 class FreepyServer():
   def __init__(self):
+    self.__logger__ = logging.getLogger('Freepy Server')
+
+  def __load_apps__(self):
     pass
 
   def __validate_rule__(self, rule):
@@ -245,20 +248,24 @@ class FreepyServer():
 
   def start():
     # Initialize application wide logging.
-    logging.basicConfig(level = logging.DEBUG)
+    logging.basicConfig(level = logger_level)
     # Validate the list of rules.
     for rule in dispatch_rules:
       if not self.__validate_rule__(rule):
         self.__logger__.critical('The rule %s is invalid.', str(rule))
         return
-    # Add the applications to the path and load them.
+    # Add the applications to the path.
     if apps_path not in sys.path:
       sys.path.append(apps_path)
+    # Load all the apps or log an error and return.
     self.__load_apps__()
-    # Start the reactor.
-    # address = freeswitch_host.get('address')
-    # port = freeswitch_host.get('port')
-    # factory = EventSocketClientFactory(observer)
-    # reactor.connectTCP(address, port, factory)
-    # reactor.run()
+    # Create a dispatcher thread.
+    dispatcher = Dispatcher()
+    dispatcher_proxy = DispatcherProxy(dispatcher)
+    # Create an event socket client factory and start the reactor.
+    address = freeswitch_host.get('address')
+    factory = EventSocketClientFactory(dispatcher_proxy)
+    port = freeswitch_host.get('port')
+    reactor.connectTCP(address, port, factory)
+    reactor.run()
   

@@ -16,9 +16,19 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
+from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
 
 # The path to the directory where the applications for Freepy are installed.
 apps_path = '/home/johndoe/freepy/apps'
+
+# The level of logging desired. The possible values are:
+#   CRITICAL
+#   ERROR
+#   WARNING
+#   INFO
+#   DEBUG
+#   NOTSET
+logger_level = DEBUG
 
 # The Event Socket configuration used to connect to FreeSWITCH.
 freeswitch_host = {
