@@ -37,7 +37,7 @@ class InitializeDispatcherEvent(object):
 class KillDispatcherEvent(object):
   pass
 
-class RegisterJobObserver(object):
+class RegisterJobObserverEvent(object):
   def __init__(self, observer, uuid):
     self.__observer__ = observer
     self.__uuid__ = uuid
@@ -48,7 +48,7 @@ class RegisterJobObserver(object):
   def get_uuid(self):
     return self.__uuid__
 
-class UnregisterJobObserver(object):
+class UnregisterJobObserverEvent(object):
   def __init__(self, uuid):
     self.__uuid__ = uuid
 
@@ -103,11 +103,11 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
     if message:
       if isinstance(message, BackgroundCommand):
         self.__dispatch_command__(message)
-      elif isinstance(message, RegisterJobObserver):
+      elif isinstance(message, RegisterJobObserverEvent):
         observer = message.get_observer()
         uuid = message.get_uuid()
         self.__observers__.update({uuid: observer})
-      elif isinstance(message, UnregisterJobObserver):
+      elif isinstance(message, UnregisterJobObserverEvent):
         uuid = message.get_uuid()
         del self.__observers__[uuid]
       else:
@@ -232,9 +232,9 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
         self.__on_event__(message)
     elif isinstance(message, BackgroundCommand):
       self.__on_command__(message)
-    elif isinstance(message, RegisterJobObserver):
+    elif isinstance(message, RegisterJobObserverEvent):
       self.__on_observer__(message)
-    elif isinstance(message, UnregisterJobObserver):
+    elif isinstance(message, UnregisterJobObserverEvent):
       self.__on_observer__(message)
     elif isinstance(message, InitializeDispatcherEvent):
       self.__on_init__(message)
