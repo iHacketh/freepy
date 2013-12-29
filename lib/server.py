@@ -59,6 +59,7 @@ class UnregisterJobObserverEvent(object):
 class DispatcherProxy(IEventSocketClientObserver):
   def __init__(self, dispatcher):
     self.__dispatcher__ = dispatcher
+    self.__dispatcher__.start()
 
   def on_event(self, event):
     self.__dispatcher__.tell(event)
