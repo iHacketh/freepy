@@ -140,13 +140,13 @@ class EventSocketClient(Protocol):
     return ''.join(line)
 
   def connectionLost(self, reason):
-    self.__buffer__ = None
-    self.__host__ = None
-    self.__peer__ = None
     self.__logger__.critical('A connection to the FreeSWITCH instance located @ %s:%i \
     has been lost due to the following reason.\n%s', self.__peer__.host, 
     self.__peer__.port, reason)
     self.__observer__.on_stop()
+    self.__buffer__ = None
+    self.__host__ = None
+    self.__peer__ = None
 
   def connectionMade(self):
     self.__buffer__ = StringIO()

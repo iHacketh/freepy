@@ -17,12 +17,13 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-from freepy.conf.settings import *
-from freepy.lib.apps import *
-from freepy.lib.commands import *
-from freepy.lib.esl import *
-from freepy.lib.fsm import *
+from conf.settings import *
+from lib.apps import *
+from lib.commands import *
+from lib.esl import *
+from lib.fsm import *
 from pykka import ThreadingActor
+from twisted.internet import reactor
 
 import logging
 import re
@@ -58,21 +59,20 @@ class UnregisterJobObserverEvent(object):
 
 class DispatcherProxy(IEventSocketClientObserver):
   def __init__(self, dispatcher):
-    self.__dispatcher__ = dispatcher
-    self.__dispatcher__.start()
+    self.__dispatcher__ = dispatcher.start()
 
   def on_event(self, event):
-    self.__dispatcher__.tell(event)
+    self.__dispatcher__.tell({'content': event})
 
   def on_start(self, client):
     event = InitializeDispatcherEvent(client)
-    self.__dispatcher__.tell(event)
+    self.__dispatcher__.tell({'content': event})
 
   def on_stop(self):
     event = KillDispatcherEvent()
-    self.__dispatcher__.tell(event)
+    self.__dispatcher__.tell({'content': event})
 
-class Dispatcher(ThreadingActor, FiniteStateMachine):
+class Dispatcher(FiniteStateMachine, ThreadingActor):
   state = 'not ready'
 
   transitions = [
@@ -85,7 +85,8 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
     ('dispatching', 'done')
   ]
 
-  def __init_(self):
+  def __init_(self, *args, **kwargs):
+    super(Dispatcher, self).__init__(*args, **kwargs)
     self.__logger__ = logging.getLogger('Dispatcher')
     self.__observers__ = dict()
     self.__transactions__ = dict()
@@ -126,13 +127,13 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
           else:
             self.__dispatch_incoming__(message)
 
-  def __dispatch_command__(self, command):
+  def __dispatch_command__(self, message):
     # Make sure we can route the response to the right actor.
-    uuid = command.get_uuid()
-    sender = command.get_sender()
+    uuid = message.get_uuid()
+    sender = message.get_sender()
     self.__transactions__.update({uuid: sender})
     # Send the command.
-    self.__client__.send(command)
+    self.__client__.send(message)
 
   def __dispatch_incoming__(self, message):
     headers = message.get_headers()
@@ -177,12 +178,12 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
     if self.state == 'not ready':
       self.transition(to = 'authenticating', event = message)
 
-  def __on_command__(self, command):
+  def __on_command__(self, message):
     if self.state == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
   def __on_command_reply__(self, message):
-    reply = message['event'].get_header('Reply-Text')
+    reply = message.get_header('Reply-Text')
     if self.state == 'authenticating':
       if reply == '+OK accepted':
         self.transition(to = 'initializing', event = message)
@@ -210,7 +211,11 @@ class Dispatcher(ThreadingActor, FiniteStateMachine):
       self.transition(to = 'dispatching', event = message)
 
   def on_receive(self, message):
-    if isinstace(message, Event):
+    # This ugly hack is necessary because all Pykka messages
+    # must be of type dict.
+    message = message.get('content')
+    # Handle the message.
+    if isinstance(message, Event):
       content_type = message.get_header('Content-Type')
       if content_type == 'auth/request':
         self.__on_auth__(message)
@@ -247,7 +252,7 @@ class FreepyServer():
     else:
       return True
 
-  def start():
+  def start(self):
     # Initialize application wide logging.
     logging.basicConfig(level = logger_level)
     # Validate the list of rules.

@@ -17,7 +17,7 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-from freepy.lib.server import FreepyServer
+from lib.server import FreepyServer
 
 def main():
   server = FreepyServer()

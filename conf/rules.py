@@ -23,11 +23,11 @@ dispatch_rules = [
     'header_name': 'Event-Name',
     'header_value': 'HEARTBEAT',
     'stateful': True,
-    'target': application.actor
+    'target': 'application.actor'
   },
   {
     'header_name': 'FreeSWITCH-Hostname',
     'header_pattern': 'Freeswitch.*',
-    'target': other.application.actor
+    'target': 'other.application.actor'
   }
 ]
