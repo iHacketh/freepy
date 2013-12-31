@@ -12,4 +12,6 @@ class Monitor(ThreadingActor):
     # Necessary because all pykka messages must be dicts.
     message = message.get('content')
     # Handle the message.
-    self.__logger__.info('The system has been up for %s', urllib.unquote(message.get_header('Up-Time')))
+    header = message.get_header('Up-Time')
+    uptime = urllib.unquote(header)
+    self.__logger__.info('The system has been up for %s', uptime)
