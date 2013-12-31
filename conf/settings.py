@@ -25,7 +25,8 @@ from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
 #   INFO
 #   DEBUG
 #   NOTSET
-logger_level = DEBUG
+logging_level = DEBUG
+logging_format = '%(asctime)s %(levelname)s %(name)s %(message)s'
 
 # The Event Socket configuration used to connect to FreeSWITCH.
 freeswitch_host = {

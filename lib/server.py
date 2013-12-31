@@ -30,8 +30,12 @@ import re
 import sys
 
 class InitializeDispatcherEvent(object):
-  def __init__(self, client):
+  def __init__(self, apps, client):
+    self.__apps__ = apps
     self.__client__ = client
+
+  def get_apps(self):
+    return self.__apps__
 
   def get_client(self):
     return self.__client__
@@ -58,14 +62,15 @@ class UnregisterJobObserverEvent(object):
     return self.__uuid__
 
 class DispatcherProxy(IEventSocketClientObserver):
-  def __init__(self, dispatcher):
+  def __init__(self, apps, dispatcher):
+    self.__apps__ = apps
     self.__dispatcher__ = dispatcher.start()
 
   def on_event(self, event):
     self.__dispatcher__.tell({'content': event})
 
   def on_start(self, client):
-    event = InitializeDispatcherEvent(client)
+    event = InitializeDispatcherEvent(self.__apps__, client)
     self.__dispatcher__.tell({'content': event})
 
   def on_stop(self):
@@ -99,7 +104,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
 
   @Action(state = 'done')
   def __cleanup__(self, message):
-    ActorRegistry.stop_all()
+    self.__apps__.shutdown()
+    self.stop()
 
   @Action(state = 'dispatching')
   def __dispatch__(self, message):
@@ -136,21 +142,23 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     self.__client__.send(message)
 
   def __dispatch_incoming__(self, message):
+    self.__logger__.info('FUCK!')
     headers = message.get_headers()
     for rule in dispatch_rules:
+      target = rule.get('target')
       name = rule.get('header_name')
       header = headers.get(name)
       if not header:
         continue
       value = rule.get('header_value')
       if value and header == value:
-        rule.get('target').tell(message)
+        self.__apps__.get_intance(target).tell(message)
         return
       pattern = rule.get('header_pattern')
       if pattern:
         match = re.search(pattern, header)
         if match:
-          rule.get('target').tell(message)
+          self.__apps__.get_intance(target).tell(message)
           return
     self.__logger__.info('No route was defined for the following message.\n \
     %s\n%s', str(message.get_headers()), str(message.get_body()))
@@ -200,6 +208,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       self.transition(to = 'dispatching', event = message)
 
   def __on_init__(self, message):
+    self.__apps__ = message.get_apps()
     self.__client__ = message.get_client()
 
   def __on_kill__(self, message):
@@ -262,7 +271,7 @@ class FreepyServer(object):
 
   def start(self):
     # Initialize application wide logging.
-    logging.basicConfig(level = logger_level)
+    logging.basicConfig(format = logging_format, level = logging_level)
     # Validate the list of rules.
     for rule in dispatch_rules:
       if not self.__validate_rule__(rule):
@@ -272,11 +281,14 @@ class FreepyServer(object):
     apps = self.__load_apps_factory__()
     # Create a dispatcher thread.
     dispatcher = Dispatcher()
-    dispatcher_proxy = DispatcherProxy(dispatcher)
+    dispatcher_proxy = DispatcherProxy(apps, dispatcher)
     # Create an event socket client factory and start the reactor.
     address = freeswitch_host.get('address')
     port = freeswitch_host.get('port')
     factory = EventSocketClientFactory(dispatcher_proxy)
     reactor.connectTCP(address, port, factory)
     reactor.run()
+
+  def stop(self):
+    ActorRegistry.stop_all()
   

@@ -71,5 +71,10 @@ class ApplicationFactory(object):
         singleton.stop()
         del self.__singletons__[name]
 
+  def shutdown(self):
+    names = self.__singletons__.keys()
+    for name in names:
+      self.unregister(name) 
+
 class TimerService(object):
   pass
