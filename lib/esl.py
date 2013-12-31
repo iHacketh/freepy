@@ -86,7 +86,7 @@ class EventSocketClient(Protocol):
         end = self.__buffer__.tell()
         remaining = end - offset
         # Handle the event body.
-        if length <= remaining:
+        if int(length) <= remaining:
           self.__buffer__.seek(offset)
           type = headers.get('Content-Type')
           if type and type == 'text/event-plain':

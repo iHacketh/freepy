@@ -142,7 +142,6 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     self.__client__.send(message)
 
   def __dispatch_incoming__(self, message):
-    self.__logger__.info('FUCK!')
     headers = message.get_headers()
     for rule in dispatch_rules:
       target = rule.get('target')
@@ -152,13 +151,13 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         continue
       value = rule.get('header_value')
       if value and header == value:
-        self.__apps__.get_intance(target).tell(message)
+        self.__apps__.get_instance(target).tell({'content': message})
         return
       pattern = rule.get('header_pattern')
       if pattern:
         match = re.search(pattern, header)
         if match:
-          self.__apps__.get_intance(target).tell(message)
+          self.__apps__.get_intance(target).tell({'content': message})
           return
     self.__logger__.info('No route was defined for the following message.\n \
     %s\n%s', str(message.get_headers()), str(message.get_body()))
@@ -167,13 +166,13 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     recipient = self.__observers__.get(uuid)
     if recipient:
       del self.__observers__[uuid]
-      recipient.tell(message)
+      recipient.tell({'content': message})
 
   def __dispatch_response__(self, uuid, message):
     recipient = self.__transactions__.get(uuid)
     if recipient:
       del self.__transactions__[uuid]
-      recipient.tell(message)
+      recipient.tell({'content': message})
 
   @Action(state = 'initializing')
   def __initialize__(self, message):
