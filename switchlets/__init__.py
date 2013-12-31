@@ -16,33 +16,3 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
-
-from pykka import ActorRegistry
-
-class ActorLifeCycleManager(object):
-  def __init__(self):
-    self.__actors__ = dict()
-
-  def __load_actor__(self):
-    return None
-
-  def get_instance(self, key):
-    actor, type = self.__actors__.get(key)
-    return actor
-
-  def get_type(self, key):
-    actor, type = self.__actors__.get(key)
-    return type
-
-  def register(self, key, actor, type = 'class'):
-    if type == 'class':
-      pass
-    elif type == 'instance':
-      pass
-    elif type == 'producer':
-      pass
-    elif type == 'singleton':
-      pass
-
-  def unregister(self, key):
-    pass

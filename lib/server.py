@@ -18,11 +18,11 @@
 # Thomas Quintana <quintana.thomas@gmail.com>
 
 from conf.settings import *
-from lib.apps import *
 from lib.commands import *
 from lib.esl import *
 from lib.fsm import *
-from pykka import ThreadingActor
+from lib.services import *
+from pykka import ActorRegistry, ThreadingActor
 from twisted.internet import reactor
 
 import logging
@@ -99,7 +99,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
 
   @Action(state = 'done')
   def __cleanup__(self, message):
-    pass
+    ActorRegistry.stop_all()
 
   @Action(state = 'dispatching')
   def __dispatch__(self, message):
@@ -211,7 +211,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       self.transition(to = 'dispatching', event = message)
 
   def on_receive(self, message):
-    # This ugly hack is necessary because all Pykka messages
+    # This is necessary because all Pykka messages
     # must be of type dict.
     message = message.get('content')
     # Handle the message.
@@ -234,12 +234,20 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     elif isinstance(message, KillDispatcherEvent):
       self.__on_kill__(message)
 
-class FreepyServer():
-  def __init__(self):
+class FreepyServer(object):
+  def __init__(self, *args, **kwargs):
     self.__logger__ = logging.getLogger('Freepy Server')
 
-  def __load_apps__(self):
-    pass
+  def __load_apps_factory__(self):
+    factory = ApplicationFactory()
+    for rule in dispatch_rules:
+      target = rule.get('target')
+      persistent = rule.get('persistent')
+      if not persistent:
+        factory.register(target, type = 'class')
+      else:
+        factory.register(target, type = 'singleton')
+    return factory
 
   def __validate_rule__(self, rule):
     name = rule.get('header_name')
@@ -260,11 +268,8 @@ class FreepyServer():
       if not self.__validate_rule__(rule):
         self.__logger__.critical('The rule %s is invalid.', str(rule))
         return
-    # Add the applications to the path.
-    if apps_path not in sys.path:
-      sys.path.append(apps_path)
     # Load all the apps or log an error and return.
-    self.__load_apps__()
+    apps = self.__load_apps_factory__()
     # Create a dispatcher thread.
     dispatcher = Dispatcher()
     dispatcher_proxy = DispatcherProxy(dispatcher)
