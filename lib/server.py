@@ -276,7 +276,7 @@ class FreepyServer(object):
       if not self.__validate_rule__(rule):
         self.__logger__.critical('The rule %s is invalid.', str(rule))
         return
-    # Load all the apps or log an error and return.
+    # Load all the apps.
     apps = self.__load_apps_factory__()
     # Create a dispatcher thread.
     dispatcher = Dispatcher()

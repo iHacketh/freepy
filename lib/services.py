@@ -53,7 +53,9 @@ class ApplicationFactory(object):
 
   def register(self, name, type = 'class'):
     if self.__contains_name__(name):
-      raise ValueError("Names must be unique across classes and singletons.")
+      raise ValueError("Names must be unique across classes and singletons.\n\
+      %s already exists please choose a different name and try again.",
+      name)
     klass = self.__get_klass__(name)
     if type == 'class':
       self.__classes__.update({name: klass})
@@ -72,6 +74,7 @@ class ApplicationFactory(object):
         del self.__singletons__[name]
 
   def shutdown(self):
+    # Cleanup the singletons being managed.
     names = self.__singletons__.keys()
     for name in names:
       self.unregister(name) 
