@@ -29,6 +29,26 @@ import logging
 import re
 import sys
 
+# Commands used only by the Freepy server.
+class AuthCommand(object):
+  def __init__(self, password):
+    self.__password__ = password
+
+  def __str__(self):
+    return 'auth %s\n\n' % (self.__password__)
+
+class EventsCommand(object):
+  def __init__ (self, events, format = 'plain'):
+    if(not format == 'json' and not format == 'plain' and not format == 'xml'):
+      raise ValueError('The FreeSWITCH event socket only supports the \
+        following formats: json, plain, xml')
+    self.__events__ = events
+    self.__format__ = format
+
+  def __str__(self):
+    return 'event %s %s\n\n' % (self.__format__, ' '.join(self.__events__))
+
+# Events used only between the Dispatcher and the Dispatcher Proxy.
 class InitializeDispatcherEvent(object):
   def __init__(self, apps, client):
     self.__apps__ = apps
@@ -60,6 +80,63 @@ class UnregisterJobObserverEvent(object):
 
   def get_uuid(self):
     return self.__uuid__
+
+# The Core server components.
+class ApplicationFactory(object):
+  def __init__(self):
+    self.__classes__ = dict()
+    self.__singletons__ = dict()
+
+  def __contains_name__(self, name):
+    if self.__classes__.has_key(name) or self.__singletons__.has_key(name):
+      return True
+    return False
+
+  def __get_klass__(self, name):
+    module = sys.modules.get(name)
+    if not module:
+      separator = name.rfind('.')
+      path = name[:separator]
+      klass = name[separator + 1:]
+      module = __import__(path, globals(), locals(), [klass], -1)
+      return getattr(module, klass)
+
+  def get_instance(self, name):
+    klass = self.__classes__.get(name)
+    if klass:
+      instance = klass().start()
+      return instance
+    else:
+      instance = self.__singletons__.get(name)
+      return instance
+
+  def register(self, name, type = 'class'):
+    if self.__contains_name__(name):
+      raise ValueError("Names must be unique across classes and singletons.\n\
+      %s already exists please choose a different name and try again.",
+      name)
+    klass = self.__get_klass__(name)
+    if type == 'class':
+      self.__classes__.update({name: klass})
+    if type == 'singleton':
+      singleton = klass.start()
+      self.__singletons__.update({name: singleton})
+
+  def unregister(self, name):
+    klass = self.__classes__.get(name)
+    if klass:
+      del self.__classes__[name]
+    else:
+      singleton = self.__singletons__.get(name)
+      if singleton:
+        singleton.stop()
+        del self.__singletons__[name]
+
+  def shutdown(self):
+    # Cleanup the singletons being managed.
+    names = self.__singletons__.keys()
+    for name in names:
+      self.unregister(name) 
 
 class DispatcherProxy(IEventSocketClientObserver):
   def __init__(self, apps, dispatcher):
