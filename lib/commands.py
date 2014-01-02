@@ -26,8 +26,7 @@ except:
   from StringIO import StringIO
 
 class BackgroundCommand(object):
-  def __init__(self, sender, *args, **kwargs):
-    super(BackgroundCommand, self).__init__(*args, **kwargs)
+  def __init__(self, sender):
     self.__sender__ = sender
     self.__job_uuid__ = uuid4().bytes
 
@@ -39,11 +38,51 @@ class BackgroundCommand(object):
 
 class UUIDCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
-    super(PauseCommand, self).__init__(*args, **kwargs)
+    super(UUIDCommand, self).__init__(*args, **kwargs)
     self.__uuid__ = kwargs.get('uuid')
+    if not self.__uuid__:
+      raise ValueError('The value of uuid must be a valid UUID.')
 
   def get_uuid(self):
     return self.__uuid__
+
+class AnswerCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(AnswerCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'uuid_answer %s' % self.__uuid__
+
+class BreakCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(BreakCommand, self).__init__(*args, **kwargs)
+    self.__stop_all__ = kwargs.get('all', default = False)
+
+  def __str__(self):
+    if not self.__stop_all__:
+      return 'uuid_break %s' % self.__uuid__
+    else:
+      return 'uuid_break %s all' % self.__uuid__
+
+class BridgeCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(BridgeCommand, self).__init__(*args, **kwargs)
+    self.__other_uuid__ = kwargs.get('other_uuid')
+    if not self.__other_uuid__:
+      raise ValueError('The value of other_uuid must be a valid UUID.')
+
+  def __str__(self):
+    return 'uuid_bridge %s %s' % (self.__uuid__, self.__other_uuid__)
+
+class BroadcastCommand(UUIDCommand):
+  pass
+
+class GetAudioLevelCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetAudioLevelCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'uuid_audio %s start read level' % self.__uuid__
 
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
@@ -96,10 +135,21 @@ class PauseCommand(UUIDCommand):
   def __str__(self):
     return 'pause %s on' % self.__uuid__
 
+class SetAudioLevelCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetAudioLevelCommand, self).__init__(*args, **kwargs)
+    self.__audio_level__ = kwargs.get('level')
+    if not self.__audio_level__ or self.__audio_level__ < -4.0 or \
+      self.__audio_level__ > 4.0:
+    raise ValueError('The level value %s is invalid.' % self.__audio_level__)
+
+  def __str__(self):
+    return 'uuid_audio %s start write level %i' % (self.__uuid__,
+      self.__audio_level__)
+
 class UnpauseCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(UnpauseCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
     return 'pause %s off' % self.__uuid__
-
