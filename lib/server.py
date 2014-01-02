@@ -66,20 +66,20 @@ class KillDispatcherEvent(object):
 class RegisterJobObserverEvent(object):
   def __init__(self, observer, uuid):
     self.__observer__ = observer
-    self.__uuid__ = uuid
+    self.__job_uuid__ = uuid
+
+  def get_job_uuid(self):
+    return self.__job_uuid__
 
   def get_observer(self):
     return self.__observer__
 
-  def get_uuid(self):
-    return self.__uuid__
-
 class UnregisterJobObserverEvent(object):
   def __init__(self, uuid):
-    self.__uuid__ = uuid
+    self.__job_uuid__ = uuid
 
-  def get_uuid(self):
-    return self.__uuid__
+  def get_job_uuid(self):
+    return self.__job_uuid__
 
 # The Core server components.
 class ApplicationFactory(object):
@@ -191,10 +191,10 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         self.__dispatch_command__(message)
       elif isinstance(message, RegisterJobObserverEvent):
         observer = message.get_observer()
-        uuid = message.get_uuid()
+        uuid = message.get_job_uuid()
         self.__observers__.update({uuid: observer})
       elif isinstance(message, UnregisterJobObserverEvent):
-        uuid = message.get_uuid()
+        uuid = message.get_job_uuid()
         del self.__observers__[uuid]
       else:
         headers = message.get_headers()
@@ -212,7 +212,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
 
   def __dispatch_command__(self, message):
     # Make sure we can route the response to the right actor.
-    uuid = message.get_uuid()
+    uuid = message.get_job_uuid()
     sender = message.get_sender()
     self.__transactions__.update({uuid: sender})
     # Send the command.

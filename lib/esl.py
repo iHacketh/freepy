@@ -144,6 +144,8 @@ class EventSocketClient(Protocol):
     has been lost due to the following reason.\n%s', self.__peer__.host, 
     self.__peer__.port, reason)
     self.__observer__.on_stop()
+    if self.__buffer__:
+      self.__buffer__.close()
     self.__buffer__ = None
     self.__host__ = None
     self.__peer__ = None
