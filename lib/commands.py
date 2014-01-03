@@ -51,7 +51,7 @@ class AnswerCommand(UUIDCommand):
     super(AnswerCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_answer %s' % self.__uuid__
+    return 'bgapi uuid_answer %s\n\n' % self.__uuid__
 
 class BreakCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -60,9 +60,9 @@ class BreakCommand(UUIDCommand):
 
   def __str__(self):
     if not self.__stop_all__:
-      return 'bgapi uuid_break %s' % self.__uuid__
+      return 'bgapi uuid_break %s\n\n' % self.__uuid__
     else:
-      return 'bgapi uuid_break %s all' % self.__uuid__
+      return 'bgapi uuid_break %s all\n\n' % self.__uuid__
 
 class BridgeCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -72,7 +72,7 @@ class BridgeCommand(UUIDCommand):
       raise ValueError('The value of other_uuid must be a valid UUID.')
 
   def __str__(self):
-    return 'bgapi uuid_bridge %s %s' % (self.__uuid__, self.__other_uuid__)
+    return 'bgapi uuid_bridge %s %s\n\n' % (self.__uuid__, self.__other_uuid__)
 
 class BroadcastCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -92,7 +92,7 @@ class BroadcastCommand(UUIDCommand):
       buffer.write('%s ' % self.__path__)
     else:
       buffer.write('%s::%s ' % (self.__app_name__, self.__app_args__)
-    buffer.write('%s' % self.__leg__)
+    buffer.write('%s\n\n' % self.__leg__)
     try:
       return buffer.getvalue()
     finally:
@@ -103,7 +103,14 @@ class GetAudioLevelCommand(UUIDCommand):
     super(GetAudioLevelCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_audio %s start read level' % self.__uuid__
+    return 'bgapi uuid_audio %s start read level\n\n' % self.__uuid__
+
+class GetBugListCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetBugListCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_buglist %s\n\n' % self.__uuid__
 
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
@@ -144,6 +151,7 @@ class OriginateCommand(BackgroundCommand):
     else:
       buffer.write('&%s(%s)' % (self.__app_name__,
         ' '.join(self.__app_args__)))
+    buffer.write('\n\n')
     try:
       return buffer.getvalue()
     finally:
@@ -154,7 +162,7 @@ class PauseCommand(UUIDCommand):
     super(PauseCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi pause %s on' % self.__uuid__
+    return 'bgapi pause %s on\n\n' % self.__uuid__
 
 class SetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -165,7 +173,7 @@ class SetAudioLevelCommand(UUIDCommand):
     raise ValueError('The level value %s is invalid.' % self.__audio_level__)
 
   def __str__(self):
-    return 'bgapi uuid_audio %s start write level %f' % (self.__uuid__,
+    return 'bgapi uuid_audio %s start write level %f\n\n' % (self.__uuid__,
       self.__audio_level__)
 
 class UnpauseCommand(UUIDCommand):
@@ -173,4 +181,4 @@ class UnpauseCommand(UUIDCommand):
     super(UnpauseCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi pause %s off' % self.__uuid__
+    return 'bgapi pause %s off\n\n' % self.__uuid__
