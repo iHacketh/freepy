@@ -58,6 +58,9 @@ class BreakCommand(UUIDCommand):
     super(BreakCommand, self).__init__(*args, **kwargs)
     self.__stop_all__ = kwargs.get('all', default = False)
 
+  def stop_all(self):
+    return self.__stop_all__
+
   def __str__(self):
     if not self.__stop_all__:
       return 'bgapi uuid_break %s\n\n' % self.__uuid__
@@ -70,6 +73,9 @@ class BridgeCommand(UUIDCommand):
     self.__other_uuid__ = kwargs.get('other_uuid')
     if not self.__other_uuid__:
       raise ValueError('The value of other_uuid must be a valid UUID.')
+
+  def get_other_uuid(self):
+    return self.__other_uuid__
 
   def __str__(self):
     return 'bgapi uuid_bridge %s %s\n\n' % (self.__uuid__, self.__other_uuid__)
@@ -84,6 +90,21 @@ class BroadcastCommand(UUIDCommand):
     self.__path__ = kwargs.get('path')
     self.__app_name__ = kwargs.get('app_name')
     self.__app_args__ = kwargs.get('app_args')
+    if self.__path__ and self.__app_name__:
+      raise RuntimeError('A broadcase command can specify either a path \
+      or an app_name but not both.')
+
+  def get_leg(self):
+    return self.__leg__
+
+  def get_path(self):
+    return self.__path__
+
+  def get_app_name(self):
+    return self.__app_name__
+
+  def get_app_args(self):
+    return self.__app_args__
 
   def __str__(self):
     buffer = StringIO()
@@ -91,12 +112,24 @@ class BroadcastCommand(UUIDCommand):
     if self.__path__:
       buffer.write('%s ' % self.__path__)
     else:
-      buffer.write('%s::%s ' % (self.__app_name__, self.__app_args__)
+      buffer.write('%s::%s ' % (self.__app_name__, self.__app_args__))
     buffer.write('%s\n\n' % self.__leg__)
     try:
       return buffer.getvalue()
     finally:
       buffer.close()
+
+class ChatCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(ChatCommand, self).__init__(*args, **kwargs)
+    self.__text__ = kwargs.get('text', default = '')
+
+  def get_text(self):
+    return self.__text__
+
+  def __str__(self):
+    return 'bgapi uuid_chat %s %s\n\n' % (self.__uuid__,
+      self.__text__)
 
 class GetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -170,7 +203,10 @@ class SetAudioLevelCommand(UUIDCommand):
     self.__audio_level__ = kwargs.get('level')
     if not self.__audio_level__ or self.__audio_level__ < -4.0 or \
       self.__audio_level__ > 4.0:
-    raise ValueError('The level value %s is invalid.' % self.__audio_level__)
+      raise ValueError('The level value %s is invalid.' % self.__audio_level__)
+
+  def get_level(self):
+    return self.__audio_level__
 
   def __str__(self):
     return 'bgapi uuid_audio %s start write level %f\n\n' % (self.__uuid__,
