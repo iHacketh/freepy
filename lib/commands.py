@@ -224,6 +224,31 @@ class EarlyOkayCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_early_ok %s\n\n' % self.__uuid__
 
+class FileManagerCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(FileManagerCommand, self).__init__(*args, **kwargs)
+    self.__command__ = kwargs.get('command')
+    if not self.__command__ or not self.__command__ == 'speed' and \
+      not self.__command__ == 'volume' and not self.__command__ == 'pause' and \
+      not self.__command__ == 'stop' and not self.__command__ == 'truncate' and \
+      not self.__command__ == 'restart' and not self.__command__ == 'seek':
+      raise ValueError('The command parameter %s is invalid.' % self.__command__)
+    self.__value__ = kwargs.get('value')
+
+  def get_command(self):
+    return self.__command__
+
+  def get_value(self):
+    return self.__value__
+
+  def __str__(self):
+    if self.__value__:
+      return 'bgapi uuid_fileman %s %s:%s\n\n' % (self.__uuid__,
+        self.__command__, self.__value__)
+    else:
+      return 'bgapi uuid_fileman %s %s\n\n' % (self.__uuid__,
+        self.__command__)
+
 class FlushDTMFCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(FlushDTMFCommand, self).__init__(*args, **kwargs)
@@ -244,6 +269,30 @@ class GetBugListCommand(UUIDCommand):
 
   def __str__(self):
     return 'bgapi uuid_buglist %s\n\n' % self.__uuid__
+
+class GetVariableCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetVariableCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+    if not self.__name__:
+      raise ValueError('The name parameter %s is invalid.' % self.__name__)
+
+  def get_name(self):
+    return self.__name__
+
+  def __str__(self):
+    return 'bgapi uuid_getvar %s %s\n\n' % (self.__uuid__,
+      self.__name__)
+
+class HoldCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(HoldCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_hold %s\n\n' % self.__uuid__
+
+class KillCommand(UUIDCommand):
+  pass
 
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
@@ -370,6 +419,13 @@ class StopDisplaceCommand(UUIDCommand):
 
   def __str__(self):
     return 'bgapi uuid_displace %s stop\n\n' % self.__uuid__
+
+class UnholdCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(UnholdCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_hold off %s\n\n' % self.__uuid__
 
 class UnpauseCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
