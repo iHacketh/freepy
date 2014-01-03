@@ -19,12 +19,16 @@ class Monitor(ThreadingActor):
     # If we are being initialized store the reference to the dispatcher.
     if isinstance(message, InitializeSwitchletEvent):
       self.__dispatcher__ = message.get_dispatcher()
-    else:
-      # Handle the message.
-      self.__logger__.info('%s', self)
-      header = message.get_header('Up-Time')
-      uptime = urllib.unquote(header)
-      self.__logger__.info('The system has been up for %s', uptime)
-      # Send a status command.
-      command = StatusCommand(self)
-      self.__dispatcher__.tell({'content': command})
+    elif isinstance(message, Event):
+      content_type = message.get_header('Content-Type')
+      if content_type == 'command/reply':
+        print 'FUCK!'
+      elif content_type == 'text/event-plain':
+        # Handle the message.
+        self.__logger__.info('%s', self)
+        header = message.get_header('Up-Time')
+        uptime = urllib.unquote(header)
+        self.__logger__.info('The system has been up for %s', uptime)
+        # Send a status command.
+        command = StatusCommand(self)
+        self.__dispatcher__.tell({'content': command})

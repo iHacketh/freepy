@@ -28,7 +28,7 @@ except:
 class BackgroundCommand(object):
   def __init__(self, sender):
     self.__sender__ = sender
-    self.__job_uuid__ = uuid4().bytes
+    self.__job_uuid__ = uuid4().get_urn().split(':', 2)[2]
 
   def get_job_uuid(self):
     return self.__job_uuid__
@@ -408,7 +408,8 @@ class StartDisplaceCommand(UUIDCommand):
 
 class StatusCommand(BackgroundCommand):
   def __str__(self):
-    return 'bgapi status\n\n'
+    return 'bgapi status\n\
+            Job-UUID: %s\n\n' % self.get_job_uuid()
 
 class StopDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
