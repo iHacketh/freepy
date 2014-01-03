@@ -131,6 +131,15 @@ class ChatCommand(UUIDCommand):
     return 'bgapi uuid_chat %s %s\n\n' % (self.__uuid__,
       self.__text__)
 
+class DeflectCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(DeflectCommand, self).__init__(*args, **kwargs)
+    self.__url__ = kwargs.get('url')
+
+  def __str__(self):
+    return 'bgapi uuid_deflect %s %s\n\n' % (self.__uuid__,
+      self.__url__)
+
 class GetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(GetAudioLevelCommand, self).__init__(*args, **kwargs)
@@ -214,6 +223,50 @@ class SetAudioLevelCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_audio %s start write level %f\n\n' % (self.__uuid__,
       self.__audio_level__)
+
+class StartDebugMediaCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(StartDebugMediaCommand, self).__init__(*args, **kwargs)
+    self.__option__ = kwargs.get('option')
+
+  def __str__(self):
+    return 'bgapi uuid_debug_media %s %s on\n\n' % (self.__uuid__,
+      self.__option__)
+
+class StartDisplaceCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(StartDisplaceCommand, self).__init__(*args, **kwargs)
+    self.__path__ = kwargs.get('path')
+    self.__limit__ = kwargs.get('limit')
+    self.__mux__ = kwargs.get('mux')
+
+  def __str__(self):
+    buffer = StringIO()
+    buffer.write('bgapi uuid_displace %s start %s' % (self.__uuid__,
+      self.__path__))
+    if self.__limit__:
+      buffer.write(' %i' % self.__limit__)
+    if self.__mux__:
+      buffer.write(' mux')
+    buffer.write('\n\n')
+    try:
+      return buffer.getvalue()
+    finally:
+      buffer.close()
+
+class StopDebugMediaCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(StopDebugMediaCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_debug_media %s off\n\n' % (self.__uuid__)
+
+class StopDisplaceCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(StopDisplaceCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_displace %s stop\n\n' % self.__uuid__
 
 class UnpauseCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
