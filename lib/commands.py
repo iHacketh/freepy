@@ -136,9 +136,100 @@ class DeflectCommand(UUIDCommand):
     super(DeflectCommand, self).__init__(*args, **kwargs)
     self.__url__ = kwargs.get('url')
 
+  def get_url(self):
+    return self.__url__
+
   def __str__(self):
     return 'bgapi uuid_deflect %s %s\n\n' % (self.__uuid__,
       self.__url__)
+
+class DisplayCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(DisplayCommand, self).__init__(*args, **kwargs)
+    self.__display__ = kwargs.get('display')
+
+    def get_display(self):
+      return self.__display__
+
+  def __str__(self):
+    return 'bgapi uuid_display %s %s\n\n' % (self.__uuid__,
+      self.__display__)
+
+class DualTransferCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(DualTransferCommand, self).__init__(*args, **kwargs)
+    self.__extension_a__ = kwargs.get('extension_a')
+    self.__extension_b__ = kwargs.get('extension_b')
+    self.__dialplan_a__ = kwargs.get('dialplan_a')
+    self.__dialplan_b__ = kwargs.get('dialplan_b')
+    self.__context_a__ = kwargs.get('context_a')
+    self.__context_b__ = kwargs.get('context_b')
+    if not self.__extension_a__ or not self.__extension_b__:
+      raise RuntimeError('A dual transer command requires the extension_a \
+        and extension_b parameters to be provided.')
+
+  def get_extension_a(self):
+    return self.__extension_a__
+
+  def get_extension_b(self):
+    return self.__extension_b__
+
+  def get_dialplan_a(self):
+    return self.__dialplan_a__
+
+  def get_dialplan_b(self):
+    return self.__dialplan_b__
+
+  def get_context_a(self):
+    return self.__context_a__
+
+  def get_context_b(self):
+    return self.__context_b__
+
+  def __str__(self):
+    buffer = StringIO()
+    buffer.write(self.__extension_a__)
+    if self.__dialplan_a__:
+      buffer.write('/%s' % self.__dialplan_a__)
+    if self.__context_a__:
+      buffer.write('/%s' % self.__context_a__)
+    destination_a = buffer.getvalue()
+    buffer.seek(0)
+    buffer.write(self.__extension_b__)
+    if self.__dialplan_b__:
+      buffer.write('/%s' % self.__dialplan_b__)
+    if self.__context_b__:
+      buffer.write('/%s' % self.__context_b__)
+    destination_b = buffer.getvalue()
+    buffer.close()
+    return 'bgapi uuid_dual_transfer %s %s %s\n\n' % (self.__uuid__,
+      destination_a, destination_b)
+
+class DumpCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(DumpCommand, self).__init__(*args, **kwargs)
+    self.__format__ = kwargs.get('format', default = 'XML')
+
+  def get_format(self):
+    return self.__format__
+
+  def __str__(self):
+    return 'bgapi uuid_dump %s %s\n\n' % (self.__uuid__,
+      self.__format__)
+
+class EarlyOkayCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(EarlyOkayCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_early_ok %s\n\n' % self.__uuid__
+
+class FlushDTMFCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(FlushDTMFCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_flush_dtmf %s\n\n' % self.__uuid__
 
 class GetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -229,6 +320,9 @@ class StartDebugMediaCommand(UUIDCommand):
     super(StartDebugMediaCommand, self).__init__(*args, **kwargs)
     self.__option__ = kwargs.get('option')
 
+  def get_option(self):
+    return self.__option__
+
   def __str__(self):
     return 'bgapi uuid_debug_media %s %s on\n\n' % (self.__uuid__,
       self.__option__)
@@ -239,6 +333,15 @@ class StartDisplaceCommand(UUIDCommand):
     self.__path__ = kwargs.get('path')
     self.__limit__ = kwargs.get('limit')
     self.__mux__ = kwargs.get('mux')
+
+  def get_limit(self):
+    return self.__limit__
+
+  def get_mux(self):
+    return self.__mux__
+
+  def get_path(self):
+    return self.__path__
 
   def __str__(self):
     buffer = StringIO()
