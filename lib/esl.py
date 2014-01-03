@@ -54,7 +54,7 @@ class Event(object):
 
 class EventSocketClient(Protocol):
   def __init__(self, observer):
-    self.__logger__ = logging.getLogger('Event Socket Client')
+    self.__logger__ = logging.getLogger('freepy.lib.esl.eventsocketclient')
     # Data buffer.
     self.__buffer__ = None
     # Client state.
@@ -174,7 +174,7 @@ class EventSocketClient(Protocol):
 
 class EventSocketClientFactory(ReconnectingClientFactory):
   def __init__(self, observer):
-    self.__logger__ = logging.getLogger('Event Socket Client Factory')
+    self.__logger__ = logging.getLogger('freepy.lib.esl.eventsocketclientfactory')
     self.__observer__ = observer
 
   def buildProtocol(self, addr):

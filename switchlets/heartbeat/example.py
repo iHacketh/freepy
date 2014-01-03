@@ -1,4 +1,6 @@
+from lib.commands import *
 from lib.events import *
+from lib.server import *
 from pykka import ThreadingActor
 
 import logging
@@ -19,7 +21,10 @@ class Monitor(ThreadingActor):
       self.__dispatcher__ = message.get_dispatcher()
     else:
       # Handle the message.
+      self.__logger__.info('%s', self)
       header = message.get_header('Up-Time')
       uptime = urllib.unquote(header)
       self.__logger__.info('The system has been up for %s', uptime)
-      self.__logger__.info('%s', self)
+      # Send a status command.
+      command = StatusCommand(self)
+      self.__dispatcher__.tell({'content': command})

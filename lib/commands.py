@@ -406,6 +406,10 @@ class StartDisplaceCommand(UUIDCommand):
     finally:
       buffer.close()
 
+class StatusCommand(BackgroundCommand):
+  def __str__(self):
+    return 'bgapi status\n\n'
+
 class StopDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(StopDebugMediaCommand, self).__init__(*args, **kwargs)

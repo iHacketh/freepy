@@ -145,7 +145,7 @@ class ApplicationFactory(object):
 class DispatcherProxy(IEventSocketClientObserver):
   def __init__(self, apps, dispatcher):
     self.__apps__ = apps
-    self.__dispatcher__ = dispatcher.start()
+    self.__dispatcher__ = dispatcher
 
   def on_event(self, event):
     self.__dispatcher__.tell({'content': event})
@@ -171,9 +171,9 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     ('dispatching', 'done')
   ]
 
-  def __init_(self, *args, **kwargs):
+  def __init__(self, *args, **kwargs):
     super(Dispatcher, self).__init__(*args, **kwargs)
-    self.__logger__ = logging.getLogger('Dispatcher')
+    self.__logger__ = logging.getLogger('freepy.lib.server.dispatcher')
     self.__observers__ = dict()
     self.__transactions__ = dict()
 
@@ -358,7 +358,7 @@ class FreepyServer(object):
         self.__logger__.critical('The rule %s is invalid.', str(rule))
         return
     # Create a dispatcher thread.
-    dispatcher = Dispatcher()
+    dispatcher = Dispatcher().start()
     # Load all the apps.
     apps = self.__load_apps_factory__(dispatcher)
     # Create the proxy between the event socket client and the dispatcher.
