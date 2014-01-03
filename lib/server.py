@@ -20,6 +20,7 @@
 from conf.settings import *
 from lib.commands import *
 from lib.esl import *
+from lib.events import *
 from lib.fsm import *
 from lib.services import *
 from pykka import ActorRegistry, ThreadingActor
@@ -83,9 +84,10 @@ class UnregisterJobObserverEvent(object):
 
 # The Core server components.
 class ApplicationFactory(object):
-  def __init__(self):
+  def __init__(self, dispatcher):
     self.__classes__ = dict()
     self.__singletons__ = dict()
+    self.__init_event__ = InitializeSwitchletEvent(dispatcher)
 
   def __contains_name__(self, name):
     if self.__classes__.has_key(name) or self.__singletons__.has_key(name):
@@ -105,6 +107,7 @@ class ApplicationFactory(object):
     klass = self.__classes__.get(name)
     if klass:
       instance = klass().start()
+      instance.tell({'content': self.__init_event__})
       return instance
     else:
       instance = self.__singletons__.get(name)
@@ -120,6 +123,7 @@ class ApplicationFactory(object):
       self.__classes__.update({name: klass})
     if type == 'singleton':
       singleton = klass.start()
+      singleton.tell({'content': self.__init_event__})
       self.__singletons__.update({name: singleton})
 
   def unregister(self, name):
@@ -323,8 +327,8 @@ class FreepyServer(object):
   def __init__(self, *args, **kwargs):
     self.__logger__ = logging.getLogger('Freepy Server')
 
-  def __load_apps_factory__(self):
-    factory = ApplicationFactory()
+  def __load_apps_factory__(self, dispatcher):
+    factory = ApplicationFactory(dispatcher)
     for rule in dispatch_rules:
       target = rule.get('target')
       persistent = rule.get('persistent')
@@ -353,10 +357,11 @@ class FreepyServer(object):
       if not self.__validate_rule__(rule):
         self.__logger__.critical('The rule %s is invalid.', str(rule))
         return
-    # Load all the apps.
-    apps = self.__load_apps_factory__()
     # Create a dispatcher thread.
     dispatcher = Dispatcher()
+    # Load all the apps.
+    apps = self.__load_apps_factory__(dispatcher)
+    # Create the proxy between the event socket client and the dispatcher.
     dispatcher_proxy = DispatcherProxy(apps, dispatcher)
     # Create an event socket client factory and start the reactor.
     address = freeswitch_host.get('address')
