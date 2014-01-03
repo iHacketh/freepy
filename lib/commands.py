@@ -91,7 +91,7 @@ class BroadcastCommand(UUIDCommand):
     self.__app_name__ = kwargs.get('app_name')
     self.__app_args__ = kwargs.get('app_args')
     if self.__path__ and self.__app_name__:
-      raise RuntimeError('A broadcase command can specify either a path \
+      raise RuntimeError('A broadcast command can specify either a path \
       or an app_name but not both.')
 
   def get_leg(self):
@@ -157,6 +157,9 @@ class OriginateCommand(BackgroundCommand):
     self.__options__ = kwargs.get('options', default = [])
     if not isinstance(self.__options__, list):
       raise TypeError('The options parameter must be a list type.')
+    if self.__extension__ and self.__app_name__:
+      raise RuntimeError('An originate command can specify either an \
+      extension or an app_name but not both.')
 
   def get_app_name(self):
     return self.__app_name__
