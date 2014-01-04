@@ -21,7 +21,7 @@ class Monitor(ThreadingActor):
       self.__dispatcher__ = message.get_dispatcher()
     elif isinstance(message, Event):
       content_type = message.get_header('Content-Type')
-      # Handle responses.
+      # Handle the response for StatusCommand.
       if content_type == 'command/reply':
         uuid = message.get_header('Job-UUID')
         command = RegisterJobObserverEvent(self.actor_ref, uuid)
@@ -31,15 +31,12 @@ class Monitor(ThreadingActor):
         name = message.get_header('Event-Name')
         # Handle a heartbeat event.
         if name == 'HEARTBEAT':
-          self.__logger__.info('%s', self)
-          header = message.get_header('Up-Time')
-          uptime = urllib.unquote(header)
-          self.__logger__.info('The system has been up for %s', uptime)
           # Ask FreeSWITCH for a status.
           command = StatusCommand(self.actor_ref)
           self.__dispatcher__.tell({'content': command})
-        # Handle a background job event.
+        # Handle a background job event (Status).
         elif name == 'BACKGROUND_JOB':
+          self.__logger__.info(message.get_body())
           uuid = message.get_header('Job-UUID')
           command = UnregisterJobObserverEvent(uuid)
           self.__dispatcher__.tell({'content': command})
