@@ -69,8 +69,8 @@ class EventSocketClient(Protocol):
 
   def __parse__(self):
     # Make sure we have enough data to process the event.
-    value = self.__buffer__.getvalue()
-    if len(value) == 0 or not value.find('\n\n'):
+    buffer_contents = self.__buffer__.getvalue()
+    if len(buffer_contents) == 0 or not buffer_contents.find('\n\n'):
       return None
     else:
       # Parse the event for processing.
