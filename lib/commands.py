@@ -51,7 +51,8 @@ class AnswerCommand(UUIDCommand):
     super(AnswerCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_answer %s\n\n' % self.__uuid__
+    return 'bgapi uuid_answer %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class BreakCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -63,9 +64,11 @@ class BreakCommand(UUIDCommand):
 
   def __str__(self):
     if not self.__stop_all__:
-      return 'bgapi uuid_break %s\n\n' % self.__uuid__
+      return 'bgapi uuid_break %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__job_uuid__)
     else:
-      return 'bgapi uuid_break %s all\n\n' % self.__uuid__
+      return 'bgapi uuid_break %s all\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__job_uuid__)
 
 class BridgeCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -78,7 +81,8 @@ class BridgeCommand(UUIDCommand):
     return self.__other_uuid__
 
   def __str__(self):
-    return 'bgapi uuid_bridge %s %s\n\n' % (self.__uuid__, self.__other_uuid__)
+    return 'bgapi uuid_bridge %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__other_uuid__, self.__job_uuid__)
 
 class BroadcastCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -113,7 +117,7 @@ class BroadcastCommand(UUIDCommand):
       buffer.write('%s ' % self.__path__)
     else:
       buffer.write('%s::%s ' % (self.__app_name__, self.__app_args__))
-    buffer.write('%s\n\n' % self.__leg__)
+    buffer.write('%s\nJob-UUID: %s\n\n' % self.__leg__, self.__job_uuid__)
     try:
       return buffer.getvalue()
     finally:
@@ -128,8 +132,8 @@ class ChatCommand(UUIDCommand):
     return self.__text__
 
   def __str__(self):
-    return 'bgapi uuid_chat %s %s\n\n' % (self.__uuid__,
-      self.__text__)
+    return 'bgapi uuid_chat %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__text__, self.__job_uuid__)
 
 class DeflectCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -140,8 +144,8 @@ class DeflectCommand(UUIDCommand):
     return self.__url__
 
   def __str__(self):
-    return 'bgapi uuid_deflect %s %s\n\n' % (self.__uuid__,
-      self.__url__)
+    return 'bgapi uuid_deflect %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__url__, self.__job_uuid__)
 
 class DisplayCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -152,8 +156,8 @@ class DisplayCommand(UUIDCommand):
       return self.__display__
 
   def __str__(self):
-    return 'bgapi uuid_display %s %s\n\n' % (self.__uuid__,
-      self.__display__)
+    return 'bgapi uuid_display %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__display__, self.__job_uuid__)
 
 class DualTransferCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -202,8 +206,8 @@ class DualTransferCommand(UUIDCommand):
       buffer.write('/%s' % self.__context_b__)
     destination_b = buffer.getvalue()
     buffer.close()
-    return 'bgapi uuid_dual_transfer %s %s %s\n\n' % (self.__uuid__,
-      destination_a, destination_b)
+    return 'bgapi uuid_dual_transfer %s %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      destination_a, destination_b, self.__job_uuid__)
 
 class DumpCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -214,15 +218,16 @@ class DumpCommand(UUIDCommand):
     return self.__format__
 
   def __str__(self):
-    return 'bgapi uuid_dump %s %s\n\n' % (self.__uuid__,
-      self.__format__)
+    return 'bgapi uuid_dump %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__format__, self.__job_uuid__)
 
 class EarlyOkayCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(EarlyOkayCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_early_ok %s\n\n' % self.__uuid__
+    return 'bgapi uuid_early_ok %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class FileManagerCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -243,32 +248,35 @@ class FileManagerCommand(UUIDCommand):
 
   def __str__(self):
     if self.__value__:
-      return 'bgapi uuid_fileman %s %s:%s\n\n' % (self.__uuid__,
-        self.__command__, self.__value__)
+      return 'bgapi uuid_fileman %s %s:%s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__command__, self.__value__, self.__job_uuid__)
     else:
-      return 'bgapi uuid_fileman %s %s\n\n' % (self.__uuid__,
-        self.__command__)
+      return 'bgapi uuid_fileman %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__command__, self.__job_uuid__)
 
 class FlushDTMFCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(FlushDTMFCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_flush_dtmf %s\n\n' % self.__uuid__
+    return 'bgapi uuid_flush_dtmf %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class GetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(GetAudioLevelCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_audio %s start read level\n\n' % self.__uuid__
+    return 'bgapi uuid_audio %s start read level\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class GetBugListCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(GetBugListCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_buglist %s\n\n' % self.__uuid__
+    return 'bgapi uuid_buglist %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class GetVariableCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -281,15 +289,16 @@ class GetVariableCommand(UUIDCommand):
     return self.__name__
 
   def __str__(self):
-    return 'bgapi uuid_getvar %s %s\n\n' % (self.__uuid__,
-      self.__name__)
+    return 'bgapi uuid_getvar %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__name__, self.__job_uuid__)
 
 class HoldCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(HoldCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_hold %s\n\n' % self.__uuid__
+    return 'bgapi uuid_hold %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class KillCommand(UUIDCommand):
   pass
@@ -336,7 +345,7 @@ class OriginateCommand(BackgroundCommand):
     else:
       buffer.write('&%s(%s)' % (self.__app_name__,
         ' '.join(self.__app_args__)))
-    buffer.write('\n\n')
+    buffer.write('\nJob-UUID: %s\n\n' % self.__job_uuid__)
     try:
       return buffer.getvalue()
     finally:
@@ -347,7 +356,8 @@ class PauseCommand(UUIDCommand):
     super(PauseCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi pause %s on\n\n' % self.__uuid__
+    return 'bgapi pause %s on\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class SetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -361,8 +371,8 @@ class SetAudioLevelCommand(UUIDCommand):
     return self.__audio_level__
 
   def __str__(self):
-    return 'bgapi uuid_audio %s start write level %f\n\n' % (self.__uuid__,
-      self.__audio_level__)
+    return 'bgapi uuid_audio %s start write level %f\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__audio_level__, self.__job_uuid__)
 
 class StartDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -373,8 +383,8 @@ class StartDebugMediaCommand(UUIDCommand):
     return self.__option__
 
   def __str__(self):
-    return 'bgapi uuid_debug_media %s %s on\n\n' % (self.__uuid__,
-      self.__option__)
+    return 'bgapi uuid_debug_media %s %s on\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__option__, self.__job_uuid__)
 
 class StartDisplaceCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -400,7 +410,7 @@ class StartDisplaceCommand(UUIDCommand):
       buffer.write(' %i' % self.__limit__)
     if self.__mux__:
       buffer.write(' mux')
-    buffer.write('\n\n')
+    buffer.write('\nJob-UUID: %s\n\n' % self.__job_uuid__)
     try:
       return buffer.getvalue()
     finally:
@@ -408,32 +418,36 @@ class StartDisplaceCommand(UUIDCommand):
 
 class StatusCommand(BackgroundCommand):
   def __str__(self):
-    return 'bgapi status\nJob-UUID: %s\n\n' % self.get_job_uuid()
+    return 'bgapi status\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class StopDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(StopDebugMediaCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_debug_media %s off\n\n' % (self.__uuid__)
+    return 'bgapi uuid_debug_media %s off\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class StopDisplaceCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(StopDisplaceCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_displace %s stop\n\n' % self.__uuid__
+    return 'bgapi uuid_displace %s stop\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class UnholdCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(UnholdCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_hold off %s\n\n' % self.__uuid__
+    return 'bgapi uuid_hold off %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class UnpauseCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(UnpauseCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi pause %s off\n\n' % self.__uuid__
+    return 'bgapi pause %s off\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
