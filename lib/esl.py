@@ -69,7 +69,8 @@ class EventSocketClient(Protocol):
 
   def __parse__(self):
     # Make sure we have enough data to process the event.
-    if not self.__buffer__.getvalue().find('\n\n'):
+    value = self.__buffer__.getvalue()
+    if len(value) == 0 or not value.find('\n\n'):
       return None
     else:
       # Parse the event for processing.
@@ -169,9 +170,12 @@ class EventSocketClient(Protocol):
       self.__logger__.debug('The following message was received from %s:%i.\n%s',
         self.__peer__.host, self.__peer__.port, data)
     self.__buffer__.write(data)
-    event = self.__parse__()
-    if event:
-      self.__observer__.on_event(event)
+    while True:
+      event = self.__parse__()
+      if event:
+        self.__observer__.on_event(event)
+      else:
+        break
 
   def send(self, command):
     serialized_command = str(command)
