@@ -16,19 +16,31 @@ class Monitor(ThreadingActor):
   def on_receive(self, message):
     # Necessary because all pykka messages must be dicts.
     message = message.get('content')
-    # If we are being initialized store the reference to the dispatcher.
     if isinstance(message, InitializeSwitchletEvent):
+      # If we are being initialized store a reference to the dispatcher.
       self.__dispatcher__ = message.get_dispatcher()
     elif isinstance(message, Event):
       content_type = message.get_header('Content-Type')
+      # Handle responses.
       if content_type == 'command/reply':
-        print 'FUCK!'
-      elif content_type == 'text/event-plain':
-        # Handle the message.
-        self.__logger__.info('%s', self)
-        header = message.get_header('Up-Time')
-        uptime = urllib.unquote(header)
-        self.__logger__.info('The system has been up for %s', uptime)
-        # Send a status command.
-        command = StatusCommand(self)
+        uuid = message.get_header('Job-UUID')
+        command = RegisterJobObserverEvent(self.actor_ref, uuid)
         self.__dispatcher__.tell({'content': command})
+        self.__logger__.info('Registered to receive events with Job-UUID: %s' % uuid)
+      elif content_type == 'text/event-plain':
+        name = message.get_header('Event-Name')
+        # Handle a heartbeat event.
+        if name == 'HEARTBEAT':
+          self.__logger__.info('%s', self)
+          header = message.get_header('Up-Time')
+          uptime = urllib.unquote(header)
+          self.__logger__.info('The system has been up for %s', uptime)
+          # Ask FreeSWITCH for a status.
+          command = StatusCommand(self.actor_ref)
+          self.__dispatcher__.tell({'content': command})
+        # Handle a background job event.
+        elif name == 'BACKGROUND_JOB':
+          uuid = message.get_header('Job-UUID')
+          command = UnregisterJobObserverEvent(uuid)
+          self.__dispatcher__.tell({'content': command})
+          self.__logger__.info('Unregistered to receive events with Job-UUID: %s' % uuid)

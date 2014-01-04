@@ -196,10 +196,12 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       elif isinstance(message, RegisterJobObserverEvent):
         observer = message.get_observer()
         uuid = message.get_job_uuid()
-        self.__observers__.update({uuid: observer})
+        if observer and uuid:
+          self.__observers__.update({uuid: observer})
       elif isinstance(message, UnregisterJobObserverEvent):
         uuid = message.get_job_uuid()
-        del self.__observers__[uuid]
+        if self.__observers__.has_key(uuid):
+          del self.__observers__[uuid]
       else:
         headers = message.get_headers()
         content_type = headers.get('Content-Type')
@@ -246,7 +248,6 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
   def __dispatch_observer_event__(self, uuid, message):
     recipient = self.__observers__.get(uuid)
     if recipient:
-      del self.__observers__[uuid]
       recipient.tell({'content': message})
 
   def __dispatch_response__(self, uuid, message):
@@ -282,6 +283,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         self.transition(to = 'dispatching')
       elif reply == '-ERR no keywords supplied':
         self.transition(to = 'failed initialization', event = message)
+    if self.state == 'dispatching':
+      self.transition(to = 'dispatching', event = message)
 
   def __on_event__(self, message):
     if self.state == 'dispatching':
@@ -325,7 +328,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
 
 class FreepyServer(object):
   def __init__(self, *args, **kwargs):
-    self.__logger__ = logging.getLogger('Freepy Server')
+    self.__logger__ = logging.getLogger('freepy.lib.server.freepyserver')
 
   def __load_apps_factory__(self, dispatcher):
     factory = ApplicationFactory(dispatcher)
