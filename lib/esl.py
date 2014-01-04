@@ -78,6 +78,7 @@ class EventSocketClient(Protocol):
       headers = self.__parse_headers__()
       length = headers.get('Content-Length')
       if length:
+        length = int(length)
         # Remove the Content-Length header.
         del headers['Content-Length']
         # Make sure we have enough data to process the body.
@@ -86,11 +87,16 @@ class EventSocketClient(Protocol):
         end = self.__buffer__.tell()
         remaining = end - offset
         # Handle the event body.
-        if int(length) <= remaining:
+        if length <= remaining:
           self.__buffer__.seek(offset)
           type = headers.get('Content-Type')
           if type and type == 'text/event-plain':
             headers.update(self.__parse_headers__())
+            length = headers.get('Content-Length')
+            if length:
+              length = int(length)
+              del headers['Content-Length']
+              body = self.__buffer__.read(length)
           else:
             body = self.__buffer__.read(length)
         else:
