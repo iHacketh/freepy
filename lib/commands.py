@@ -408,8 +408,7 @@ class StartDisplaceCommand(UUIDCommand):
 
 class StatusCommand(BackgroundCommand):
   def __str__(self):
-    return 'bgapi status\n\
-            Job-UUID: %s\n\n' % self.get_job_uuid()
+    return 'bgapi status\nJob-UUID: %s\n\n' % self.get_job_uuid()
 
 class StopDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):

@@ -108,11 +108,13 @@ class EventSocketClient(Protocol):
       remaining = end - offset
       if remaining == 0:
         self.__buffer__.seek(0)
+        self.__buffer__.truncate(0)
       else:
         self.__buffer__.seek(offset)
         data = self.__buffer__.read(remaining)
         self.__buffer__.seek(0)
         self.__buffer__.write(data)
+        self.__buffer__.truncate(remaining)
       return Event(headers, body)
 
   def __parse_headers__(self):
