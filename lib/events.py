@@ -23,3 +23,21 @@ class InitializeSwitchletEvent(object):
 
   def get_dispatcher(self):
     return self.__dispatcher__
+
+class RegisterJobObserverEvent(object):
+  def __init__(self, observer, uuid):
+    self.__observer__ = observer
+    self.__job_uuid__ = uuid
+
+  def get_job_uuid(self):
+    return self.__job_uuid__
+
+  def get_observer(self):
+    return self.__observer__
+
+class UnregisterJobObserverEvent(object):
+  def __init__(self, uuid):
+    self.__job_uuid__ = uuid
+
+  def get_job_uuid(self):
+    return self.__job_uuid__
