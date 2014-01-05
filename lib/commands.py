@@ -151,6 +151,30 @@ class ChatCommand(UUIDCommand):
     return 'bgapi uuid_chat %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__text__, self.__job_uuid__)
 
+class CheckUserGroupCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(CheckUserGroupCommand, self).__init__(*args, **kwargs)
+    self.__user__ = kwargs.get('user')
+    self.__domain__ = kwargs.get('domain')
+    self.__group_name__ = kwargs.get('group_name')
+
+  def get_domain(self):
+    return self.__domain__
+
+  def get_group_name(self):
+    return self.__group_name__
+
+  def get_user(self):
+    return self.__user__
+
+  def __str__(self):
+    if not self.__domain__:
+      return 'bgapi in_group %s %s\nJob-UUID: %s\n\n' % (self.__user__,
+        self.__group_name__, self.__job_uuid__)
+    else:
+      return 'bgapi in_group %s@%s %s\nJob-UUID: %s\n\n' % (self.__user__,
+        self.__domain__, self.__group_name__, self.__job_uuid__)
+
 class DeflectCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(DeflectCommand, self).__init__(*args, **kwargs)
@@ -162,6 +186,22 @@ class DeflectCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_deflect %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__url__, self.__job_uuid__)
+
+class DialedExtensionHupAllCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(DialedExtensionHupAllCommand, self).__init__(*args, **kwargs)
+    self.__clearing__ = kwargs.get('clearing')
+    self.__extension__ = kwargs.get('extension')
+
+  def get_clearing(self):
+    return self.__clearing__
+
+  def get_extension(self):
+    return self.__extension__
+
+  def __str__(self):
+    return 'bgapi fsctl hupall %s dialed_ext %s\nJob-UUID: %s\n\n' % (self.__clearing__,
+      self.__extension__, self.__job_uuid__)
 
 class DisableMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -359,6 +399,20 @@ class GetDefaultDTMFDurationCommand(BackgroundCommand):
   def __str__(self):
     return 'bgapi fsctl default_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
 
+class GetGlobalVariableCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetGlobalVariableCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+    if not self.__name__:
+      raise ValueError('The name parameter is required.')
+
+  def get_name(self):
+    return self.__name__
+
+  def __str__(self):
+    return 'bgapi global_getvar %s\nJob-UUID: %s\n\n' % (self.__name__,
+      self.__job_uuid__)
+
 class GetMaxSessionsCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
     super(GetMaxSessionsCommand, self).__init__(*args, **kwargs)
@@ -392,7 +446,7 @@ class GetVariableCommand(UUIDCommand):
     super(GetVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
     if not self.__name__:
-      raise ValueError('The name parameter %s is invalid.' % self.__name__)
+      raise ValueError('The name parameter is requied.')
 
   def get_name(self):
     return self.__name__
@@ -400,6 +454,33 @@ class GetVariableCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_getvar %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__name__, self.__job_uuid__)
+
+class GetGroupCallBridgeStringCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetGroupCallBridgeStringCommand, self).__init__(*args, **kwargs)
+    self.__group__ = kwargs.get('group')
+    self.__domain__ = kwargs.get('domain')
+    self.__option__ = kwargs.get('option')
+    if self.__option__ and not self.__option__ == '+F' and \
+      not self.__option__ == '+A' and not self.__option__ == '+E':
+      raise ValueError('The option parameter %s is invalid.' % self.__option__)
+
+  def get_domain(self):
+    return self.__domain__
+
+  def get_group(self):
+    return self.__group__
+
+  def get_option(self):
+    return self.__option__
+
+  def __str__(self):
+    if not self.__option__:
+      return 'bgapi group_call %s@%s\nJob-UUID: %s\n\n' % (self.__group__,
+        self.__domain__, self.__job_uuid__)
+    else:
+      return 'bgapi group_call %s@%s%s\nJob-UUID: %s\n\n' % (self.__group__,
+        self.__domain__, self.__option__, self.__job_uuid__)
 
 class HoldCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -412,18 +493,26 @@ class HoldCommand(UUIDCommand):
 class HupAllCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
     super(HupAllCommand, self).__init__(*args, **kwargs)
-    self.__clearing__ = kwargs.get('clearing')
-    self.__extension__ = kwargs.get('extension')
+    self.__cause__ = kwargs.get('cause')
+    self.__var_name__ = kwargs.get('var_name')
+    self.__var_value__ = kwargs.get('var_value')
 
-  def get_clearing(self):
-    return self.__clearing__
+  def get_cause(self):
+    return self.__cause__
 
-  def get_extension(self):
-    return self.__extension__
+  def get_variable_name(self):
+    return self.__var_name__
+
+  def get_variable_value(self):
+    return self.__var_value__
 
   def __str__(self):
-    return 'bgapi fsctl hupall %s dialed_ext %s\nJob-UUID: %s\n\n' % (self.__clearing__,
-      self.__extension__, self.__job_uuid__)
+    if self.__var_name__ and self.__var_value__:
+      return 'bgapi hupall %s %s %s\nJob-UUID: %s\n\n' % (self.__cause__,
+        self.__var_name__, self.__var_value__, self.__job_uuid__)
+    else:
+      return 'bgapi hupall %s\nJob-UUID: %s\n\n' % (self.__cause__,
+        self.__job_uuid__)
 
 class KillCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -689,6 +778,25 @@ class SetDefaultDTMFDurationCommand(BackgroundCommand):
     return 'bgapi fsctl default_dtmf_duration %i\nJob-UUID: %s\n\n' % (self.__duration__,
       self.__job_uuid__)
 
+class SetGlobalVariableCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetGlobalVariableCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+    self.__value__ = kwargs.get('value')
+    if not self.__name__ or not self.__value__:
+      raise RuntimeError('The set global variable command requires both name \
+      and value parameters.')
+
+  def get_name(self):
+    return self.__name__
+
+  def get_value(self):
+    return self.__value__
+
+  def __str__(self):
+    return 'bgapi global_setvar %s=%s\nJob-UUID: %s\n\n' % (self.__name__,
+      self.__value__, self.__job_uuid__)
+
 class SetMaximumDTMFDurationCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
     super(SetMaximumDTMFDurationCommand, self).__init__(*args, **kwargs)
@@ -747,7 +855,7 @@ class SetVariableCommand(UUIDCommand):
     self.__name__ = kwargs.get('name')
     self.__value__ = kwargs.get('value')
     if not self.__name__ or not self.__value__:
-      raise RuntimeError('The set variable commands requires both name \
+      raise RuntimeError('The set variable command requires both name \
       and value parameters.')
 
   def get_name(self):
