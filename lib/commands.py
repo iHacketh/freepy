@@ -46,6 +46,22 @@ class UUIDCommand(BackgroundCommand):
   def get_uuid(self):
     return self.__uuid__
 
+class ACLCheckCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(ACLCommand, self).__init__(*args, **kwargs)
+    self.__ip__ = kwargs.get('ip')
+    self.__list_name__ = kwargs.get('list_name')
+
+  def get_ip(self):
+    return self.__ip__
+
+  def get_list_name(self):
+    return self.__list_name__
+
+  def __str__(self):
+    return 'bgapi acl %s %s\nJob-UUID: %s\n\n' % (self.__ip__,
+      self.__list_name__, self.__job_uuid__)
+
 class AnswerCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(AnswerCommand, self).__init__(*args, **kwargs)
@@ -155,6 +171,13 @@ class DisableMediaCommand(UUIDCommand):
     return 'bgapi uuid_media off %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
+class DisableVerboseEventsCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(DisableVerboseEventsCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl verbose_events off\nJob-UUID: %s\n\n' % self.__job_uuid__
+
 class DisplayCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(DisplayCommand, self).__init__(*args, **kwargs)
@@ -166,6 +189,18 @@ class DisplayCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_display %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__display__, self.__job_uuid__)
+
+class DomainExistsCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(DomainExistsCommand, self).__init__(*args, **kwargs)
+    self.__domain__ = kwargs.get('domain')
+
+  def get_domain(self):
+    return self.__domain__
+
+  def __str__(self):
+    return 'bgapi domain_exists %s\nJob-UUID: %s\n\n' % (self.__domain__,
+      self.__job_uuid__)
 
 class DualTransferCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -261,6 +296,13 @@ class EnableSessionHeartbeatCommand(UUIDCommand):
       return 'bgapi uuid_session_heartbeat %s sched %i\nJob-UUID: %s\n\n' % (self.__uuid__,
         self.__start_time__, self.__job_uuid__)
 
+class EnableVerboseEventsCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(EnableVerboseEventsCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl verbose_events on\nJob-UUID: %s\n\n' % self.__job_uuid__
+
 class FileManagerCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(FileManagerCommand, self).__init__(*args, **kwargs)
@@ -310,6 +352,41 @@ class GetBugListCommand(UUIDCommand):
     return 'bgapi uuid_buglist %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
+class GetDefaultDTMFDurationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetDefaultDTMFDurationCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl default_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
+
+class GetMaxSessionsCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetMaxSessionsCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl max_sessions\nJob-UUID: %s\n\n' % self.__job_uuid__
+
+class GetMaximumDTMFDurationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetMaximumDTMFDurationCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl max_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
+
+class GetMinimumDTMFDurationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetMinimumDTMFDurationCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl min_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
+
+class GetSessionsPerSecondCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(GetSessionsPerSecondCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl last_sps\nJob-UUID: %s\n\n' % self.__job_uuid__
+
 class GetVariableCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(GetVariableCommand, self).__init__(*args, **kwargs)
@@ -331,6 +408,22 @@ class HoldCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_hold %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
+
+class HupAllCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(HupAllCommand, self).__init__(*args, **kwargs)
+    self.__clearing__ = kwargs.get('clearing')
+    self.__extension__ = kwargs.get('extension')
+
+  def get_clearing(self):
+    return self.__clearing__
+
+  def get_extension(self):
+    return self.__extension__
+
+  def __str__(self):
+    return 'bgapi fsctl hupall %s dialed_ext %s\nJob-UUID: %s\n\n' % (self.__clearing__,
+      self.__extension__, self.__job_uuid__)
 
 class KillCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -456,6 +549,21 @@ class PauseCommand(UUIDCommand):
     return 'bgapi pause %s on\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
+class PauseSessionCreationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(PauseSessionCreationCommand, self).__init__(*args, **kwargs)
+    self.__direction__ = kwargs.get('direction')
+
+  def get_direction(self):
+    return self.__direction__
+
+  def __str__(self):
+    if not self.__direction__:
+      return 'bgapi fsctl pause\nJob-UUID: %s\n\n' % self.__job_uuid__
+    else:
+      return 'bgapi fsctl pause %s\nJob-UUID: %s\n\n' % (self.__direction__,
+        self.__job_uuid__)
+
 class PreAnswerCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(PreAnswerCommand, self).__init__(*args, **kwargs)
@@ -492,6 +600,13 @@ class ReceiveDTMFCommand(UUIDCommand):
       return 'bgapi uuid_recv_dtmf %s %s@%i\nJob-UUID: %s\n\n' % (self.__uuid__,
         self.__digits__, self.__duration__, self.__job_uuid__)
 
+class ReclaimMemoryCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(ReclaimMemoryCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl reclaim_mem\nJob-UUID: %s\n\n' % self.__job_uuid__
+
 class RenegotiateMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(RenegotiateMediaCommand, self).__init__(*args, **kwargs)
@@ -503,6 +618,21 @@ class RenegotiateMediaCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_media_reneg %s =%s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__codec__, self.__job_uuid__)
+
+class ResumeSessionCreationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(ResumeSessionCreationCommand, self).__init__(*args, **kwargs)
+    self.__direction__ = kwargs.get('direction')
+
+  def get_direction(self):
+    return self.__direction__
+
+  def __str__(self):
+    if not self.__direction__:
+      return 'bgapi fsctl resume\nJob-UUID: %s\n\n' % self.__job_uuid__
+    else:
+      return 'bgapi fsctl resume %s\nJob-UUID: %s\n\n' % (self.__direction__,
+        self.__job_uuid__)
 
 class SendDTMFCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -547,6 +677,42 @@ class SetAudioLevelCommand(UUIDCommand):
     return 'bgapi uuid_audio %s start write level %f\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__audio_level__, self.__job_uuid__)
 
+class SetDefaultDTMFDurationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetDefaultDTMFDurationCommand, self).__init__(*args, **kwargs)
+    self.__duration__ = kwargs.get('duration')
+
+  def get_duration(self):
+    return self.__duration__
+
+  def __str__(self):
+    return 'bgapi fsctl default_dtmf_duration %i\nJob-UUID: %s\n\n' % (self.__duration__,
+      self.__job_uuid__)
+
+class SetMaximumDTMFDurationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetMaximumDTMFDurationCommand, self).__init__(*args, **kwargs)
+    self.__duration__ = kwargs.get('duration')
+
+  def get_duration(self):
+    return self.__duration__
+
+  def __str__(self):
+    return 'bgapi fsctl max_dtmf_duration %i\nJob-UUID: %s\n\n' % (self.__duration__,
+      self.__job_uuid__)
+
+class SetMinimumDTMFDurationCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetMinimumDTMFDurationCommand, self).__init__(*args, **kwargs)
+    self.__duration__ = kwargs.get('duration')
+
+  def get_duration(self):
+    return self.__duration__
+
+  def __str__(self):
+    return 'bgapi fsctl min_dtmf_duration %i\nJob-UUID: %s\n\n' % (self.__duration__,
+      self.__job_uuid__)
+
 class SetMultipleVariableCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(SetMultipleVariableCommand, self).__init__(*args, **kwargs)
@@ -562,6 +728,18 @@ class SetMultipleVariableCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_setvar_multi %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__variables_string__, self.__job_uuid__)
+
+class SetSessionsPerSecondCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetSessionsPerSecondCommand, self).__init__(*args, **kwargs)
+    self.__sessions_per_second__ = kwargs.get('sessions_per_second')
+
+  def get_sessions_per_second(self):
+    return self.__sessions_per_second__
+
+  def __str__(self):
+    return 'bgapi fsctl sps %i\nJob-UUID: %s\n\n' % (self.__sessions_per_second__,
+      self.__job_uuid__)
 
 class SetVariableCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -581,6 +759,25 @@ class SetVariableCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_setvar %s %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__name__, self.__value__, self.__job_uuid__)
+
+class ShutdownCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(ShutdownCommand, self).__init__(*args, **kwargs)
+    self.__option__ = kwargs.get('option')
+    if self.__option__ and not self.__option__ == 'cancel' and \
+      not self.__option__ == 'elegant' and not self.__option__ == 'asap' and \
+      not self.__option__ == 'restart':
+      raise ValueError('The option %s is an invalid option.' % self.__option__)
+
+  def get_option(self):
+    return self.__option__
+
+  def __str__(self):
+    if not self.__option__:
+      return 'bgapi fsctl shutdown\nJob-UUID: %s\n\n' % self.__job_uuid__
+    else:
+      return 'bgapi fsctl shutdown %s\nJob-UUID: %s\n\n' % (self.__option__,
+        self.__job_uuid__)
 
 class SimplifyCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -633,6 +830,9 @@ class StartDisplaceCommand(UUIDCommand):
       buffer.close()
 
 class StatusCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(StatusCommand, self).__init__(*args, **kwargs)
+
   def __str__(self):
     return 'bgapi status\nJob-UUID: %s\n\n' % self.__job_uuid__
 
@@ -651,6 +851,20 @@ class StopDisplaceCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_displace %s stop\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
+
+class SyncClockCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SyncClockCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl sync_clock\nJob-UUID: %s\n\n' % self.__job_uuid__
+
+class SyncClockWhenIdleCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(SyncClockWhenIdleCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi fsctl sync_clock_when_idle\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class TransferCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
