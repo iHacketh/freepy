@@ -245,6 +245,22 @@ class EnableMediaCommand(UUIDCommand):
     return 'bgapi uuid_media %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
+class EnableSessionHeartbeatCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(EnableSessionHeartbeatCommand, self).__init__(*args, **kwargs)
+    self.__start_time__ = kwargs.get('start_time') # Seconds in the future to start
+
+  def get_start_time(self):
+    return self.__start_time__
+
+  def __str__(self):
+    if not self.__start_time__:
+      return 'bgapi uuid_session_heartbeat %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__job_uuid__)
+    else:
+      return 'bgapi uuid_session_heartbeat %s sched %i\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__start_time__, self.__job_uuid__)
+
 class FileManagerCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(FileManagerCommand, self).__init__(*args, **kwargs)
@@ -412,6 +428,26 @@ class PreProcessCommand(UUIDCommand):
     return 'bgapi uuid_preprocess %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
+class ReceiveDTMFCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(ReceiveDTMFCommand, self).__init__(*args, **kwargs)
+    self.__digits__ = kwargs.get('digits')
+    self.__duration__ = kwargs.get('tone_duration')
+
+  def get_digits(self):
+    return self.__digits__
+
+  def get_tone_duration(self):
+    return self.__duration__
+
+  def __str__(self):
+    if not self.__duration__:
+      return 'bgapi uuid_recv_dtmf %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__digits__, self.__job_uuid__)
+    else:
+      return 'bgapi uuid_recv_dtmf %s %s@%i\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__digits__, self.__duration__, self.__job_uuid__)
+
 class RenegotiateMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(RenegotiateMediaCommand, self).__init__(*args, **kwargs)
@@ -423,6 +459,34 @@ class RenegotiateMediaCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_media_reneg %s =%s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__codec__, self.__job_uuid__)
+
+class SendDTMFCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(SendDTMFCommand, self).__init__(*args, **kwargs)
+    self.__digits__ = kwargs.get('digits')
+    self.__duration__ = kwargs.get('tone_duration')
+
+  def get_digits(self):
+    return self.__digits__
+
+  def get_tone_duration(self):
+    return self.__duration__
+
+  def __str__(self):
+    if not self.__duration__:
+      return 'bgapi uuid_send_dtmf %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__digits__, self.__job_uuid__)
+    else:
+      return 'bgapi uuid_send_dtmf %s %s@%i\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__digits__, self.__duration__, self.__job_uuid__)
+
+class SendInfoCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(SendInfoCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_send_info %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class SetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -438,6 +502,25 @@ class SetAudioLevelCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_audio %s start write level %f\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__audio_level__, self.__job_uuid__)
+
+class SetVariableCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(SetVariableCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+    self.__value__ = kwargs.get('value')
+    if not self.__name__ or not self.__value__:
+      raise RuntimeError('The set variable commands requires both name \
+      and value parameters.')
+
+  def get_name(self):
+    return self.__name__
+
+  def get_value(self):
+    return self.__value__
+
+  def __str__(self):
+    return 'bgapi uuid_setvar %s %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__name__, self.__value__, self.__job_uuid__)
 
 class StartDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -516,3 +599,18 @@ class UnpauseCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi pause %s off\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
+
+class UnsetVariableCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(UnsetVariableCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+    if not self.__name__:
+      raise RuntimeError('The unset variable commands requires the name \
+      parameter.')
+
+  def get_name(self):
+    return self.__name__
+
+  def __str__(self):
+    return 'bgapi uuid_setvar %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__name__, self.__job_uuid__)
