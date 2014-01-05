@@ -351,10 +351,46 @@ class KillCommand(UUIDCommand):
 class LimitCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(LimitCommand, self).__init__(*args, **kwargs)
+    self.__backend__ = kwargs.get('backend')
+    self.__realm__ = kwargs.get('realm')
+    self.__resource__ = kwargs.get('resource')
+    self.__max_calls__ = kwargs.get('max_calls')
+    self.__interval__ = kwargs.get('interval')
+    self.__number__ = kwargs.get('number')
+    self.__dialplan__ = kwargs.get('dialplan')
+    self.__context__ = kwargs.get('context')
+
+  def get_backend(self):
+    return self.__backend__
+
+  def get_realm(self):
+    return self.__realm__
+
+  def get_resource(self):
+    return self.__resource__
+
+  def get_max_calls(self):
+    return self.__max_calls__
 
   def __str__(self):
-    return 'bgapi uuid_limit %s\nJob-UUID: %s\n\n' % (self.__uuid__,
-      self.__job_uuid__)
+    buffer = StringIO()
+    buffer.write('bgapi uuid_limit %s %s %s %s' % (self.__uuid__,
+      self.__backend__, self.__realm__, self.__resource__))
+    if self.__max_calls__:
+      buffer.write(' %i' % self.__max_calls__)
+      if self.__interval__:
+        buffer.write('/%i' % self.__interval__)
+    if self.__number__:
+      buffer.write(' %s' % self.__number__)
+      if self.__dialplan__:
+        buffer.write(' %s' % self.__dialplan__)
+        if self.__context__:
+          buffer.write(' %s' % self.__context__)
+    buffer.write('\nJob-UUID: %s\n\n' % self.__job_uuid__)
+    try:
+      return buffer.getvalue()
+    finally:
+      buffer.close()
 
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
