@@ -503,6 +503,9 @@ class SetAudioLevelCommand(UUIDCommand):
     return 'bgapi uuid_audio %s start write level %f\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__audio_level__, self.__job_uuid__)
 
+class SetMultipleVariableCommand(UUIDCommand):
+  pass
+
 class SetVariableCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(SetVariableCommand, self).__init__(*args, **kwargs)
@@ -521,6 +524,14 @@ class SetVariableCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_setvar %s %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__name__, self.__value__, self.__job_uuid__)
+
+class SimplifyCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(SimplifyCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_simplify %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
 
 class StartDebugMediaCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
@@ -583,6 +594,9 @@ class StopDisplaceCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_displace %s stop\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
+
+class TransferCommand(UUIDCommand):
+  pass
 
 class UnholdCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
