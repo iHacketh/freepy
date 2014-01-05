@@ -596,7 +596,40 @@ class StopDisplaceCommand(UUIDCommand):
       self.__job_uuid__)
 
 class TransferCommand(UUIDCommand):
-  pass
+  def __init__(self, *args, **kwargs):
+    super(TransferCommand, self).__init__(*args, **kwargs)
+    self.__leg__ = kwargs.get('leg')
+    self.__extension__ = kwargs.get('extension')
+    self.__dialplan__ = kwargs.get('dialplan')
+    self.__context__ = kwargs.get('context')
+
+  def get_context(self):
+    return self.__context__
+
+  def get_dialplan(self):
+    return self.__dialplan__
+
+  def get_extension(self):
+    return self.__extension__
+
+  def get_leg(self):
+    return self.__leg__
+
+  def __str__(self):
+    buffer = StringIO()
+    buffer.write('bgapi uuid_transfer %s' % self.__uuid__)
+    if self.__leg__:
+      buffer.write(' %s' % self.__leg__)
+    buffer.write(' %s' % self.__extension__)
+    if self.__dialplan__:
+      buffer.write(' %s' % self.__dialplan__)
+    if self.__context__:
+      buffer.write(' %s' % self.__context__)
+    buffer.write('\nJob-UUID: %s\n\n' % self.__job_uuid__)
+    try:
+      return buffer.getvalue()
+    finally:
+      buffer.close()
 
 class UnholdCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
