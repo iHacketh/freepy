@@ -147,6 +147,14 @@ class DeflectCommand(UUIDCommand):
     return 'bgapi uuid_deflect %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__url__, self.__job_uuid__)
 
+class DisableMediaCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(DisableMediaCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_media off %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
 class DisplayCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(DisplayCommand, self).__init__(*args, **kwargs)
@@ -229,6 +237,14 @@ class EarlyOkayCommand(UUIDCommand):
     return 'bgapi uuid_early_ok %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
+class EnableMediaCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(EnableMediaCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_media %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
 class FileManagerCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(FileManagerCommand, self).__init__(*args, **kwargs)
@@ -301,7 +317,20 @@ class HoldCommand(UUIDCommand):
       self.__job_uuid__)
 
 class KillCommand(UUIDCommand):
-  pass
+  def __init__(self, *args, **kwargs):
+    super(KillCommand, self).__init__(*args, **kwargs)
+    self.__cause__ = kwargs.get('cause')
+
+  def get_cause(self):
+    return self.__cause__
+
+  def __str__(self):
+    if not self.__cause__:
+      return 'bgapi uuid_kill %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__job_uuid__)
+    else:
+      return 'bgapi uuid_kill %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+        self.__cause__, self.__job_uuid__)
 
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
@@ -351,6 +380,14 @@ class OriginateCommand(BackgroundCommand):
     finally:
       buffer.close()
 
+class ParkCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(ParkCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_park %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
 class PauseCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(PauseCommand, self).__init__(*args, **kwargs)
@@ -358,6 +395,34 @@ class PauseCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi pause %s on\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
+
+class PreAnswerCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(PreAnswerCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_preanswer %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
+class PreProcessCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(PreProcessCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_preprocess %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
+class RenegotiateMediaCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(RenegotiateMediaCommand, self).__init__(*args, **kwargs)
+    self.__codec__ = kwargs.get('codec')
+
+  def get_codec(self):
+    return self.__codec__
+
+  def __str__(self):
+    return 'bgapi uuid_media_reneg %s =%s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__codec__, self.__job_uuid__)
 
 class SetAudioLevelCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
