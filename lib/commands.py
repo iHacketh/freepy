@@ -574,6 +574,18 @@ class LimitCommand(UUIDCommand):
     finally:
       buffer.close()
 
+class LoadModuleCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(LoadModuleCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+
+  def get_name(self):
+    return self.__name__
+
+  def __str__(self):
+    return 'bgapi load %s\nJob-UUID: %s\n\n' % (self.__name__,
+      self.__job_uuid__)
+
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
     super(OriginateCommand, self).__init__(*args, **kwargs)
@@ -1017,6 +1029,26 @@ class UnholdCommand(UUIDCommand):
   def __str__(self):
     return 'bgapi uuid_hold off %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
+
+class UnloadModuleCommand(BackgroundCommand):
+  def __init__(self, *args, **kwargs):
+    super(UnloadModuleCommand, self).__init__(*args, **kwargs)
+    self.__name__ = kwargs.get('name')
+    self.__force__ = kwargs.get('force', False)
+
+  def get_name(self):
+    return self.__name__
+
+  def get_force(self):
+    return self.__force__
+
+  def __str__(self):
+    if not self.__force__:
+      return 'bgapi unload %s\nJob-UUID: %s\n\n' % (self.__name__,
+        self.__job_uuid__)
+    else:
+      return 'bgapi unload -f %s\nJob-UUID: %s\n\n' % (self.__name__,
+        self.__job_uuid__)
 
 class UnpauseCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
