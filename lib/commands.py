@@ -348,6 +348,14 @@ class KillCommand(UUIDCommand):
       return 'bgapi uuid_kill %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
         self.__cause__, self.__job_uuid__)
 
+class LimitCommand(UUIDCommand):
+  def __init__(self, *args, **kwargs):
+    super(LimitCommand, self).__init__(*args, **kwargs)
+
+  def __str__(self):
+    return 'bgapi uuid_limit %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
 class OriginateCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
     super(OriginateCommand, self).__init__(*args, **kwargs)
@@ -504,7 +512,20 @@ class SetAudioLevelCommand(UUIDCommand):
       self.__audio_level__, self.__job_uuid__)
 
 class SetMultipleVariableCommand(UUIDCommand):
-  pass
+  def __init__(self, *args, **kwargs):
+    super(SetMultipleVariableCommand, self).__init__(*args, **kwargs)
+    self.__variables__ = kwargs.get('variables')
+    if not isinstance(self.__variables__, dict):
+      raise TypeError('The variables parameter must be of type dict.')
+    variable_list = list()
+    for key, value in self.__variables__:
+      variable_list.append('%s=%s' % (key, value))
+    self.__variables_string__ = ';'.join(variable_list)
+
+
+  def __str__(self):
+    return 'bgapi uuid_setvar_multi %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__variables_string__, self.__job_uuid__)
 
 class SetVariableCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
