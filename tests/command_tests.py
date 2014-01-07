@@ -29,10 +29,7 @@ class ACLCheckCommandTests(TestCase):
     self.assertTrue(str(command) == desired_output)
 
   def test_failed_scenario_no_variables(self):
-  	self.assertRaises(ValueError, ACLCheckCommand, object(), None, None)
-
-  def test_failed_scenario_no_variables(self):
-  	self.assertRaises(ValueError, ACLCheckCommand, object(), '192.168.1.1', 'lan')
+  	self.assertRaises(ValueError, ACLCheckCommand, object(), ip = None, list_name = None)
 
 class CheckUserGroupCommandTests(TestCase):
   def test_success_scenario(self):
@@ -117,7 +114,7 @@ class GetGroupCallBridgeStringCommandTests(TestCase):
    	self.assertTrue(str(command) == desired_output)
 
    def test_failed_scenario_bad_variable(self):
-    self.assertRaises(ValueError, GetGroupCallBridgeStringCommand, object(), 'groupname_test', 'domain_test.com', option = '+G')   	   	
+    self.assertRaises(ValueError, GetGroupCallBridgeStringCommand, object(), group = 'groupname_test', domain = 'domain_test.com', option = '+G')   	   	
  
 class HupAllCommandTests(TestCase):
    def test_success_scenario(self):
@@ -328,22 +325,27 @@ class FileManagerCommandTests(TestCase):
     command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'speed')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 speed\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
+
    def test_success_scenario_with_variable_pause(self):
     command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'pause')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 pause\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
+
    def test_success_scenario_with_variable_truncate(self):
     command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'truncate')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 truncate\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
+
    def test_success_scenario_with_variable_volume(self):
     command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'volume')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 volume\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
+
    def test_success_scenario_with_variable_restart(self):
     command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'restart')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 restart\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
+
    def test_success_scenario_with_variable_seek(self):
     command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'seek')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 seek\nJob-UUID: %s\n\n' % command.__job_uuid__
@@ -423,10 +425,7 @@ class PreAnswerCommandTests(TestCase):
 class ReceiveDTMFCommandTests(TestCase):
    def test_success_scenario(self):
     command = ReceiveDTMFCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
-
-    command.__job_uuid__ = 'edf55710-48e5-4084-9008-0021cb63d970'
-    # Make sure we are generating the correct output.
-    desired_output = 'bgapi uuid_recv_dtmf 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: edf55710-48e5-4084-9008-0021cb63d970\n\n'
+    desired_output = 'bgapi uuid_recv_dtmf 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class RenegotiateMediaCommandTests(TestCase):
