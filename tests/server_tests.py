@@ -18,6 +18,7 @@
 # Thomas Quintana <quintana.thomas@gmail.com>
 
 from lib.server import *
+from unittest import TestCase, expectedFailure
 
 class AuthCommandTests(TestCase):
   def test_success_scenario(self):
@@ -26,22 +27,22 @@ class AuthCommandTests(TestCase):
 
 class EventsCommandTests(TestCase):
   def test_success_scenario_with_multiple_events(self):
-    command = EventsCommand(['BACKGROUD_JOB', 'HEARTBEAT'])
-    self.assertTrue(str(command) == 'events plain BACKGROUD_JOB HEARTBEAT\n\n')
+    command = EventsCommand(['BACKGROUND_JOB', 'HEARTBEAT'])
+    self.assertTrue(str(command) == 'event plain BACKGROUND_JOB HEARTBEAT\n\n')
 
   def test_success_scenario_with_single_event(self):
-    command = EventsCommand(['BACKGROUD_JOB'])
-    self.assertTrue(str(command) == 'events plain BACKGROUD_JOB\n\n')
+    command = EventsCommand(['BACKGROUND_JOB'])
+    self.assertTrue(str(command) == 'event plain BACKGROUND_JOB\n\n')
 
   def test_invalid_format(self):
-    self.assertRaises(EventsCommand(['BACKGROUD_JOB'], format = 'invalid'))
+    self.assertRaises(ValueError, EventsCommand, ['BACKGROUD_JOB'], format = 'invalid')
 
-class DispatcherTests(TestCase):
-  def test_startup_process(self):
-    pass
+#class DispatcherTests(TestCase):
+#  def test_startup_process(self):
+#    pass
 
-  def test_background_jobs(self):
-    pass
+#  def test_background_jobs(self):
+#    pass
 
-  def test_send_command(self):
-    pass
+#  def test_send_command(self):
+#    pass
