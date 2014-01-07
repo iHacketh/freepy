@@ -106,8 +106,8 @@ class BroadcastCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(BroadcastCommand, self).__init__(*args, **kwargs)
     self.__leg__ = kwargs.get('leg')
-    if not self.__leg__ or not self.__leg__ == 'aleg' or \
-      not self.__leg__ == 'bleg' or not self.__leg__ == 'both':
+    if not self.__leg__ or not self.__leg__ == 'aleg' and \
+      not self.__leg__ == 'bleg' and not self.__leg__ == 'both':
       raise ValueError('The leg value %s is invalid' % self.__leg__)
     self.__path__ = kwargs.get('path')
     self.__app_name__ = kwargs.get('app_name')
@@ -135,7 +135,7 @@ class BroadcastCommand(UUIDCommand):
       buffer.write('%s ' % self.__path__)
     else:
       buffer.write('%s::%s ' % (self.__app_name__, self.__app_args__))
-    buffer.write('%s\nJob-UUID: %s\n\n' % self.__leg__, self.__job_uuid__)
+    buffer.write('%s\nJob-UUID: %s\n\n' % (self.__leg__, self.__job_uuid__))
     try:
       return buffer.getvalue()
     finally:
