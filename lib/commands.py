@@ -26,9 +26,11 @@ except:
   from StringIO import StringIO
 
 class BackgroundCommand(object):
-  def __init__(self, sender):
-    self.__sender__ = sender
+  def __init__(self, *args, **kwargs):
+    self.__sender__ = args[0]
     self.__job_uuid__ = uuid4().get_urn().split(':', 2)[2]
+    if not self.__sender__:
+      raise ValueError('The sender parameter must be a valid reference to a Pykka actor.')
 
   def get_job_uuid(self):
     return self.__job_uuid__
@@ -48,7 +50,7 @@ class UUIDCommand(BackgroundCommand):
 
 class ACLCheckCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
-    super(ACLCommand, self).__init__(*args, **kwargs)
+    super(ACLCheckCommand, self).__init__(*args, **kwargs)
     self.__ip__ = kwargs.get('ip')
     self.__list_name__ = kwargs.get('list_name')
 
