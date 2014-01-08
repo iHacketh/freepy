@@ -423,10 +423,7 @@ class PreAnswerCommandTests(TestCase):
 class ReceiveDTMFCommandTests(TestCase):
    def test_success_scenario(self):
     command = ReceiveDTMFCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
-
-    command.__job_uuid__ = 'edf55710-48e5-4084-9008-0021cb63d970'
-    # Make sure we are generating the correct output.
-    desired_output = 'bgapi uuid_recv_dtmf 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: edf55710-48e5-4084-9008-0021cb63d970\n\n'
+    desired_output = 'bgapi uuid_recv_dtmf 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class RenegotiateMediaCommandTests(TestCase):
@@ -507,7 +504,6 @@ class UnholdCommandTests(TestCase):
    	desired_output = 'bgapi uuid_hold off 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
    	self.assertTrue(str(command) == desired_output)
  
-
 class UnpauseCommandTests(TestCase):
    def test_success_scenario(self):
    	command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
