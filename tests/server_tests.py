@@ -37,6 +37,9 @@ class EventsCommandTests(TestCase):
   def test_invalid_format(self):
     self.assertRaises(ValueError, EventsCommand, ['BACKGROUD_JOB'], format = 'invalid')
 
+class ApplicationFactoryTests(TestCase):
+  pass
+
 #class DispatcherTests(TestCase):
 #  def test_startup_process(self):
 #    pass
