@@ -39,9 +39,6 @@ class UUIDCommandTests(TestCase):
    	def test_failed_scenario_missing_UUID(self):
 		self.assertRaises(ValueError, UUIDCommand, object(), None)
 
-	def test_failed_scenario_missing_UUIDdd(self):
-		self.assertRaises(ValueError, UUIDCommand, object(), None)
-
 class ACLCheckCommandTests(TestCase):
 	def test_success_scenario(self):
 		command = ACLCheckCommand(object(), ip = '192.168.1.1', list_name = 'lan')
@@ -49,9 +46,9 @@ class ACLCheckCommandTests(TestCase):
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_no_variables(self):
-		self.assertRaises(ValueError, ACLCheckCommand, object(), None, None)
+		self.assertRaises(ValueError, ACLCheckCommand, object(), ip = None, list_name = 'test')
 
-	def test_failed_scenario_no_variables(self):
+	def test_failed_scenario_no_variables1(self):
 		self.assertRaises(ValueError, ACLCheckCommand, object(), '192.168.1.1', 'lan')
 
 class CheckUserGroupCommandTests(TestCase):
@@ -496,11 +493,11 @@ class SetAudioLevelCommandTests(TestCase):
 		desired_output = 'bgapi uuid_audio 21516b8e-5a0b-485a-9e53-933e42947079 start write level 3.300000\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
-#class SetMultipleVariableCommandTests(TestCase):
-   #def test_success_scenario(self):
-    #command = SetMultipleVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', variables = Dict(jack: 4098) 
-    #desired_output = 'bgapi uuid_setvar_multi 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
-    #self.assertTrue(str(command) == desired_output)
+class SetMultipleVariableCommandTests(TestCase):
+	def test_success_scenario(self):
+		command = SetMultipleVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', variables = dict([('49','55')]))
+		desired_output = 'bgapi uuid_setvar_multi 21516b8e-5a0b-485a-9e53-933e42947079 4=9\nJob-UUID: %s\n\n' % command.__job_uuid__
+		self.assertTrue(str(command) == desired_output)
 
 class SetVariableCommandTests(TestCase):
 	def test_success_scenario(self):
