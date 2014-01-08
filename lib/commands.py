@@ -302,7 +302,7 @@ class DualTransferCommand(UUIDCommand):
 class DumpCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(DumpCommand, self).__init__(*args, **kwargs)
-    self.__format__ = kwargs.get('format', default = 'XML')
+    self.__format__ = kwargs.get('format', 'XML')
 
   def get_format(self):
     return self.__format__
