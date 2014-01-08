@@ -53,7 +53,12 @@ class ACLCheckCommand(BackgroundCommand):
     super(ACLCheckCommand, self).__init__(*args, **kwargs)
     self.__ip__ = kwargs.get('ip')
     self.__list_name__ = kwargs.get('list_name')
-
+    
+    if not self.__ip__ :
+      raise ValueError('The ip value %s is invalid' % self.__ip__)
+    if not self.__list_name__ :
+      raise ValueError('The list name value %s is invalid' % self.__list_name__)
+    
   def get_ip(self):
     return self.__ip__
 
@@ -75,7 +80,7 @@ class AnswerCommand(UUIDCommand):
 class BreakCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(BreakCommand, self).__init__(*args, **kwargs)
-    self.__stop_all__ = kwargs.get('all', default = False)
+    self.__stop_all__ = kwargs.get('all', False)
 
   def stop_all(self):
     return self.__stop_all__
@@ -144,7 +149,7 @@ class BroadcastCommand(UUIDCommand):
 class ChatCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
     super(ChatCommand, self).__init__(*args, **kwargs)
-    self.__text__ = kwargs.get('text', default = '')
+    self.__text__ = kwargs.get('text', '')
 
   def get_text(self):
     return self.__text__
@@ -594,10 +599,10 @@ class OriginateCommand(BackgroundCommand):
     self.__url__ = kwargs.get('url')
     self.__extension__ = kwargs.get('extension')
     self.__app_name__ = kwargs.get('app_name')
-    self.__app_args__ = kwargs.get('app_args', default = [])
+    self.__app_args__ = kwargs.get('app_args', [])
     if not isinstance(self.__app_args__, list):
       raise TypeError('The app_args parameter must be a list type.')
-    self.__options__ = kwargs.get('options', default = [])
+    self.__options__ = kwargs.get('options', [])
     if not isinstance(self.__options__, list):
       raise TypeError('The options parameter must be a list type.')
     if self.__extension__ and self.__app_name__:
