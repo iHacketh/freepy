@@ -13,7 +13,7 @@ class StartMonitorCommand(object):
   pass
 
 class Monitor(FiniteStateMachine, ThreadingActor):
-  state = 'not ready'
+  initial_state = 'not ready'
 
   transitions = [
     ('not ready', 'ready'),

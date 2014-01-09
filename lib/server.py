@@ -143,7 +143,7 @@ class DispatcherProxy(IEventSocketClientObserver):
     self.__dispatcher__.tell({'content': event})
 
 class Dispatcher(FiniteStateMachine, ThreadingActor):
-  state = 'not ready'
+  initial_state = 'not ready'
 
   transitions = [
     ('not ready', 'authenticating'),
