@@ -27,6 +27,7 @@ from logging import CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET
 #   NOTSET
 logging_level = DEBUG
 logging_format = '%(asctime)s %(levelname)s - %(name)s - %(message)s'
+logging_filename = None # '/usr/lib/freepy/log/freepy.log'
 
 # The Event Socket configuration used to connect to FreeSWITCH.
 freeswitch_host = {

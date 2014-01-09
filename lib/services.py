@@ -24,4 +24,5 @@ import sys
 import types
 
 class TimerService(object):
-  pass
+  def on_receive(self, message):
+    pass

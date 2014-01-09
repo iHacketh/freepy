@@ -338,7 +338,8 @@ class FreepyServer(object):
 
   def start(self):
     # Initialize application wide logging.
-    logging.basicConfig(format = logging_format, level = logging_level)
+    logging.basicConfig(filename = logging_filename, format = logging_format,
+      level = logging_level)
     # Validate the list of rules.
     for rule in dispatch_rules:
       if not self.__validate_rule__(rule):

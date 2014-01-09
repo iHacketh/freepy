@@ -579,9 +579,3 @@ class UnpauseCommandTests(TestCase):
     desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
  
-class UnpauseCommandTests(TestCase):
-  def test_success_scenario(self):
-    command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName')   	
-    desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
-    self.assertTrue(str(command) == desired_output)
- 
