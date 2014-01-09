@@ -20,9 +20,10 @@
 from pykka import ThreadingActor
 
 import logging
-import sys
-import types
 
-class TimerService(object):
+class TimerService(ThreadingActor):
+  def __init__(self):
+    pass
+
   def on_receive(self, message):
     pass
