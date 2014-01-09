@@ -26,18 +26,9 @@ class BackgroundCommandTests(TestCase):
   def test_success_scenario(self):
     command = BackgroundCommand(object())
 
-  def test_failed_scenario_no_variable(self):
-    self.assertRaises(ValueError, BackgroundCommand, None)
-
 class UUIDCommandTests(TestCase):
   def test_failed_scenario_no_variables(self):
     self.assertRaises(ValueError, UUIDCommand, None, None)
-
-  def test_failed_scenario_missing_object(self):
-    self.assertRaises(ValueError, UUIDCommand, None, '21516b8e-5a0b-485a-9e53-933e42947079')
-   
-  def test_failed_scenario_missing_UUID(self):
-    self.assertRaises(ValueError, UUIDCommand, object(), None)
 
 class ACLCheckCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -46,7 +37,13 @@ class ACLCheckCommandTests(TestCase):
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_no_variables(self):
-		self.assertRaises(ValueError, ACLCheckCommand, object(), ip = None, list_name = 'test')
+		self.assertRaises(ValueError, ACLCheckCommand, object(), ip = None, list_name = None)
+
+	def test_failed_scenario_no_variable_ip(self):
+		self.assertRaises(ValueError, ACLCheckCommand, object(), ip = None, list_name = 'lan')
+
+	def test_failed_scenario_no_variable_list_name(self):
+		self.assertRaises(ValueError, ACLCheckCommand, object(), ip = '192.168.1.1', list_name = None)
 
 class CheckUserGroupCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -90,6 +87,9 @@ class GetGlobalVariableCommandTests(TestCase):
     desired_output = 'bgapi global_getvar testVariable\nJob-UUID: %s\n\n'  % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
+  def test_failed_scenario_no_variable(self):
+  	self.assertRaises(ValueError, GetGlobalVariableCommand, object(), name = None)
+
 class GetMaxSessionsCommandTests(TestCase):
   def test_success_scenario(self):
     command = GetMaxSessionsCommand(object())   	
@@ -119,7 +119,10 @@ class GetGroupCallBridgeStringCommandTests(TestCase):
     command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+F')   	
     desired_output = 'bgapi group_call groupname_test@domain_test.com+F\nJob-UUID: %s\n\n'  % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
-   
+
+  def test_failed_scenario_no_value_option(self):
+  	self.assertRaises(ValueError, GetGroupCallBridgeStringCommand, object(), group = 'groupname_test', domain = 'domain_test.com', option = 'None')
+
   def test_success_scenario_value_A(self):
     command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+A')   	
     desired_output = 'bgapi group_call groupname_test@domain_test.com+A\nJob-UUID: %s\n\n'  % command.__job_uuid__
@@ -225,6 +228,9 @@ class ShutdownCommandTests(TestCase):
 		desired_output = 'bgapi fsctl shutdown cancel\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
+	def test_failed_scenario_with_no_value(self):
+		self.assertRaises(ValueError, ShutdownCommand, object(), option = 'n/a')
+
 class StatusCommandTests(TestCase):
 	def test_success_scenario(self):
 		command = StatusCommand(object())
@@ -273,7 +279,7 @@ class BridgeCommandTests(TestCase):
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_no_variable_other_uuid(self):
-		self.assertRaises(ValueError, BridgeCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', None)
+		self.assertRaises(ValueError, BridgeCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', other_uuid = None)
 
 class BroadcastCommandTests(TestCase):
 	def test_success_scenario_withPath(self):
@@ -302,7 +308,10 @@ class BroadcastCommandTests(TestCase):
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_no_variable_leg(self):
-		self.assertRaises(ValueError, BroadcastCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', None, 'testPath', None, 'app_args')
+		self.assertRaises(ValueError, BroadcastCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = None, path = 'testPath', app_name = None, app_args = 'app_args')
+
+	def test_failed_scenario_runtime(self):
+		self.assertRaises(RuntimeError, BroadcastCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'bleg', path = 'testPath', app_name = 'testApp', app_args = 'app_args')
 
 class ChatCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -332,7 +341,10 @@ class DualTransferCommandTests(TestCase):
 	def test_success_scenario(self):
 		command = DualTransferCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', extension_a = '0', extension_b = '1', dialplan_a = 'plana', dialplan_b = 'planb', context_a = 'contxa', context_b = 'contxb')
 		desired_output = 'bgapi uuid_dual_transfer 21516b8e-5a0b-485a-9e53-933e42947079 0/plana/contxa 1/planb/contxb\nJob-UUID: %s\n\n' % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)    
+		self.assertTrue(str(command) == desired_output)
+
+	def test_failed_scenario_without_variable(self):
+		self.assertRaises(RuntimeError, DualTransferCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', extension_a = None, extension_b = None)    
 
 class DumpCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -394,6 +406,9 @@ class FileManagerCommandTests(TestCase):
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 seek\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
+  def test_failed_scenario_without_variable(self):
+    self.assertRaises(ValueError, FileManagerCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = None)
+
 class FlushDTMFCommandTests(TestCase):
 	def test_success_scenario(self):
 		command = FlushDTMFCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
@@ -417,6 +432,9 @@ class GetVariableCommandTests(TestCase):
 		command = GetVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName')
 		desired_output = 'bgapi uuid_getvar 21516b8e-5a0b-485a-9e53-933e42947079 testName\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
+
+	def test_failed_scenario_without_variable(self):
+		self.assertRaises(ValueError, GetVariableCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = None)
 
 class HoldCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -494,6 +512,12 @@ class SetAudioLevelCommandTests(TestCase):
 		command = SetAudioLevelCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', level = 3.3)
 		desired_output = 'bgapi uuid_audio 21516b8e-5a0b-485a-9e53-933e42947079 start write level 3.300000\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
+
+	def test_failed_scenario_with_invalid_variable_high(self):
+		self.assertRaises(ValueError, SetAudioLevelCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', level = 4.1)
+
+	def test_failed_scenario_with_invalid_variable_low(self):
+		self.assertRaises(ValueError, SetAudioLevelCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', level = -4.1)
 
 class SetMultipleVariableCommandTests(TestCase):
 	def test_success_scenario(self):

@@ -258,7 +258,7 @@ class DualTransferCommand(UUIDCommand):
     self.__dialplan_b__ = kwargs.get('dialplan_b')
     self.__context_a__ = kwargs.get('context_a')
     self.__context_b__ = kwargs.get('context_b')
-    if not self.__extension_a__ or not self.__extension_b__:
+    if not self.__extension_a__ and not self.__extension_b__:
       raise RuntimeError('A dual transer command requires the extension_a \
         and extension_b parameters to be provided.')
 
