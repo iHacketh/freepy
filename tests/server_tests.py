@@ -17,7 +17,9 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
+from lib.events import *
 from lib.server import *
+from pykka import ActorRegistry, ThreadingActor
 from unittest import TestCase, expectedFailure
 
 class AuthCommandTests(TestCase):
@@ -37,15 +39,34 @@ class EventsCommandTests(TestCase):
   def test_invalid_format(self):
     self.assertRaises(ValueError, EventsCommand, ['BACKGROUD_JOB'], format = 'invalid')
 
+class TestApplicationFactoryActor(ThreadingActor):
+  def on_receive(self, message):
+    pass
+
 class ApplicationFactoryTests(TestCase):
-  pass
+  __test_actor_path__ = 'tests.server_tests.TestApplicationFactoryActor'
 
-#class DispatcherTests(TestCase):
-#  def test_startup_process(self):
-#    pass
+  @classmethod
+  def tearDownClass(cls):
+    ActorRegistry.stop_all()
 
-#  def test_background_jobs(self):
-#    pass
+  def test_class_instantiation(self):
+    self.__factory__ = ApplicationFactory(object())
+    self.__factory__.register(self.__test_actor_path__)
+    instance_a = self.__factory__.get_instance(self.__test_actor_path__)
+    instance_b = self.__factory__.get_instance(self.__test_actor_path__)
+    self.assertFalse(instance_a.actor_urn == instance_b.actor_urn)
+    self.__factory__.shutdown()
 
-#  def test_send_command(self):
-#    pass
+  def test_singleton_instantiation(self):
+    self.__factory__ = ApplicationFactory(object())
+    self.__factory__.register(self.__test_actor_path__, type = 'singleton')
+    instance_a = self.__factory__.get_instance(self.__test_actor_path__)
+    instance_b = self.__factory__.get_instance(self.__test_actor_path__)
+    self.assertTrue(instance_a.actor_urn == instance_b.actor_urn)
+    self.__factory__.shutdown()
+
+  def test_different_types_same_name_fail(self):
+    self.__factory__ = ApplicationFactory(object())
+    self.__factory__.register(self.__test_actor_path__, type = 'singleton')
+    self.assertRaises(ValueError, self.__factory__.register, self.__test_actor_path__)

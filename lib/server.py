@@ -70,6 +70,7 @@ class ApplicationFactory(object):
     self.__classes__ = dict()
     self.__singletons__ = dict()
     self.__init_event__ = InitializeSwitchletEvent(dispatcher)
+    self.__uninit_event__ = UninitializeSwitchletEvent()
 
   def __contains_name__(self, name):
     if self.__classes__.has_key(name) or self.__singletons__.has_key(name):
@@ -114,6 +115,7 @@ class ApplicationFactory(object):
       del self.__classes__[name]
     else:
       singleton = self.__singletons__.get(name)
+      singleton.tell({'content': self.__uninit_event__})
       if singleton:
         singleton.stop()
         del self.__singletons__[name]
