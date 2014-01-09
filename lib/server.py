@@ -248,30 +248,30 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     self.__client__.send(events_command)
 
   def __on_auth__(self, message):
-    if self.get_state() == 'not ready':
+    if self.state() == 'not ready':
       self.transition(to = 'authenticating', event = message)
 
   def __on_command__(self, message):
-    if self.get_state() == 'dispatching':
+    if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
   def __on_command_reply__(self, message):
     reply = message.get_header('Reply-Text')
-    if self.get_state() == 'authenticating':
+    if self.state() == 'authenticating':
       if reply == '+OK accepted':
         self.transition(to = 'initializing', event = message)
       elif reply == '-ERR invalid':
         self.transition(to = 'failed authentication', event = message)
-    if self.get_state() == 'initializing':
+    if self.state() == 'initializing':
       if reply == '+OK event listener enabled plain':
         self.transition(to = 'dispatching')
       elif reply == '-ERR no keywords supplied':
         self.transition(to = 'failed initialization', event = message)
-    if self.get_state() == 'dispatching':
+    if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
   def __on_event__(self, message):
-    if self.get_state() == 'dispatching':
+    if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
   def __on_init__(self, message):
@@ -279,11 +279,11 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     self.__client__ = message.get_client()
 
   def __on_kill__(self, message):
-    if self.get_state() == 'dispatching':
+    if self.state() == 'dispatching':
       self.transition(to = 'done', event = message)
 
   def __on_observer__(self, message):
-    if self.get_state() == 'dispatching':
+    if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
   def on_receive(self, message):
