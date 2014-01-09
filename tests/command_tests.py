@@ -24,20 +24,20 @@ from unittest import TestCase, expectedFailure
 
 class BackgroundCommandTests(TestCase):
   def test_success_scenario(self):
-	 command = BackgroundCommand(object())
+    command = BackgroundCommand(object())
 
-	def test_failed_scenario_no_variable(self):
-		self.assertRaises(ValueError, BackgroundCommand, None)
+  def test_failed_scenario_no_variable(self):
+    self.assertRaises(ValueError, BackgroundCommand, None)
 
 class UUIDCommandTests(TestCase):
-	def test_failed_scenario_no_variables(self):
-		self.assertRaises(ValueError, UUIDCommand, None, None)
+  def test_failed_scenario_no_variables(self):
+    self.assertRaises(ValueError, UUIDCommand, None, None)
 
-	def test_failed_scenario_missing_object(self):
-		self.assertRaises(ValueError, UUIDCommand, None, '21516b8e-5a0b-485a-9e53-933e42947079')
+  def test_failed_scenario_missing_object(self):
+    self.assertRaises(ValueError, UUIDCommand, None, '21516b8e-5a0b-485a-9e53-933e42947079')
    
   def test_failed_scenario_missing_UUID(self):
-		self.assertRaises(ValueError, UUIDCommand, object(), None)
+    self.assertRaises(ValueError, UUIDCommand, object(), None)
 
 class ACLCheckCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -73,118 +73,118 @@ class DomainExistsCommandTests(TestCase):
 		self.assertTrue(str(command) == desired_output)
 
 class EnableVerboseEventsCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = EnableVerboseEventsCommand(object())
-  	desired_output = 'bgapi fsctl verbose_events on\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = EnableVerboseEventsCommand(object())
+    desired_output = 'bgapi fsctl verbose_events on\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class GetDefaultDTMFDurationCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = GetDefaultDTMFDurationCommand(object())   	
-  	desired_output = 'bgapi fsctl default_dtmf_duration 0\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = GetDefaultDTMFDurationCommand(object())
+    desired_output = 'bgapi fsctl default_dtmf_duration 0\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
     
 class GetGlobalVariableCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = GetGlobalVariableCommand(object(), name='testVariable')   	
-  	desired_output = 'bgapi global_getvar testVariable\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = GetGlobalVariableCommand(object(), name='testVariable')   	
+    desired_output = 'bgapi global_getvar testVariable\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class GetMaxSessionsCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = GetMaxSessionsCommand(object())   	
-  	desired_output = 'bgapi fsctl max_sessions\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = GetMaxSessionsCommand(object())   	
+    desired_output = 'bgapi fsctl max_sessions\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class GetMaximumDTMFDurationCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = GetMaximumDTMFDurationCommand(object())   	
-  	desired_output = 'bgapi fsctl max_dtmf_duration 0\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = GetMaximumDTMFDurationCommand(object())   	
+    desired_output = 'bgapi fsctl max_dtmf_duration 0\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class GetMinimumDTMFDurationCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = GetMinimumDTMFDurationCommand(object())   	
-  	desired_output = 'bgapi fsctl min_dtmf_duration 0\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = GetMinimumDTMFDurationCommand(object())   	
+    desired_output = 'bgapi fsctl min_dtmf_duration 0\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class GetSessionsPerSecondCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = GetSessionsPerSecondCommand(object())   	
-  	desired_output = 'bgapi fsctl last_sps\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = GetSessionsPerSecondCommand(object())   	
+    desired_output = 'bgapi fsctl last_sps\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class GetGroupCallBridgeStringCommandTests(TestCase):
-	def test_success_scenario_value_F(self):
-		command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+F')   	
-  	desired_output = 'bgapi group_call groupname_test@domain_test.com+F\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario_value_F(self):
+    command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+F')   	
+    desired_output = 'bgapi group_call groupname_test@domain_test.com+F\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
    
-	def test_success_scenario_value_A(self):
-		command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+A')   	
-  	desired_output = 'bgapi group_call groupname_test@domain_test.com+A\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario_value_A(self):
+    command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+A')   	
+    desired_output = 'bgapi group_call groupname_test@domain_test.com+A\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
    
-	def test_success_scenario_value_F(self):
-		command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+E')   	
-  	desired_output = 'bgapi group_call groupname_test@domain_test.com+E\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario_value_F(self):
+    command = GetGroupCallBridgeStringCommand(object(), group = 'groupname_test', domain = 'domain_test.com', option = '+E')   	
+    desired_output = 'bgapi group_call groupname_test@domain_test.com+E\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
   def test_failed_scenario_bad_variable(self):
     self.assertRaises(ValueError, GetGroupCallBridgeStringCommand, object(), group = 'groupname_test', domain = 'domain_test.com', option = '+G')
  
 class HupAllCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = HupAllCommand(object(), cause = 'test_cause', var_name = 'test_var_name', var_value = 'test_var_value')   	
-  	desired_output = 'bgapi hupall test_cause test_var_name test_var_value\nJob-UUID: %s\n\n'  % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = HupAllCommand(object(), cause = 'test_cause', var_name = 'test_var_name', var_value = 'test_var_value')   	
+    desired_output = 'bgapi hupall test_cause test_var_name test_var_value\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
 class LoadModuleCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = LoadModuleCommand(object(), name = "testModule")
-		desired_output = 'bgapi load testModule\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = LoadModuleCommand(object(), name = "testModule")
+    desired_output = 'bgapi load testModule\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
      
 class OriginateCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = OriginateCommand(object(), url = "http://test.com", extension = None, app_name = 'appTestme', app_args = ['arg1','arg2'], options = ['opt1','opt2'])
-		desired_output = 'bgapi originate {opt1,opt2}http://test.com &appTestme(arg1 arg2)\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = OriginateCommand(object(), url = "http://test.com", extension = None, app_name = 'appTestme', app_args = ['arg1','arg2'], options = ['opt1','opt2'])
+    desired_output = 'bgapi originate {opt1,opt2}http://test.com &appTestme(arg1 arg2)\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
     
 class PauseSessionCreationCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = PauseSessionCreationCommand(object(), direction = "testDirection")
-		desired_output = 'bgapi fsctl pause testDirection\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = PauseSessionCreationCommand(object(), direction = "testDirection")
+    desired_output = 'bgapi fsctl pause testDirection\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class ReclaimMemoryCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = ReclaimMemoryCommand(object())
-		desired_output = 'bgapi fsctl reclaim_mem\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = ReclaimMemoryCommand(object())
+    desired_output = 'bgapi fsctl reclaim_mem\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class ResumeSessionCreationCommandTests(TestCase):
-	def test_success_scenario_passvariable(self):
-		command = ResumeSessionCreationCommand(object(), direction = "testDirection")
-		desired_output = 'bgapi fsctl resume testDirection\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario_passvariable(self):
+    command = ResumeSessionCreationCommand(object(), direction = "testDirection")
+    desired_output = 'bgapi fsctl resume testDirection\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
    	
-	def test_success_scenario_novariable(self):
-		command = ResumeSessionCreationCommand(object())
-		desired_output = 'bgapi fsctl resume\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario_novariable(self):
+    command = ResumeSessionCreationCommand(object())
+    desired_output = 'bgapi fsctl resume\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class SetDefaultDTMFDurationCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = SetDefaultDTMFDurationCommand(object(), duration = 500)
-		desired_output = 'bgapi fsctl default_dtmf_duration 500\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = SetDefaultDTMFDurationCommand(object(), duration = 500)
+    desired_output = 'bgapi fsctl default_dtmf_duration 500\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class SetGlobalVariableCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = SetGlobalVariableCommand(object(), name = 'testName', value = 'testValue')
-		desired_output = 'bgapi global_setvar testName=testValue\nJob-UUID: %s\n\n'  % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = SetGlobalVariableCommand(object(), name = 'testName', value = 'testValue')
+    desired_output = 'bgapi global_setvar testName=testValue\nJob-UUID: %s\n\n'  % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class SetMaximumDTMFDurationCommandTests(TestCase):
 	def test_success_scenario(self):
@@ -502,62 +502,62 @@ class SetMultipleVariableCommandTests(TestCase):
 		self.assertTrue(str(command) == desired_output)
 
 class SetVariableCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = SetVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
-  	desired_output = 'bgapi uuid_setvar 21516b8e-5a0b-485a-9e53-933e42947079 testName testValue\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = SetVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
+    desired_output = 'bgapi uuid_setvar 21516b8e-5a0b-485a-9e53-933e42947079 testName testValue\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class SimplifyCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = SimplifyCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
-  	desired_output = 'bgapi uuid_simplify 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = SimplifyCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
+    desired_output = 'bgapi uuid_simplify 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
 class StartDebugMediaCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = StartDebugMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', option = 'testOption')   	
-  	desired_output = 'bgapi uuid_debug_media 21516b8e-5a0b-485a-9e53-933e42947079 testOption on\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = StartDebugMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', option = 'testOption')   	
+    desired_output = 'bgapi uuid_debug_media 21516b8e-5a0b-485a-9e53-933e42947079 testOption on\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
 class StartDisplaceCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = StartDisplaceCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', path = 'testPath', limit = 450, mux='testMux')   	
-  	desired_output = 'bgapi uuid_displace 21516b8e-5a0b-485a-9e53-933e42947079 start testPath 450 mux\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = StartDisplaceCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', path = 'testPath', limit = 450, mux='testMux')   	
+    desired_output = 'bgapi uuid_displace 21516b8e-5a0b-485a-9e53-933e42947079 start testPath 450 mux\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
 class StopDebugMediaCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = StopDebugMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
-		desired_output = 'bgapi uuid_debug_media 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = StopDebugMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+    desired_output = 'bgapi uuid_debug_media 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class StopDisplaceCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = StopDisplaceCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
-		desired_output = 'bgapi uuid_displace 21516b8e-5a0b-485a-9e53-933e42947079 stop\nJob-UUID: %s\n\n' % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = StopDisplaceCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+    desired_output = 'bgapi uuid_displace 21516b8e-5a0b-485a-9e53-933e42947079 stop\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class TransferCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = TransferCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'legTest', extension = '384', dialplan = '44', context = 'contextTest')
-		desired_output = 'bgapi uuid_transfer 21516b8e-5a0b-485a-9e53-933e42947079 legTest 384 44 contextTest\nJob-UUID: %s\n\n' % command.__job_uuid__
-		self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = TransferCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'legTest', extension = '384', dialplan = '44', context = 'contextTest')
+    desired_output = 'bgapi uuid_transfer 21516b8e-5a0b-485a-9e53-933e42947079 legTest 384 44 contextTest\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
 
 class UnholdCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = UnholdCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
-  	desired_output = 'bgapi uuid_hold off 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = UnholdCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
+    desired_output = 'bgapi uuid_hold off 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
 class UnpauseCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
-  	desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
+    desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
 class UnpauseCommandTests(TestCase):
-	def test_success_scenario(self):
-		command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName')   	
-  	desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
-  	self.assertTrue(str(command) == desired_output)
+  def test_success_scenario(self):
+    command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName')   	
+    desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
+    self.assertTrue(str(command) == desired_output)
  
