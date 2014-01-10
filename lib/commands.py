@@ -17,6 +17,8 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
+# Cristian Groza <frontc18@gmail.com>
+
 from uuid import uuid4
 
 # Import the proper StringIO implementation.
@@ -49,6 +51,13 @@ class UUIDCommand(BackgroundCommand):
     return self.__uuid__
 
 class ACLCheckCommand(BackgroundCommand):
+  '''
+  The ACLCheckCommand compares an ip to an ACL list.
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             list_name - ACL list name.
+  '''
   def __init__(self, *args, **kwargs):
     super(ACLCheckCommand, self).__init__(*args, **kwargs)
     self.__ip__ = kwargs.get('ip')
@@ -70,6 +79,12 @@ class ACLCheckCommand(BackgroundCommand):
       self.__list_name__, self.__job_uuid__)
 
 class AnswerCommand(UUIDCommand):
+  '''
+  The AnswerCommand answers a channel.
+
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+  '''
   def __init__(self, *args, **kwargs):
     super(AnswerCommand, self).__init__(*args, **kwargs)
 
@@ -78,6 +93,18 @@ class AnswerCommand(UUIDCommand):
       self.__job_uuid__)
 
 class BreakCommand(UUIDCommand):
+  '''
+  Break out of media being sent to a channel. For example, if an audio file is being played to a channel, 
+  issuing uuid_break will discontinue the media and the call will move on in the dialplan, script, 
+  or whatever is controlling the call.
+
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              stop_all - boolean flag.*
+
+  *If the stop_all flag is used then all audio files/prompts/etc. that are queued up to be played to the channel 
+  will be removed, whereas without the all flag only the currently playing file will be discontinued. 
+  '''
   def __init__(self, *args, **kwargs):
     super(BreakCommand, self).__init__(*args, **kwargs)
     self.__stop_all__ = kwargs.get('all', False)
@@ -94,6 +121,13 @@ class BreakCommand(UUIDCommand):
         self.__job_uuid__)
 
 class BridgeCommand(UUIDCommand):
+  '''
+  Bridge two call legs together. Bridge needs atleast any one leg to be answered. 
+  
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              other_uuid - universal unique identifier to Bridge.
+  '''
   def __init__(self, *args, **kwargs):
     super(BridgeCommand, self).__init__(*args, **kwargs)
     self.__other_uuid__ = kwargs.get('other_uuid')
@@ -108,6 +142,21 @@ class BridgeCommand(UUIDCommand):
       self.__other_uuid__, self.__job_uuid__)
 
 class BroadcastCommand(UUIDCommand):
+  '''
+  Execute an arbitrary dialplan application on a specific <uuid>. 
+  If a filename is specified then it is played into the channel(s).
+  ??? 
+  To execute an application use <app_name> and <app_args> syntax.
+
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              leg - select which leg(s) to use [aleg|bleg|both]
+              path - ???*
+              app_name - ???*
+              app_args - ???
+  
+  * Can provide path Or app_name, but not both. 
+  '''
   def __init__(self, *args, **kwargs):
     super(BroadcastCommand, self).__init__(*args, **kwargs)
     self.__leg__ = kwargs.get('leg')
@@ -147,6 +196,15 @@ class BroadcastCommand(UUIDCommand):
       buffer.close()
 
 class ChatCommand(UUIDCommand):
+  '''
+  Send a chat message. If the endpoint associated with the session 
+  <uuid> has a receive_event handler, this message gets sent to that 
+  session and is interpreted as an instant message. 
+  
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              text - message to be sent.
+  '''
   def __init__(self, *args, **kwargs):
     super(ChatCommand, self).__init__(*args, **kwargs)
     self.__text__ = kwargs.get('text', '')
@@ -159,6 +217,13 @@ class ChatCommand(UUIDCommand):
       self.__text__, self.__job_uuid__)
 
 class CheckUserGroupCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
   def __init__(self, *args, **kwargs):
     super(CheckUserGroupCommand, self).__init__(*args, **kwargs)
     self.__user__ = kwargs.get('user')
@@ -183,6 +248,12 @@ class CheckUserGroupCommand(BackgroundCommand):
         self.__domain__, self.__group_name__, self.__job_uuid__)
 
 class DeflectCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(DeflectCommand, self).__init__(*args, **kwargs)
     self.__url__ = kwargs.get('url')
@@ -195,6 +266,13 @@ class DeflectCommand(UUIDCommand):
       self.__url__, self.__job_uuid__)
 
 class DialedExtensionHupAllCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
   def __init__(self, *args, **kwargs):
     super(DialedExtensionHupAllCommand, self).__init__(*args, **kwargs)
     self.__clearing__ = kwargs.get('clearing')
@@ -211,6 +289,12 @@ class DialedExtensionHupAllCommand(BackgroundCommand):
       self.__extension__, self.__job_uuid__)
 
 class DisableMediaCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(DisableMediaCommand, self).__init__(*args, **kwargs)
 
@@ -219,6 +303,13 @@ class DisableMediaCommand(UUIDCommand):
       self.__job_uuid__)
 
 class DisableVerboseEventsCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
   def __init__(self, *args, **kwargs):
     super(DisableVerboseEventsCommand, self).__init__(*args, **kwargs)
 
@@ -226,6 +317,12 @@ class DisableVerboseEventsCommand(BackgroundCommand):
     return 'bgapi fsctl verbose_events off\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class DisplayCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(DisplayCommand, self).__init__(*args, **kwargs)
     self.__display__ = kwargs.get('display')
@@ -238,6 +335,14 @@ class DisplayCommand(UUIDCommand):
       self.__display__, self.__job_uuid__)
 
 class DomainExistsCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(DomainExistsCommand, self).__init__(*args, **kwargs)
     self.__domain__ = kwargs.get('domain')
@@ -250,6 +355,12 @@ class DomainExistsCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class DualTransferCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(DualTransferCommand, self).__init__(*args, **kwargs)
     self.__extension_a__ = kwargs.get('extension_a')
@@ -300,6 +411,12 @@ class DualTransferCommand(UUIDCommand):
       destination_a, destination_b, self.__job_uuid__)
 
 class DumpCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(DumpCommand, self).__init__(*args, **kwargs)
     self.__format__ = kwargs.get('format', 'XML')
@@ -312,6 +429,12 @@ class DumpCommand(UUIDCommand):
       self.__format__, self.__job_uuid__)
 
 class EarlyOkayCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(EarlyOkayCommand, self).__init__(*args, **kwargs)
 
@@ -320,6 +443,12 @@ class EarlyOkayCommand(UUIDCommand):
       self.__job_uuid__)
 
 class EnableMediaCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(EnableMediaCommand, self).__init__(*args, **kwargs)
 
@@ -328,6 +457,12 @@ class EnableMediaCommand(UUIDCommand):
       self.__job_uuid__)
 
 class EnableSessionHeartbeatCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(EnableSessionHeartbeatCommand, self).__init__(*args, **kwargs)
     self.__start_time__ = kwargs.get('start_time') # Seconds in the future to start
@@ -344,6 +479,14 @@ class EnableSessionHeartbeatCommand(UUIDCommand):
         self.__start_time__, self.__job_uuid__)
 
 class EnableVerboseEventsCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(EnableVerboseEventsCommand, self).__init__(*args, **kwargs)
 
@@ -351,6 +494,12 @@ class EnableVerboseEventsCommand(BackgroundCommand):
     return 'bgapi fsctl verbose_events on\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class FileManagerCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(FileManagerCommand, self).__init__(*args, **kwargs)
     self.__command__ = kwargs.get('command')
@@ -376,6 +525,12 @@ class FileManagerCommand(UUIDCommand):
         self.__command__, self.__job_uuid__)
 
 class FlushDTMFCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(FlushDTMFCommand, self).__init__(*args, **kwargs)
 
@@ -384,6 +539,12 @@ class FlushDTMFCommand(UUIDCommand):
       self.__job_uuid__)
 
 class GetAudioLevelCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(GetAudioLevelCommand, self).__init__(*args, **kwargs)
 
@@ -392,6 +553,12 @@ class GetAudioLevelCommand(UUIDCommand):
       self.__job_uuid__)
 
 class GetBugListCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(GetBugListCommand, self).__init__(*args, **kwargs)
 
@@ -400,6 +567,14 @@ class GetBugListCommand(UUIDCommand):
       self.__job_uuid__)
 
 class GetDefaultDTMFDurationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetDefaultDTMFDurationCommand, self).__init__(*args, **kwargs)
 
@@ -407,6 +582,14 @@ class GetDefaultDTMFDurationCommand(BackgroundCommand):
     return 'bgapi fsctl default_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class GetGlobalVariableCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetGlobalVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -421,6 +604,14 @@ class GetGlobalVariableCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class GetMaxSessionsCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetMaxSessionsCommand, self).__init__(*args, **kwargs)
 
@@ -428,6 +619,14 @@ class GetMaxSessionsCommand(BackgroundCommand):
     return 'bgapi fsctl max_sessions\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class GetMaximumDTMFDurationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetMaximumDTMFDurationCommand, self).__init__(*args, **kwargs)
 
@@ -435,6 +634,14 @@ class GetMaximumDTMFDurationCommand(BackgroundCommand):
     return 'bgapi fsctl max_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class GetMinimumDTMFDurationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetMinimumDTMFDurationCommand, self).__init__(*args, **kwargs)
 
@@ -442,6 +649,14 @@ class GetMinimumDTMFDurationCommand(BackgroundCommand):
     return 'bgapi fsctl min_dtmf_duration 0\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class GetSessionsPerSecondCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetSessionsPerSecondCommand, self).__init__(*args, **kwargs)
 
@@ -449,6 +664,12 @@ class GetSessionsPerSecondCommand(BackgroundCommand):
     return 'bgapi fsctl last_sps\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class GetVariableCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(GetVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -463,6 +684,14 @@ class GetVariableCommand(UUIDCommand):
       self.__name__, self.__job_uuid__)
 
 class GetGroupCallBridgeStringCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(GetGroupCallBridgeStringCommand, self).__init__(*args, **kwargs)
     self.__group__ = kwargs.get('group')
@@ -490,6 +719,12 @@ class GetGroupCallBridgeStringCommand(BackgroundCommand):
         self.__domain__, self.__option__, self.__job_uuid__)
 
 class HoldCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(HoldCommand, self).__init__(*args, **kwargs)
 
@@ -498,6 +733,14 @@ class HoldCommand(UUIDCommand):
       self.__job_uuid__)
 
 class HupAllCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(HupAllCommand, self).__init__(*args, **kwargs)
     self.__cause__ = kwargs.get('cause')
@@ -522,6 +765,12 @@ class HupAllCommand(BackgroundCommand):
         self.__job_uuid__)
 
 class KillCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(KillCommand, self).__init__(*args, **kwargs)
     self.__cause__ = kwargs.get('cause')
@@ -538,6 +787,12 @@ class KillCommand(UUIDCommand):
         self.__cause__, self.__job_uuid__)
 
 class LimitCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(LimitCommand, self).__init__(*args, **kwargs)
     self.__backend__ = kwargs.get('backend')
@@ -582,6 +837,14 @@ class LimitCommand(UUIDCommand):
       buffer.close()
 
 class LoadModuleCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(LoadModuleCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -594,6 +857,14 @@ class LoadModuleCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class OriginateCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(OriginateCommand, self).__init__(*args, **kwargs)
     self.__url__ = kwargs.get('url')
@@ -642,6 +913,12 @@ class OriginateCommand(BackgroundCommand):
       buffer.close()
 
 class ParkCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(ParkCommand, self).__init__(*args, **kwargs)
 
@@ -650,6 +927,12 @@ class ParkCommand(UUIDCommand):
       self.__job_uuid__)
 
 class PauseCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(PauseCommand, self).__init__(*args, **kwargs)
 
@@ -658,6 +941,14 @@ class PauseCommand(UUIDCommand):
       self.__job_uuid__)
 
 class PauseSessionCreationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(PauseSessionCreationCommand, self).__init__(*args, **kwargs)
     self.__direction__ = kwargs.get('direction')
@@ -673,6 +964,12 @@ class PauseSessionCreationCommand(BackgroundCommand):
         self.__job_uuid__)
 
 class PreAnswerCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(PreAnswerCommand, self).__init__(*args, **kwargs)
 
@@ -681,6 +978,12 @@ class PreAnswerCommand(UUIDCommand):
       self.__job_uuid__)
 
 class PreProcessCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(PreProcessCommand, self).__init__(*args, **kwargs)
 
@@ -689,6 +992,12 @@ class PreProcessCommand(UUIDCommand):
       self.__job_uuid__)
 
 class ReceiveDTMFCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(ReceiveDTMFCommand, self).__init__(*args, **kwargs)
     self.__digits__ = kwargs.get('digits')
@@ -709,6 +1018,14 @@ class ReceiveDTMFCommand(UUIDCommand):
         self.__digits__, self.__duration__, self.__job_uuid__)
 
 class ReclaimMemoryCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(ReclaimMemoryCommand, self).__init__(*args, **kwargs)
 
@@ -716,6 +1033,12 @@ class ReclaimMemoryCommand(BackgroundCommand):
     return 'bgapi fsctl reclaim_mem\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class RenegotiateMediaCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(RenegotiateMediaCommand, self).__init__(*args, **kwargs)
     self.__codec__ = kwargs.get('codec')
@@ -728,6 +1051,14 @@ class RenegotiateMediaCommand(UUIDCommand):
       self.__codec__, self.__job_uuid__)
 
 class ResumeSessionCreationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(ResumeSessionCreationCommand, self).__init__(*args, **kwargs)
     self.__direction__ = kwargs.get('direction')
@@ -743,6 +1074,12 @@ class ResumeSessionCreationCommand(BackgroundCommand):
         self.__job_uuid__)
 
 class SendDTMFCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(SendDTMFCommand, self).__init__(*args, **kwargs)
     self.__digits__ = kwargs.get('digits')
@@ -763,6 +1100,12 @@ class SendDTMFCommand(UUIDCommand):
         self.__digits__, self.__duration__, self.__job_uuid__)
 
 class SendInfoCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(SendInfoCommand, self).__init__(*args, **kwargs)
 
@@ -771,6 +1114,12 @@ class SendInfoCommand(UUIDCommand):
       self.__job_uuid__)
 
 class SetAudioLevelCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(SetAudioLevelCommand, self).__init__(*args, **kwargs)
     self.__audio_level__ = kwargs.get('level')
@@ -786,6 +1135,14 @@ class SetAudioLevelCommand(UUIDCommand):
       self.__audio_level__, self.__job_uuid__)
 
 class SetDefaultDTMFDurationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SetDefaultDTMFDurationCommand, self).__init__(*args, **kwargs)
     self.__duration__ = kwargs.get('duration')
@@ -798,6 +1155,14 @@ class SetDefaultDTMFDurationCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class SetGlobalVariableCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SetGlobalVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -817,6 +1182,14 @@ class SetGlobalVariableCommand(BackgroundCommand):
       self.__value__, self.__job_uuid__)
 
 class SetMaximumDTMFDurationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SetMaximumDTMFDurationCommand, self).__init__(*args, **kwargs)
     self.__duration__ = kwargs.get('duration')
@@ -829,6 +1202,14 @@ class SetMaximumDTMFDurationCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class SetMinimumDTMFDurationCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SetMinimumDTMFDurationCommand, self).__init__(*args, **kwargs)
     self.__duration__ = kwargs.get('duration')
@@ -841,6 +1222,12 @@ class SetMinimumDTMFDurationCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class SetMultipleVariableCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(SetMultipleVariableCommand, self).__init__(*args, **kwargs)
     self.__variables__ = kwargs.get('variables')
@@ -857,6 +1244,14 @@ class SetMultipleVariableCommand(UUIDCommand):
       self.__variables_string__, self.__job_uuid__)
 
 class SetSessionsPerSecondCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SetSessionsPerSecondCommand, self).__init__(*args, **kwargs)
     self.__sessions_per_second__ = kwargs.get('sessions_per_second')
@@ -869,6 +1264,12 @@ class SetSessionsPerSecondCommand(BackgroundCommand):
       self.__job_uuid__)
 
 class SetVariableCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(SetVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -888,6 +1289,14 @@ class SetVariableCommand(UUIDCommand):
       self.__name__, self.__value__, self.__job_uuid__)
 
 class ShutdownCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(ShutdownCommand, self).__init__(*args, **kwargs)
     self.__option__ = kwargs.get('option')
@@ -907,6 +1316,12 @@ class ShutdownCommand(BackgroundCommand):
         self.__job_uuid__)
 
 class SimplifyCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(SimplifyCommand, self).__init__(*args, **kwargs)
 
@@ -915,6 +1330,12 @@ class SimplifyCommand(UUIDCommand):
       self.__job_uuid__)
 
 class StartDebugMediaCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(StartDebugMediaCommand, self).__init__(*args, **kwargs)
     self.__option__ = kwargs.get('option')
@@ -927,6 +1348,12 @@ class StartDebugMediaCommand(UUIDCommand):
       self.__option__, self.__job_uuid__)
 
 class StartDisplaceCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(StartDisplaceCommand, self).__init__(*args, **kwargs)
     self.__path__ = kwargs.get('path')
@@ -957,6 +1384,14 @@ class StartDisplaceCommand(UUIDCommand):
       buffer.close()
 
 class StatusCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(StatusCommand, self).__init__(*args, **kwargs)
 
@@ -964,6 +1399,12 @@ class StatusCommand(BackgroundCommand):
     return 'bgapi status\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class StopDebugMediaCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(StopDebugMediaCommand, self).__init__(*args, **kwargs)
 
@@ -972,6 +1413,12 @@ class StopDebugMediaCommand(UUIDCommand):
       self.__job_uuid__)
 
 class StopDisplaceCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(StopDisplaceCommand, self).__init__(*args, **kwargs)
 
@@ -980,6 +1427,14 @@ class StopDisplaceCommand(UUIDCommand):
       self.__job_uuid__)
 
 class SyncClockCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SyncClockCommand, self).__init__(*args, **kwargs)
 
@@ -987,6 +1442,14 @@ class SyncClockCommand(BackgroundCommand):
     return 'bgapi fsctl sync_clock\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class SyncClockWhenIdleCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(SyncClockWhenIdleCommand, self).__init__(*args, **kwargs)
 
@@ -994,6 +1457,12 @@ class SyncClockWhenIdleCommand(BackgroundCommand):
     return 'bgapi fsctl sync_clock_when_idle\nJob-UUID: %s\n\n' % self.__job_uuid__
 
 class TransferCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(TransferCommand, self).__init__(*args, **kwargs)
     self.__leg__ = kwargs.get('leg')
@@ -1030,6 +1499,12 @@ class TransferCommand(UUIDCommand):
       buffer.close()
 
 class UnholdCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(UnholdCommand, self).__init__(*args, **kwargs)
 
@@ -1038,6 +1513,14 @@ class UnholdCommand(UUIDCommand):
       self.__job_uuid__)
 
 class UnloadModuleCommand(BackgroundCommand):
+  '''
+  The [] does []
+
+  Arguments: sender - The freepy actor sending this command.
+             ip - Internet Protocol address.
+             [] - []
+  '''  
+
   def __init__(self, *args, **kwargs):
     super(UnloadModuleCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -1058,6 +1541,12 @@ class UnloadModuleCommand(BackgroundCommand):
         self.__job_uuid__)
 
 class UnpauseCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(UnpauseCommand, self).__init__(*args, **kwargs)
 
@@ -1066,6 +1555,12 @@ class UnpauseCommand(UUIDCommand):
       self.__job_uuid__)
 
 class UnsetVariableCommand(UUIDCommand):
+  '''
+  The [] does []
+  Arguments:  sender - The freepy actor sending this command.
+              uuid - universal unique identifier.
+              [] = []
+  '''
   def __init__(self, *args, **kwargs):
     super(UnsetVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
