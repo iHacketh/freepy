@@ -201,7 +201,7 @@ class ChatCommand(UUIDCommand):
   <uuid> has a receive_event handler, this message gets sent to that 
   session and is interpreted as an instant message. 
   
-  Arguments:  sender - The freepy actor sending this command.
+  Arguments:  sender - the freepy actor sending this command.
               uuid - universal unique identifier.
               text - message to be sent.
   '''
@@ -218,11 +218,12 @@ class ChatCommand(UUIDCommand):
 
 class CheckUserGroupCommand(BackgroundCommand):
   '''
-  The [] does []
+  Determine if a <user> is in a group<group_name>. 
 
-  Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
+  Arguments: sender - the freepy actor sending this command.
+             'user' - username.
+             'domain' - domain name.
+             'group_name' - group name.
   '''  
   def __init__(self, *args, **kwargs):
     super(CheckUserGroupCommand, self).__init__(*args, **kwargs)
@@ -249,10 +250,15 @@ class CheckUserGroupCommand(BackgroundCommand):
 
 class DeflectCommand(UUIDCommand):
   '''
-  The [] does []
-  Arguments:  sender - The freepy actor sending this command.
+  Deflect an answered SIP call off of FreeSWITCH by sending the REFER method.
+  Deflect waits for the final response from the far end to be reported. 
+  It returns the sip fragment from that response as the text in the FreeSWITCH 
+  response to uuid_deflect. If the far end reports the REFER was successful, 
+  then FreeSWITCH will issue a bye on the channel. 
+  
+  Arguments:  sender - the freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              url - SIP url.
   '''
   def __init__(self, *args, **kwargs):
     super(DeflectCommand, self).__init__(*args, **kwargs)
@@ -267,11 +273,11 @@ class DeflectCommand(UUIDCommand):
 
 class DialedExtensionHupAllCommand(BackgroundCommand):
   '''
-  The [] does []
+  Can be used to disconnect existing calls to a destination.
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
+             clearing - clearing type. 
+             extension - extension number to be disconnected.
   '''  
   def __init__(self, *args, **kwargs):
     super(DialedExtensionHupAllCommand, self).__init__(*args, **kwargs)
@@ -290,10 +296,10 @@ class DialedExtensionHupAllCommand(BackgroundCommand):
 
 class DisableMediaCommand(UUIDCommand):
   '''
-  The [] does []
+  ???
+  
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(DisableMediaCommand, self).__init__(*args, **kwargs)
@@ -304,11 +310,11 @@ class DisableMediaCommand(UUIDCommand):
 
 class DisableVerboseEventsCommand(BackgroundCommand):
   '''
-  The [] does []
+  Disable verbose events. Verbose events have every channel variable in every event 
+  for a particular channel. Non-verbose events have only the pre-selected channel 
+  variables in the event headers. 
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
   '''  
   def __init__(self, *args, **kwargs):
     super(DisableVerboseEventsCommand, self).__init__(*args, **kwargs)
@@ -318,10 +324,15 @@ class DisableVerboseEventsCommand(BackgroundCommand):
 
 class DisplayCommand(UUIDCommand):
   '''
-  The [] does []
+  Updates the display on a phone if the phone supports this. This works on some SIP 
+  phones right now including Polycom and Snom. This command makes the phone re-negotiate 
+  the codec. The SIP -> RTP Packet Size should be 0.020. If it is set to 0.030 on the SPA 
+  series phones it causes a DTMF lag. When DTMF keys are pressed on the phone they are can 
+  be seen on the fs_cli 4-6 seconds late. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              display - ???
   '''
   def __init__(self, *args, **kwargs):
     super(DisplayCommand, self).__init__(*args, **kwargs)
@@ -336,13 +347,11 @@ class DisplayCommand(UUIDCommand):
 
 class DomainExistsCommand(BackgroundCommand):
   '''
-  The [] does []
+  Check if a domain exists. 
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
+             domain - domain to check.
   '''  
-
   def __init__(self, *args, **kwargs):
     super(DomainExistsCommand, self).__init__(*args, **kwargs)
     self.__domain__ = kwargs.get('domain')
@@ -356,10 +365,16 @@ class DomainExistsCommand(BackgroundCommand):
 
 class DualTransferCommand(UUIDCommand):
   '''
-  The [] does []
+  Transfer each leg of a call to different destinations. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              extension_a - source extension
+              dialplan_a - source dialplan 
+              context_a - source context 
+              extension_b - target extension
+              dialplan_b - target dialplan
+              context_b - target context
   '''
   def __init__(self, *args, **kwargs):
     super(DualTransferCommand, self).__init__(*args, **kwargs)
@@ -412,10 +427,11 @@ class DualTransferCommand(UUIDCommand):
 
 class DumpCommand(UUIDCommand):
   '''
-  The [] does []
+  Dumps all variable values for a session. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              format - variable values output format. Default XML.
   '''
   def __init__(self, *args, **kwargs):
     super(DumpCommand, self).__init__(*args, **kwargs)
@@ -430,10 +446,11 @@ class DumpCommand(UUIDCommand):
 
 class EarlyOkayCommand(UUIDCommand):
   '''
-  The [] does []
+  Stops the process of ignoring early media, i.e. if ignore_early_media=true 
+  it stops ignoring early media and responds normally. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(EarlyOkayCommand, self).__init__(*args, **kwargs)
@@ -444,10 +461,10 @@ class EarlyOkayCommand(UUIDCommand):
 
 class EnableMediaCommand(UUIDCommand):
   '''
-  The [] does []
+  Reinvite FreeSWITCH back in: 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(EnableMediaCommand, self).__init__(*args, **kwargs)
@@ -458,10 +475,11 @@ class EnableMediaCommand(UUIDCommand):
 
 class EnableSessionHeartbeatCommand(UUIDCommand):
   '''
-  The [] does []
+  Enable a Heartbeat.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              start_time - seconds in the future to start.
   '''
   def __init__(self, *args, **kwargs):
     super(EnableSessionHeartbeatCommand, self).__init__(*args, **kwargs)
@@ -480,11 +498,11 @@ class EnableSessionHeartbeatCommand(UUIDCommand):
 
 class EnableVerboseEventsCommand(BackgroundCommand):
   '''
-  The [] does []
+  Enable verbose events. Verbose events have every channel variable in every event 
+  for a particular channel. Non-verbose events have only the pre-selected channel 
+  variables in the event headers. 
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -495,10 +513,22 @@ class EnableVerboseEventsCommand(BackgroundCommand):
 
 class FileManagerCommand(UUIDCommand):
   '''
-  The [] does []
+  Manage the audio being played into a channel from a sound file
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              command - a parameter which controls what action should be taken*
+              value - the value of the command**
+
+  * Available Commands : 
+  [speed]
+  [volume]
+  [pause]
+  [stop]
+  [truncate]
+  [restart]
+  [seek]
+  ** Unit of measurement is milliseconds
   '''
   def __init__(self, *args, **kwargs):
     super(FileManagerCommand, self).__init__(*args, **kwargs)
@@ -526,10 +556,10 @@ class FileManagerCommand(UUIDCommand):
 
 class FlushDTMFCommand(UUIDCommand):
   '''
-  The [] does []
+  Flush queued DTMF digits.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(FlushDTMFCommand, self).__init__(*args, **kwargs)
@@ -540,6 +570,8 @@ class FlushDTMFCommand(UUIDCommand):
 
 class GetAudioLevelCommand(UUIDCommand):
   '''
+  ??? - Shouldn't this have more partameters? 
+  Usage: uuid_audio <uuid> [start [read|write] [mute|level <level>]|stop] 
   The [] does []
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
@@ -554,10 +586,10 @@ class GetAudioLevelCommand(UUIDCommand):
 
 class GetBugListCommand(UUIDCommand):
   '''
-  The [] does []
+  List the media bugs on channel.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(GetBugListCommand, self).__init__(*args, **kwargs)
@@ -568,13 +600,10 @@ class GetBugListCommand(UUIDCommand):
 
 class GetDefaultDTMFDurationCommand(BackgroundCommand):
   '''
-  The [] does []
+  returns the dtmf duration switch parameter value 
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(GetDefaultDTMFDurationCommand, self).__init__(*args, **kwargs)
 
@@ -583,11 +612,12 @@ class GetDefaultDTMFDurationCommand(BackgroundCommand):
 
 class GetGlobalVariableCommand(BackgroundCommand):
   '''
-  The [] does []
+  Gets the value of a global variable. 
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
-             [] - []
+             name - the name of a global variable*
+
+  * If the parameter is not provided then it gets all the global variables. 
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -608,7 +638,7 @@ class GetMaxSessionsCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -623,7 +653,7 @@ class GetMaximumDTMFDurationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -638,7 +668,7 @@ class GetMinimumDTMFDurationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -653,7 +683,7 @@ class GetSessionsPerSecondCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -688,7 +718,7 @@ class GetGroupCallBridgeStringCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -737,7 +767,7 @@ class HupAllCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -841,7 +871,7 @@ class LoadModuleCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -861,7 +891,7 @@ class OriginateCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -945,7 +975,7 @@ class PauseSessionCreationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1022,7 +1052,7 @@ class ReclaimMemoryCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1055,7 +1085,7 @@ class ResumeSessionCreationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1139,7 +1169,7 @@ class SetDefaultDTMFDurationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1159,7 +1189,7 @@ class SetGlobalVariableCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1186,7 +1216,7 @@ class SetMaximumDTMFDurationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1206,7 +1236,7 @@ class SetMinimumDTMFDurationCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1248,7 +1278,7 @@ class SetSessionsPerSecondCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1293,7 +1323,7 @@ class ShutdownCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1388,7 +1418,7 @@ class StatusCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1431,7 +1461,7 @@ class SyncClockCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1446,7 +1476,7 @@ class SyncClockWhenIdleCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
@@ -1517,7 +1547,7 @@ class UnloadModuleCommand(BackgroundCommand):
   The [] does []
 
   Arguments: sender - The freepy actor sending this command.
-             ip - Internet Protocol address.
+             
              [] - []
   '''  
 
