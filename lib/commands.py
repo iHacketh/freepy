@@ -145,15 +145,14 @@ class BroadcastCommand(UUIDCommand):
   '''
   Execute an arbitrary dialplan application on a specific <uuid>. 
   If a filename is specified then it is played into the channel(s).
-  ??? 
   To execute an application use <app_name> and <app_args> syntax.
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              leg - select which leg(s) to use [aleg|bleg|both]
-              path - ???*
-              app_name - ???*
-              app_args - ???
+              leg - select which leg(s) to use [aleg|bleg|both].
+              path - the path to the audio file to be played into the channels.*
+              app_name - application name to be executed on the channel(s).*2
+              app_args - arguments to the application(s) being executed on the channel(s).
   
   * Can provide path Or app_name, but not both. 
   '''
@@ -218,7 +217,7 @@ class ChatCommand(UUIDCommand):
 
 class CheckUserGroupCommand(BackgroundCommand):
   '''
-  Determine if a <user> is in a group<group_name>. 
+  Determine if a <user> is in a group. 
 
   Arguments: sender - the freepy actor sending this command.
              'user' - username.
@@ -273,7 +272,7 @@ class DeflectCommand(UUIDCommand):
 
 class DialedExtensionHupAllCommand(BackgroundCommand):
   '''
-  Can be used to disconnect existing calls to a destination.
+  Can be used to disconnect existing calls to an extension.
 
   Arguments: sender - The freepy actor sending this command.
              clearing - clearing type. 
@@ -296,7 +295,7 @@ class DialedExtensionHupAllCommand(BackgroundCommand):
 
 class DisableMediaCommand(UUIDCommand):
   '''
-  ???
+  Reinvite FreeSWITCH out of the media path: 
   
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
@@ -332,7 +331,7 @@ class DisplayCommand(UUIDCommand):
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              display - ???
+              display - screen display.
   '''
   def __init__(self, *args, **kwargs):
     super(DisplayCommand, self).__init__(*args, **kwargs)
@@ -369,12 +368,12 @@ class DualTransferCommand(UUIDCommand):
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              extension_a - source extension
-              dialplan_a - source dialplan 
-              context_a - source context 
-              extension_b - target extension
-              dialplan_b - target dialplan
-              context_b - target context
+              extension_a - target extension for aleg
+              dialplan_a - target dialplan for aleg
+              context_a - target context for aleg
+              extension_b - target extension for bleg
+              dialplan_b - target dialplan for bleg
+              context_b - target context for bleg
   '''
   def __init__(self, *args, **kwargs):
     super(DualTransferCommand, self).__init__(*args, **kwargs)
@@ -461,7 +460,7 @@ class EarlyOkayCommand(UUIDCommand):
 
 class EnableMediaCommand(UUIDCommand):
   '''
-  Reinvite FreeSWITCH back in: 
+  Reinvite FreeSWITCH into the media path: 
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
@@ -475,7 +474,7 @@ class EnableMediaCommand(UUIDCommand):
 
 class EnableSessionHeartbeatCommand(UUIDCommand):
   '''
-  Enable a Heartbeat.
+  Enable session Heartbeat.
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
@@ -570,12 +569,10 @@ class FlushDTMFCommand(UUIDCommand):
 
 class GetAudioLevelCommand(UUIDCommand):
   '''
-  ??? - Shouldn't this have more partameters? 
-  Usage: uuid_audio <uuid> [start [read|write] [mute|level <level>]|stop] 
-  The [] does []
+  Get the Audio Level 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(GetAudioLevelCommand, self).__init__(*args, **kwargs)
@@ -634,7 +631,6 @@ class GetGlobalVariableCommand(BackgroundCommand):
 
 class GetMaxSessionsCommand(BackgroundCommand):
   '''
-  ???
   Gets the value of the Maximum Sessions. 
 
   Arguments: sender - The freepy actor sending this command.
@@ -707,8 +703,8 @@ class GetGroupCallBridgeStringCommand(BackgroundCommand):
   Returns the bridge string defined in a call group.
 
   Arguments: sender - The freepy actor sending this command.
-             group - ???
-             domain - ???
+             group - group name
+             domain - domain name
              option - valid options [+F, +A, +E] *
 
   * +F
@@ -761,11 +757,12 @@ class HoldCommand(UUIDCommand):
 
 class HupAllCommand(BackgroundCommand):
   '''
-  The [] does []
+  Disconnect existing channels. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             cause - the reason.
+             var_name - optional parameter variable name.
+             var_value - optional parameter variable value. 
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -820,14 +817,16 @@ class LimitCommand(UUIDCommand):
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              backend - ???
-              realm - ???
-              resource - ???
-              max_calls - ???
-              interval - ???
-              number - ???
-              dialplan - ???
-              context - ???
+              backend - The backend to use. 
+              realm - Arbitrary name.
+              resource - The resource on which to limit the number of calls. 
+              max_calls - The maximum number of concurrent calls allowed to pass 
+                          or a call rate in calls/sec. If not set or set to a negative 
+                          value the limit application only acts as a counter.
+              interval - calls per second.
+              number - destination number
+              dialplan - destination dialplan
+              context - destination context
   '''
   def __init__(self, *args, **kwargs):
     super(LimitCommand, self).__init__(*args, **kwargs)
@@ -898,7 +897,7 @@ class OriginateCommand(BackgroundCommand):
              url - URL you are calling.
              extension - call extension.
              app_name - *
-             app_args - ???
+             app_args - arguments to the app specified by app_name
              options - **
   
   * These are valid application names that can be used in this context :
@@ -1046,7 +1045,7 @@ class PreProcessCommand(UUIDCommand):
 
 class ReceiveDTMFCommand(UUIDCommand):
   '''
-  Receve DTMF digits to <uuid> set. ???
+  Receve DTMF digits to <uuid> set.
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
@@ -1074,7 +1073,7 @@ class ReceiveDTMFCommand(UUIDCommand):
 
 class ReclaimMemoryCommand(BackgroundCommand):
   '''
-  Reclaim Memory ???
+  Reclaim Memory
 
   Arguments: sender - The freepy actor sending this command.
   '''  
@@ -1091,7 +1090,7 @@ class RenegotiateMediaCommand(UUIDCommand):
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              codec - ???
+              codec - audio/video codec.
   '''
   def __init__(self, *args, **kwargs):
     super(RenegotiateMediaCommand, self).__init__(*args, **kwargs)
@@ -1106,7 +1105,8 @@ class RenegotiateMediaCommand(UUIDCommand):
 
 class ResumeSessionCreationCommand(BackgroundCommand):
   '''
-  inbound or outbound may optionally be specified to resume just inbound or outbound session creation, both paused if nothing specified.
+  inbound or outbound may optionally be specified to resume just inbound or outbound session creation,
+  both paused if nothing specified.
 
   Arguments: sender - The freepy actor sending this command.
              direction - inbound or outbound or None paramater value.
@@ -1128,7 +1128,7 @@ class ResumeSessionCreationCommand(BackgroundCommand):
 
 class SendDTMFCommand(UUIDCommand):
   '''
-  Send DTMF digits to <uuid> set. ???
+  Send DTMF digits to <uuid> set.
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
@@ -1408,7 +1408,7 @@ class StartDebugMediaCommand(UUIDCommand):
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              option - ???
+              option - [read|write|both|vread|vwrite|vboth]
   '''
   def __init__(self, *args, **kwargs):
     super(StartDebugMediaCommand, self).__init__(*args, **kwargs)
@@ -1534,10 +1534,15 @@ class SyncClockWhenIdleCommand(BackgroundCommand):
 
 class TransferCommand(UUIDCommand):
   '''
-  The [] does []
+  Transfers an existing call to a specific extension within a <dialplan> and <context>.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              leg - bleg or both.
+              extension - destination extension.  
+              dialplan - destination dialplan.*   
+              context - destination context.
+  * Dialplan may be "xml" or "directory".
   '''
   def __init__(self, *args, **kwargs):
     super(TransferCommand, self).__init__(*args, **kwargs)
