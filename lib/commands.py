@@ -1250,7 +1250,7 @@ class SetMaximumDTMFDurationCommand(BackgroundCommand):
   This setting cannot be set lower than min_dtmf_duration.
 
   Arguments: sender - The freepy actor sending this command.
-             duration - ???
+             duration - the maximum duration if a DTMF event. 
   '''  
 
   def __init__(self, *args, **kwargs):
