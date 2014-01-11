@@ -431,7 +431,7 @@ class DumpCommand(UUIDCommand):
 
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              format - variable values output format. Default XML.
+              format - variable values output format. Default output XML.
   '''
   def __init__(self, *args, **kwargs):
     super(DumpCommand, self).__init__(*args, **kwargs)
@@ -600,7 +600,7 @@ class GetBugListCommand(UUIDCommand):
 
 class GetDefaultDTMFDurationCommand(BackgroundCommand):
   '''
-  returns the dtmf duration switch parameter value 
+  Gets the current value of default dtmf duration.
 
   Arguments: sender - The freepy actor sending this command.
   '''  
@@ -619,7 +619,6 @@ class GetGlobalVariableCommand(BackgroundCommand):
 
   * If the parameter is not provided then it gets all the global variables. 
   '''  
-
   def __init__(self, *args, **kwargs):
     super(GetGlobalVariableCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -635,13 +634,11 @@ class GetGlobalVariableCommand(BackgroundCommand):
 
 class GetMaxSessionsCommand(BackgroundCommand):
   '''
-  The [] does []
+  ???
+  Gets the value of the Maximum Sessions. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(GetMaxSessionsCommand, self).__init__(*args, **kwargs)
 
@@ -650,13 +647,10 @@ class GetMaxSessionsCommand(BackgroundCommand):
 
 class GetMaximumDTMFDurationCommand(BackgroundCommand):
   '''
-  The [] does []
+  Gets the current value of maximum dtmf duration.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(GetMaximumDTMFDurationCommand, self).__init__(*args, **kwargs)
 
@@ -665,13 +659,10 @@ class GetMaximumDTMFDurationCommand(BackgroundCommand):
 
 class GetMinimumDTMFDurationCommand(BackgroundCommand):
   '''
-  The [] does []
+  Gets the current value of minimum dtmf duration.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(GetMinimumDTMFDurationCommand, self).__init__(*args, **kwargs)
 
@@ -680,13 +671,10 @@ class GetMinimumDTMFDurationCommand(BackgroundCommand):
 
 class GetSessionsPerSecondCommand(BackgroundCommand):
   '''
-  The [] does []
+  Query the actual sessions-per-second. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(GetSessionsPerSecondCommand, self).__init__(*args, **kwargs)
 
@@ -695,10 +683,11 @@ class GetSessionsPerSecondCommand(BackgroundCommand):
 
 class GetVariableCommand(UUIDCommand):
   '''
-  The [] does []
+  Get a variable from a channel. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              name - the name of the variable to get from a channel
   '''
   def __init__(self, *args, **kwargs):
     super(GetVariableCommand, self).__init__(*args, **kwargs)
@@ -715,11 +704,19 @@ class GetVariableCommand(UUIDCommand):
 
 class GetGroupCallBridgeStringCommand(BackgroundCommand):
   '''
-  The [] does []
+  Returns the bridge string defined in a call group.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             group - ???
+             domain - ???
+             option - valid options [+F, +A, +E] *
+
+  * +F
+      will return the group members in a serial fashion (separated by |), 
+    +A 
+      will return them in a parallel fashion (separated by ,) 
+    +E 
+      will return them in a enterprise fashion (separated by :_:). 
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -750,10 +747,10 @@ class GetGroupCallBridgeStringCommand(BackgroundCommand):
 
 class HoldCommand(UUIDCommand):
   '''
-  The [] does []
+  Place a call on hold. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(HoldCommand, self).__init__(*args, **kwargs)
@@ -796,10 +793,11 @@ class HupAllCommand(BackgroundCommand):
 
 class KillCommand(UUIDCommand):
   '''
-  The [] does []
+  Reset a specific <uuid> channel. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              cause - reason for reset.
   '''
   def __init__(self, *args, **kwargs):
     super(KillCommand, self).__init__(*args, **kwargs)
@@ -818,10 +816,18 @@ class KillCommand(UUIDCommand):
 
 class LimitCommand(UUIDCommand):
   '''
-  The [] does []
+  Apply or change limit(s) on a specified uuid. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              backend - ???
+              realm - ???
+              resource - ???
+              max_calls - ???
+              interval - ???
+              number - ???
+              dialplan - ???
+              context - ???
   '''
   def __init__(self, *args, **kwargs):
     super(LimitCommand, self).__init__(*args, **kwargs)
@@ -868,13 +874,11 @@ class LimitCommand(UUIDCommand):
 
 class LoadModuleCommand(BackgroundCommand):
   '''
-  The [] does []
+  Load external module 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             name - module name.
   '''  
-
   def __init__(self, *args, **kwargs):
     super(LoadModuleCommand, self).__init__(*args, **kwargs)
     self.__name__ = kwargs.get('name')
@@ -888,11 +892,30 @@ class LoadModuleCommand(BackgroundCommand):
 
 class OriginateCommand(BackgroundCommand):
   '''
-  The [] does []
+  Originate a new call. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             url - URL you are calling.
+             extension - call extension.
+             app_name - *
+             app_args - ???
+             options - **
+  
+  * These are valid application names that can be used in this context :
+    park, bridge, javascript/lua/perl, playback (remove mod_native_file), and many others. 
+  ** The following are options that can be passed :
+      group_confirm_key
+      group_confirm_file
+      forked_dial
+      fail_on_single_reject
+      ignore_early_media
+      return_ring_ready
+      originate_retries
+      originate_retry_sleep_ms
+      origination_caller_id_name
+      origination_caller_id_number
+      originate_timeout
+      sip_auto_answer 
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -944,10 +967,10 @@ class OriginateCommand(BackgroundCommand):
 
 class ParkCommand(UUIDCommand):
   '''
-  The [] does []
+  Park call 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(ParkCommand, self).__init__(*args, **kwargs)
@@ -958,10 +981,10 @@ class ParkCommand(UUIDCommand):
 
 class PauseCommand(UUIDCommand):
   '''
-  The [] does []
+  Pause <uuid> media 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(PauseCommand, self).__init__(*args, **kwargs)
@@ -972,11 +995,11 @@ class PauseCommand(UUIDCommand):
 
 class PauseSessionCreationCommand(BackgroundCommand):
   '''
-  The [] does []
+  inbound or outbound may optionally be specified to pause just inbound or outbound 
+  session creation, both paused if nothing specified. resume has similar behavior. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             direction - inbound or outbound or None paramater value.
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -995,10 +1018,10 @@ class PauseSessionCreationCommand(BackgroundCommand):
 
 class PreAnswerCommand(UUIDCommand):
   '''
-  The [] does []
+  Preanswer a channel. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(PreAnswerCommand, self).__init__(*args, **kwargs)
@@ -1009,10 +1032,10 @@ class PreAnswerCommand(UUIDCommand):
 
 class PreProcessCommand(UUIDCommand):
   '''
-  The [] does []
+  Pre-process Channel 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(PreProcessCommand, self).__init__(*args, **kwargs)
@@ -1023,10 +1046,12 @@ class PreProcessCommand(UUIDCommand):
 
 class ReceiveDTMFCommand(UUIDCommand):
   '''
-  The [] does []
+  Receve DTMF digits to <uuid> set. ???
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              digits - Use the character w for a .5 second delay and the character W for a 1 second delay.
+              tone_duration - Default tone duration is 2000ms. 
   '''
   def __init__(self, *args, **kwargs):
     super(ReceiveDTMFCommand, self).__init__(*args, **kwargs)
@@ -1049,11 +1074,9 @@ class ReceiveDTMFCommand(UUIDCommand):
 
 class ReclaimMemoryCommand(BackgroundCommand):
   '''
-  The [] does []
+  Reclaim Memory ???
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1064,10 +1087,11 @@ class ReclaimMemoryCommand(BackgroundCommand):
 
 class RenegotiateMediaCommand(UUIDCommand):
   '''
-  The [] does []
+  API command to tell a channel to send a re-invite with optional list of new codecs
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              codec - ???
   '''
   def __init__(self, *args, **kwargs):
     super(RenegotiateMediaCommand, self).__init__(*args, **kwargs)
@@ -1082,11 +1106,10 @@ class RenegotiateMediaCommand(UUIDCommand):
 
 class ResumeSessionCreationCommand(BackgroundCommand):
   '''
-  The [] does []
+  inbound or outbound may optionally be specified to resume just inbound or outbound session creation, both paused if nothing specified.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             direction - inbound or outbound or None paramater value.
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1105,10 +1128,12 @@ class ResumeSessionCreationCommand(BackgroundCommand):
 
 class SendDTMFCommand(UUIDCommand):
   '''
-  The [] does []
+  Send DTMF digits to <uuid> set. ???
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              digits - Use the character w for a .5 second delay and the character W for a 1 second delay.
+              tone_duration - Default tone duration is 2000ms. 
   '''
   def __init__(self, *args, **kwargs):
     super(SendDTMFCommand, self).__init__(*args, **kwargs)
@@ -1131,10 +1156,10 @@ class SendDTMFCommand(UUIDCommand):
 
 class SendInfoCommand(UUIDCommand):
   '''
-  The [] does []
+  Send info to the endpoint.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(SendInfoCommand, self).__init__(*args, **kwargs)
@@ -1145,10 +1170,11 @@ class SendInfoCommand(UUIDCommand):
 
 class SetAudioLevelCommand(UUIDCommand):
   '''
-  The [] does []
+  Adjust the audio levels on a channel or mute (read/write) via a media bug.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              level - is in the range from -4 to 4, 0 being the default value. 
   '''
   def __init__(self, *args, **kwargs):
     super(SetAudioLevelCommand, self).__init__(*args, **kwargs)
@@ -1166,11 +1192,14 @@ class SetAudioLevelCommand(UUIDCommand):
 
 class SetDefaultDTMFDurationCommand(BackgroundCommand):
   '''
-  The [] does []
+  Sets the default_dtmf_duration switch parameter. The number is in clock ticks (CT) where 
+  CT / 8 = ms. The default_dtmf_duration specifies the DTMF duration to use on 
+  originated DTMF events or on events that are received without a duration specified. 
+  This value can be increased or lowered. This value is lower-bounded by min_dtmf_duration 
+  and upper-bounded by max_dtmf_duration.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             duration - paramter value.
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1186,11 +1215,11 @@ class SetDefaultDTMFDurationCommand(BackgroundCommand):
 
 class SetGlobalVariableCommand(BackgroundCommand):
   '''
-  The [] does []
+  Sets the value of a global variable. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             name - name of global variable
+             value - value of global variable
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1213,11 +1242,15 @@ class SetGlobalVariableCommand(BackgroundCommand):
 
 class SetMaximumDTMFDurationCommand(BackgroundCommand):
   '''
-  The [] does []
+  Sets the max_dtmf_duration switch parameter. The number is in clock ticks (CT) where CT / 8 = ms. 
+  The max_dtmf_duration caps the playout of a DTMF event at the specified duration. 
+  Events exceeding this duration will be truncated to this duration. 
+  You cannot configure a duration on a profile that exceeds this setting. 
+  This setting can be lowered, but cannot exceed 192000 (the default). 
+  This setting cannot be set lower than min_dtmf_duration.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             duration - ???
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1233,7 +1266,7 @@ class SetMaximumDTMFDurationCommand(BackgroundCommand):
 
 class SetMinimumDTMFDurationCommand(BackgroundCommand):
   '''
-  The [] does []
+  Sets the min_dtmf_duration switch parameter to 100ms. The number is in clock ticks where clockticks / 8 = ms. The min_dtmf_duration specifies the minimum DTMF duration to use on outgoing events. Events shorter than this will be increased in duration to match min_dtmf_duration. You cannot configure a DTMF duration on a profile that is less than this setting. You may increase this value, but cannot set it lower than 400 (the default). This value cannot exceed max_dtmf_duration.
 
   Arguments: sender - The freepy actor sending this command.
              
