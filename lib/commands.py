@@ -1429,7 +1429,8 @@ class StartDisplaceCommand(UUIDCommand):
               uuid - universal unique identifier.
               path - path to an audio source (wav, shout, etc...) 
               limit - number of seconds before terminating the displacement
-              mux - cause the original audio to be mixed together with 'file', i.e. you can still converse with the other party while the file is playing
+              mux - cause the original audio to be mixed together with 'file', 
+              i.e. you can still converse with the other party while the file is playing
   '''
   def __init__(self, *args, **kwargs):
     super(StartDisplaceCommand, self).__init__(*args, **kwargs)
