@@ -1266,11 +1266,15 @@ class SetMaximumDTMFDurationCommand(BackgroundCommand):
 
 class SetMinimumDTMFDurationCommand(BackgroundCommand):
   '''
-  Sets the min_dtmf_duration switch parameter to 100ms. The number is in clock ticks where clockticks / 8 = ms. The min_dtmf_duration specifies the minimum DTMF duration to use on outgoing events. Events shorter than this will be increased in duration to match min_dtmf_duration. You cannot configure a DTMF duration on a profile that is less than this setting. You may increase this value, but cannot set it lower than 400 (the default). This value cannot exceed max_dtmf_duration.
+  Sets the min_dtmf_duration switch parameter to 100ms. The number is in clock ticks where clockticks / 8 = ms. 
+  The min_dtmf_duration specifies the minimum DTMF duration to use on outgoing events. 
+  Events shorter than this will be increased in duration to match min_dtmf_duration. 
+  You cannot configure a DTMF duration on a profile that is less than this setting. 
+  You may increase this value, but cannot set it lower than 400 (the default). 
+  This value cannot exceed max_dtmf_duration.
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             duration - value of parameter.
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1286,10 +1290,11 @@ class SetMinimumDTMFDurationCommand(BackgroundCommand):
 
 class SetMultipleVariableCommand(UUIDCommand):
   '''
-  The [] does []
+  Set multiple vars on a channel. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              variables - a dictionary list of key/value pairs to set.
   '''
   def __init__(self, *args, **kwargs):
     super(SetMultipleVariableCommand, self).__init__(*args, **kwargs)
@@ -1301,18 +1306,16 @@ class SetMultipleVariableCommand(UUIDCommand):
       variable_list.append('%s=%s' % (key, value))
     self.__variables_string__ = ';'.join(variable_list)
 
-
   def __str__(self):
     return 'bgapi uuid_setvar_multi %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__variables_string__, self.__job_uuid__)
 
 class SetSessionsPerSecondCommand(BackgroundCommand):
   '''
-  The [] does []
+  This changes the sessions-per-second limit as initially set in switch.conf 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             sessions_per_second - value for paramater.
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1328,10 +1331,12 @@ class SetSessionsPerSecondCommand(BackgroundCommand):
 
 class SetVariableCommand(UUIDCommand):
   '''
-  The [] does []
+  Set a variable on a channel.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              name - name of the variable.
+              value - value of the variable.
   '''
   def __init__(self, *args, **kwargs):
     super(SetVariableCommand, self).__init__(*args, **kwargs)
@@ -1353,11 +1358,16 @@ class SetVariableCommand(UUIDCommand):
 
 class ShutdownCommand(BackgroundCommand):
   '''
-  The [] does []
+  Stop the FreeSWITCH program. 
 
   Arguments: sender - The freepy actor sending this command.
+             option - paramater value [cancel, elegant, asap, restart]*
              
-             [] - []
+  * available options: 
+    cancel - discontinue a previous shutdown request.
+    elegant - wait for all traffic to stop; do not prevent new traffic.
+    asap - wait for all traffic to stop; do not allow new traffic.
+    restart - restart FreeSWITCH immediately following the shutdown. 
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1380,10 +1390,10 @@ class ShutdownCommand(BackgroundCommand):
 
 class SimplifyCommand(UUIDCommand):
   '''
-  The [] does []
+  This command directs FreeSWITCH to remove itself from the SIP signaling path if it can safely do so 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(SimplifyCommand, self).__init__(*args, **kwargs)
@@ -1394,10 +1404,11 @@ class SimplifyCommand(UUIDCommand):
 
 class StartDebugMediaCommand(UUIDCommand):
   '''
-  The [] does []
+  Start the Debug Media.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              option - ???
   '''
   def __init__(self, *args, **kwargs):
     super(StartDebugMediaCommand, self).__init__(*args, **kwargs)
@@ -1412,10 +1423,13 @@ class StartDebugMediaCommand(UUIDCommand):
 
 class StartDisplaceCommand(UUIDCommand):
   '''
-  The [] does []
+  Displace the audio for the target <uuid> with the specified audio <path>. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              path - path to an audio source (wav, shout, etc...) 
+              limit - number of seconds before terminating the displacement
+              mux - cause the original audio to be mixed together with 'file', i.e. you can still converse with the other party while the file is playing
   '''
   def __init__(self, *args, **kwargs):
     super(StartDisplaceCommand, self).__init__(*args, **kwargs)
@@ -1448,13 +1462,10 @@ class StartDisplaceCommand(UUIDCommand):
 
 class StatusCommand(BackgroundCommand):
   '''
-  The [] does []
+  Show current status 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(StatusCommand, self).__init__(*args, **kwargs)
 
@@ -1463,10 +1474,10 @@ class StatusCommand(BackgroundCommand):
 
 class StopDebugMediaCommand(UUIDCommand):
   '''
-  The [] does []
+  Used to stop the debug media.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(StopDebugMediaCommand, self).__init__(*args, **kwargs)
@@ -1477,10 +1488,10 @@ class StopDebugMediaCommand(UUIDCommand):
 
 class StopDisplaceCommand(UUIDCommand):
   '''
-  The [] does []
+  Stop displacing the audio for the target <uuid>
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(StopDisplaceCommand, self).__init__(*args, **kwargs)
@@ -1491,11 +1502,15 @@ class StopDisplaceCommand(UUIDCommand):
 
 class SyncClockCommand(BackgroundCommand):
   '''
-  The [] does []
+  FreeSWITCH will not trust the system time. It gets one sample of system time when it first starts and 
+  uses the monotonic clock from there. You can sync it back to real time with "fsctl sync_clock"
+  Note: 'fsctl sync_clock' immediately takes effect - which can affect the times on your CDRs. 
+  You can end up undrebilling/overbilling, or even calls hungup before they originated. 
+  e.g. if FS clock is off by 1 month, then your CDRs are going to show calls that lasted for 1 month!
+  'fsctl sync_clock_when_idle' is much safer, which does the same sync but doesn't take effect until 
+  there are 0 channels in use. That way it doesn't affect any CDRs. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1506,13 +1521,10 @@ class SyncClockCommand(BackgroundCommand):
 
 class SyncClockWhenIdleCommand(BackgroundCommand):
   '''
-  The [] does []
+  You can sync the clock but have it not do it till there are 0 calls (r:2094f2d3) 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
   '''  
-
   def __init__(self, *args, **kwargs):
     super(SyncClockWhenIdleCommand, self).__init__(*args, **kwargs)
 
@@ -1563,10 +1575,10 @@ class TransferCommand(UUIDCommand):
 
 class UnholdCommand(UUIDCommand):
   '''
-  The [] does []
+  Take a call off hold.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(UnholdCommand, self).__init__(*args, **kwargs)
@@ -1577,11 +1589,11 @@ class UnholdCommand(UUIDCommand):
 
 class UnloadModuleCommand(BackgroundCommand):
   '''
-  The [] does []
+  Unload external module. 
 
   Arguments: sender - The freepy actor sending this command.
-             
-             [] - []
+             name - name of external module to unload.
+             force - force unload. Default set to False.
   '''  
 
   def __init__(self, *args, **kwargs):
@@ -1605,10 +1617,10 @@ class UnloadModuleCommand(BackgroundCommand):
 
 class UnpauseCommand(UUIDCommand):
   '''
-  The [] does []
+  UnPause <uuid> media.
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
   '''
   def __init__(self, *args, **kwargs):
     super(UnpauseCommand, self).__init__(*args, **kwargs)
@@ -1619,10 +1631,11 @@ class UnpauseCommand(UUIDCommand):
 
 class UnsetVariableCommand(UUIDCommand):
   '''
-  The [] does []
+  UnSet a variable on a channel. 
+
   Arguments:  sender - The freepy actor sending this command.
               uuid - universal unique identifier.
-              [] = []
+              name - variable to be unset.
   '''
   def __init__(self, *args, **kwargs):
     super(UnsetVariableCommand, self).__init__(*args, **kwargs)
