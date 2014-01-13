@@ -17,11 +17,11 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-from ctypes import *
 from llist import dllist
 from pykka import ThreadingActor
+from threading import Thread
 
-import logging, os
+import logging, os, time
 
 class ReceiveTimeoutCommand(object):
   def __init__(self, sender, timeout, recurring = False):
@@ -48,14 +48,30 @@ class StopTimeoutCommand(object):
 class TimeoutEvent(object):
   pass
 
+class TimerEvent(object):
+  pass
+
+class PykkaRecurringTimer(Thread):
+  def __init__(self, *args, **kwargs):
+    super(PykkaRecurringTimer, self).__init__(*args, **kwargs)
+    self.__actor__ = args[0]
+    self.__interval__ = args[1]
+    self.__event__ = TimerEvent()
+
+  def run(self):
+    actor = self.__actor__
+    interval = self.__interval__
+    while True:
+      time.sleep(interval)
+      actor.tell(event)
+
 class TimerService(ThreadingActor):
   '''
   The timer service uses a timing wheel with a single thread borrowing
   from the approach used in the Linux kernel. Please refer to the email
   thread by Ingo Molnar @ https://lkml.org/lkml/2005/10/19/46.
   '''
-  CLOCK_MONOTONIC = 1         # Use a monotonic clock.
-  TICK_SIZE = 0.01            # Tick every 100 milliseconds.
+  TICK_SIZE = 0.1             # Tick every 100 milliseconds.
 
   def __init__(self):
     # Initialize the timing wheels. The finest possible
@@ -72,12 +88,9 @@ class TimerService(ThreadingActor):
     self.__actor_lookup_table__ = dict()
     # Singleton instance of the timeout event.
     self.__timeout__ = TimeoutEvent()
-
-  def __create_timer__(self):
-    pass
-
-  def __destroy_timer__(self, message):
-    pass
+    # Start the timer.
+    self.__timer__ = PykkaRecurringTimer(self.actor_ref, TimerService.TICK_SIZE)
+    self.__timer__.start()
 
   def __schedule__(self, timer):
     timeout = timer.get_timeout()
@@ -162,3 +175,5 @@ class TimerService(ThreadingActor):
       self.__schedule__(message)
     elif isinstance(message, StopTimeoutCommand):
       self.__unschedule__(message)
+    elif isinstance(message, TimerEvent):
+      self.__tick__()
