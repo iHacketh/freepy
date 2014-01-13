@@ -67,9 +67,9 @@ class PykkaRecurringTimer(Thread):
 
 class TimerService(ThreadingActor):
   '''
-  The timer service uses a timing wheel with a single thread borrowing
-  from the approach used in the Linux kernel. Please refer to the email
-  thread by Ingo Molnar @ https://lkml.org/lkml/2005/10/19/46.
+  The timer service uses the timing wheel algorithm borrowing from the
+  approach used in the Linux kernel. Please refer to the email thread
+  by Ingo Molnar @ https://lkml.org/lkml/2005/10/19/46.
   '''
   TICK_SIZE = 0.1             # Tick every 100 milliseconds.
 
