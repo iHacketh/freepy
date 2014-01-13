@@ -111,36 +111,45 @@ class TimerService(ThreadingActor):
     timers = self.__jiffies_wheel__.get(tick % 256)
     for timer in timers:
       timer.get_sender().tell({'content': self.__timeout__})
+    timers.clear()
     self.__current_tick__ = tick + 1
     if self.__current_tick__ % 256 == 0:
       self.__cascade_vector_2__()
 
   def __unschedule__(self, timer):
     urn = timer.get_sender().actor_urn
-    node = self.__actor_lookup_table__.get(urn)
+    location = self.__actor_lookup_table__.get(urn)
     if node:
       del self.__actor_lookup_table__[urn]
-      node.prev.next = node.next
-      node.next.prev = node.prev
+      list = location.get('list')
+      node = location.get('node')
+      list.remove(node)
 
-  def __update_actor_lookup_table__(self, node):
+  def __update_lookup_table__(self, list, node):
     urn = node.value.get_sender().actor_urn
-    self.__actor_lookup_table__.update({urn: node})
+    location = {
+      'list': list,
+      'node': node
+    }
+    self.__actor_lookup_table__.update({urn: location})
 
   def __vector1_insert__(self, timer):
+    vector = self.__timer_vector1__
     bucket = timer.get_timeout() / 100
-    node = self.__timer_vector1__.get(bucket).append(timer)
-    self.__update_actor_lookup_table__(node)
+    node = vector.get(bucket).append(timer)
+    self.__update_lookup_table__(vector, node)
 
   def __vector2_insert__(self, timer):
+    vector = self.__timer_vector2__
     bucket = timer.get_timeout() / 25600
-    node = self.__timer_vector2__.get(bucket).append(timer)
-    self.__update_actor_lookup_table__(node)
+    node = vector.get(bucket).append(timer)
+    self.__update_lookup_table__(vector, node)
 
   def __vector3_insert__(self, timer):
+    vector = self.__timer_vector3__
     bucket = timer.get_timeout() / 6553600
-    node = self.__timer_vector3__.get(bucket).append(timer)
-    self.__update_actor_lookup_table__(node)
+    node = vector.get(bucket).append(timer)
+    self.__update_lookup_table__(vector, node)
 
   def on_receive(self, message):
     # This is necessary because all Pykka messages
