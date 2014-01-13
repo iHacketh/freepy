@@ -290,6 +290,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     # This is necessary because all Pykka messages
     # must be of type dict.
     message = message.get('content')
+    if not message:
+      return
     # Handle the message.
     if isinstance(message, Event):
       content_type = message.get_header('Content-Type')
