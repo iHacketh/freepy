@@ -124,6 +124,8 @@ class TimerService(ThreadingActor):
     timers = self.__jiffies_wheel__.get(tick % 256)
     for timer in timers:
       timer.get_sender().tell({'content': self.__timeout__})
+      if timer.is_recurring:
+        self.__schedule__(timer)
     timers.clear()
     self.__current_tick__ = tick + 1
     if self.__current_tick__ % 256 == 0:
