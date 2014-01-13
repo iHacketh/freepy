@@ -63,7 +63,7 @@ class PykkaRecurringTimer(Thread):
     interval = self.__interval__
     while True:
       time.sleep(interval)
-      actor.tell(event)
+      actor.tell({'content': event})
 
 class TimerService(ThreadingActor):
   '''
