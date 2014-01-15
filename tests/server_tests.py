@@ -17,10 +17,10 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-from lib.events import *
+from lib.core import *
 from lib.server import *
 from pykka import ActorRegistry, ThreadingActor
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
 class AuthCommandTests(TestCase):
   def test_success_scenario(self):

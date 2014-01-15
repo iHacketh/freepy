@@ -16,3 +16,20 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
+
+from lib.core import *
+from lib.services import *
+from pykka import ActorRegistry
+from unittest import TestCase
+
+import time
+
+class TimerServiceTests(TestCase):
+  @classmethod
+  def tearDownClass(cls):
+    ActorRegistry.stop_all()
+
+  def test_one_timer(self):
+    service = TimerService().start()
+    time.sleep(300.0)
+    service.stop()

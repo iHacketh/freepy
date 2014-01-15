@@ -51,19 +51,23 @@ class TimeoutEvent(object):
 class TimerEvent(object):
   pass
 
-class PykkaRecurringTimer(Thread):
+class MonotonicClock(Thread):
   def __init__(self, *args, **kwargs):
-    super(PykkaRecurringTimer, self).__init__(*args, **kwargs)
+    super(MonotonicClock, self).__init__(group = None)
     self.__actor__ = args[0]
     self.__interval__ = args[1]
+    self.__running__ = True
+    # Singleton instance of TimerEvent.
     self.__event__ = TimerEvent()
 
   def run(self):
-    actor = self.__actor__
-    interval = self.__interval__
-    while True:
-      time.sleep(interval)
-      actor.tell({'content': event})
+    while self.__running__:
+      time.sleep(self.__interval__)
+      if self.__running__:
+        self.__actor__.tell({'content': self.__event__})
+
+  def stop(self):
+    self.__running__ = False
 
 class TimerService(ThreadingActor):
   '''
@@ -73,8 +77,10 @@ class TimerService(ThreadingActor):
   '''
   TICK_SIZE = 0.1             # Tick every 100 milliseconds.
 
-  def __init__(self):
+  def __init__(self, *args, **kwargs):
+    super(TimerService, self).__init__(*args, **kwargs)
     # Initialize the timing wheels. The finest possible
+    self.__logger__ = logging.getLogger('freepy.lib.services.TimerService')
     # granularity is 100ms.
     self.__timer_vector1__ = [dllist()] * 256
     self.__timer_vector2__ = [dllist()] * 256
@@ -88,9 +94,8 @@ class TimerService(ThreadingActor):
     self.__actor_lookup_table__ = dict()
     # Singleton instance of the timeout event.
     self.__timeout__ = TimeoutEvent()
-    # Start the timer.
-    self.__timer__ = PykkaRecurringTimer(self.actor_ref, TimerService.TICK_SIZE)
-    self.__timer__.start()
+    # Monotonic clock.
+    self.__clock__ = None
 
   def __schedule__(self, timer):
     timeout = timer.get_timeout()
@@ -103,7 +108,7 @@ class TimerService(ThreadingActor):
 
   def __cascade_vector_2__(self):
     index = self.__timer_vector2_index__
-    timers = self.__timer_vector2__.get(index)
+    timers = self.__timer_vector2__[index]
     for timer in timers:
       self.__vector1_insert__(timer)
     timers.clear()
@@ -113,7 +118,7 @@ class TimerService(ThreadingActor):
 
   def __cascade_vector_3__(self):
     index = self.__timer_vector3_index__
-    timers = self.__timer_vector3__.get(index)
+    timers = self.__timer_vector3__[index]
     for timer in timers:
       self.__vector2_insert__(timer)
     timers.clear()
@@ -121,7 +126,7 @@ class TimerService(ThreadingActor):
 
   def __tick__(self):
     tick = self.__current_tick__
-    timers = self.__jiffies_wheel__.get(tick % 256)
+    timers = self.__timer_vector1__[tick % 256]
     for timer in timers:
       timer.get_sender().tell({'content': self.__timeout__})
       if timer.is_recurring:
@@ -151,20 +156,23 @@ class TimerService(ThreadingActor):
   def __vector1_insert__(self, timer):
     vector = self.__timer_vector1__
     bucket = timer.get_timeout() / 100
-    node = vector.get(bucket).append(timer)
+    node = vector[bucket].append(timer)
     self.__update_lookup_table__(vector, node)
 
   def __vector2_insert__(self, timer):
     vector = self.__timer_vector2__
     bucket = timer.get_timeout() / 25600
-    node = vector.get(bucket).append(timer)
+    node = vector[bucket].append(timer)
     self.__update_lookup_table__(vector, node)
 
   def __vector3_insert__(self, timer):
     vector = self.__timer_vector3__
     bucket = timer.get_timeout() / 6553600
-    node = vector.get(bucket).append(timer)
+    node = vector[bucket].append(timer)
     self.__update_lookup_table__(vector, node)
+
+  def on_failure(self, exception_type, exception_value, traceback):
+    self.__logger__.error(exception_value)
 
   def on_receive(self, message):
     # This is necessary because all Pykka messages
@@ -179,3 +187,10 @@ class TimerService(ThreadingActor):
       self.__unschedule__(message)
     elif isinstance(message, TimerEvent):
       self.__tick__()
+
+  def on_start(self):
+    self.__clock__ = MonotonicClock(self.actor_ref, TimerService.TICK_SIZE)
+    self.__clock__.start()
+
+  def on_stop(self):
+    self.__clock__.stop()
