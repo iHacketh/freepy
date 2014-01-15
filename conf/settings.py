@@ -37,5 +37,17 @@ freeswitch_host = {
     'password': 'ClueCon'
 }
 
+# A list of services to register with the dispatcher.
+dispatcher_services = [
+  {
+    'name': 'Timer Service',                # The service name.
+    'events': [                             # A list of events to forward to the service.
+      'lib.services.ReceiveTimeoutCommand', # The path to the ReceiveTimeoutCommand.
+      'lib.services.StopTimeoutCommand'     # The path to the StopTimeoutCommand.
+    ],
+    'service': 'lib.services.TimerService'  # The path to the service.
+  }
+]
+
 # Import the dispatch rules for the dispatcher.
 from rules import *

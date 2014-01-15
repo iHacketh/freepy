@@ -22,7 +22,18 @@ from lib.services import *
 from pykka import ActorRegistry
 from unittest import TestCase
 
-import time
+import logging, time
+
+logging.basicConfig(
+  format = '%(asctime)s %(levelname)s - %(name)s - %(message)s',
+  level = logging.DEBUG
+)
+
+class WaitingSwitchlet(Switchlet):
+  def on_receive(self, message):
+    message = message.get('content')
+    if isinstance(message, TimeoutEvent):
+      print time.time()
 
 class TimerServiceTests(TestCase):
   @classmethod
@@ -31,5 +42,8 @@ class TimerServiceTests(TestCase):
 
   def test_one_timer(self):
     service = TimerService().start()
+    consumer = WaitingSwitchlet().start()
+    command = ReceiveTimeoutCommand(consumer, 1000)
+    service.tell({'content': command})
     time.sleep(60.0)
     service.stop()

@@ -127,11 +127,14 @@ class TimerService(ThreadingActor):
   def __tick__(self):
     tick = self.__current_tick__
     timers = self.__timer_vector1__[tick % 256]
-    for timer in timers:
+    recurring = list()
+    while len(timers) > 0:
+      timer = timers.popleft()
       timer.get_sender().tell({'content': self.__timeout__})
       if timer.is_recurring:
-        self.__schedule__(timer)
-    timers.clear()
+        recurring.append(timer)
+    for timer in recurring:
+      self.__schedule__(timer)
     self.__current_tick__ = tick + 1
     if self.__current_tick__ % 256 == 0:
       self.__cascade_vector_2__()
