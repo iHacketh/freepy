@@ -21,7 +21,7 @@ from llist import dllist
 from pykka import ThreadingActor
 from threading import Thread
 
-import logging, os, time
+import logging, time
 
 class ReceiveTimeoutCommand(object):
   def __init__(self, sender, timeout, recurring = False):

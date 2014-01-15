@@ -64,6 +64,25 @@ class InitializeDispatcherEvent(object):
 class KillDispatcherEvent(object):
   pass
 
+# Commands used between the Switchlets and the Dispatcher.
+class RegisterJobObserverCommand(object):
+  def __init__(self, observer, uuid):
+    self.__observer__ = observer
+    self.__job_uuid__ = uuid
+
+  def get_job_uuid(self):
+    return self.__job_uuid__
+
+  def get_observer(self):
+    return self.__observer__
+
+class UnregisterJobObserverCommand(object):
+  def __init__(self, uuid):
+    self.__job_uuid__ = uuid
+
+  def get_job_uuid(self):
+    return self.__job_uuid__
+
 # The Core server components.
 class ApplicationFactory(object):
   def __init__(self, dispatcher):
@@ -177,12 +196,12 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     if message:
       if isinstance(message, BackgroundCommand):
         self.__dispatch_command__(message)
-      elif isinstance(message, RegisterJobObserverEvent):
+      elif isinstance(message, RegisterJobObserverCommand):
         observer = message.get_observer()
         uuid = message.get_job_uuid()
         if observer and uuid:
           self.__observers__.update({uuid: observer})
-      elif isinstance(message, UnregisterJobObserverEvent):
+      elif isinstance(message, UnregisterJobObserverCommand):
         uuid = message.get_job_uuid()
         if self.__observers__.has_key(uuid):
           del self.__observers__[uuid]
@@ -303,9 +322,9 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         self.__on_event__(message)
     elif isinstance(message, BackgroundCommand):
       self.__on_command__(message)
-    elif isinstance(message, RegisterJobObserverEvent):
+    elif isinstance(message, RegisterJobObserverCommand):
       self.__on_observer__(message)
-    elif isinstance(message, UnregisterJobObserverEvent):
+    elif isinstance(message, UnregisterJobObserverCommand):
       self.__on_observer__(message)
     elif isinstance(message, InitializeDispatcherEvent):
       self.__on_init__(message)

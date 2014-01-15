@@ -1,8 +1,28 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+# Cristian Groza  <frontc18@gmail.com>
+#
+# Thomas Quintana <quintana.thomas@gmail.com>
+
 from lib.commands import *
-from lib.events import *
+from lib.core import *
 from lib.fsm import *
-from lib.server import *
-from pykka import ThreadingActor
+from lib.server import Event, RegisterJobObserverCommand, UnregisterJobObserverCommand
 
 import logging
 import urllib
@@ -12,7 +32,7 @@ import urllib
 class StartMonitorCommand(object):
   pass
 
-class Monitor(FiniteStateMachine, ThreadingActor):
+class Monitor(FiniteStateMachine, Switchlet):
   initial_state = 'not ready'
 
   transitions = [
@@ -41,7 +61,7 @@ class Monitor(FiniteStateMachine, ThreadingActor):
     status_command = StatusCommand(self.actor_ref)
     # Always register to receive events for specific Job-UUIDs first.
     uuid = status_command.get_job_uuid()
-    register_command = RegisterJobObserverEvent(self.actor_ref, uuid)
+    register_command = RegisterJobObserverCommand(self.actor_ref, uuid)
     self.__dispatcher__.tell({'content': register_command})
     self.__logger__.info('Registered to receive events with Job-UUID: %s' % uuid)
     # Send the status command.
@@ -51,7 +71,7 @@ class Monitor(FiniteStateMachine, ThreadingActor):
   def handle_status_event(self, message):
     self.__logger__.info(message.get_body())
     uuid = message.get_header('Job-UUID')
-    command = UnregisterJobObserverEvent(uuid)
+    command = UnregisterJobObserverCommand(uuid)
     self.__dispatcher__.tell({'content': command})
     self.__logger__.info('Unregistered to receive events with Job-UUID: %s' % uuid)
     command = StartMonitorCommand()

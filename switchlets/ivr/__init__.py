@@ -16,31 +16,3 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
-
-class InitializeSwitchletEvent(object):
-  def __init__(self, dispatcher):
-    self.__dispatcher__ = dispatcher
-
-  def get_dispatcher(self):
-    return self.__dispatcher__
-
-class UninitializeSwitchletEvent(object):
-  pass
-
-class RegisterJobObserverEvent(object):
-  def __init__(self, observer, uuid):
-    self.__observer__ = observer
-    self.__job_uuid__ = uuid
-
-  def get_job_uuid(self):
-    return self.__job_uuid__
-
-  def get_observer(self):
-    return self.__observer__
-
-class UnregisterJobObserverEvent(object):
-  def __init__(self, uuid):
-    self.__job_uuid__ = uuid
-
-  def get_job_uuid(self):
-    return self.__job_uuid__

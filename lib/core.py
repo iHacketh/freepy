@@ -19,5 +19,16 @@
 
 from pykka import ThreadingActor
 
-class Switchlet(ThreadingActor):
+class InitializeSwitchletEvent(object):
+  def __init__(self, dispatcher):
+    self.__dispatcher__ = dispatcher
+
+  def get_dispatcher(self):
+    return self.__dispatcher__
+
+class UninitializeSwitchletEvent(object):
   pass
+
+class Switchlet(ThreadingActor):
+  def __init__(self, *args, **kwargs):
+    super(Switchlet, self).__init__(*args, **kwargs)
