@@ -141,14 +141,14 @@ class TimerService(ThreadingActor):
     location = self.__actor_lookup_table__.get(urn)
     if node:
       del self.__actor_lookup_table__[urn]
-      list = location.get('list')
+      vector = location.get('vector')
       node = location.get('node')
-      list.remove(node)
+      vector.remove(node)
 
-  def __update_lookup_table__(self, list, node):
+  def __update_lookup_table__(self, vector, node):
     urn = node.value.get_sender().actor_urn
     location = {
-      'list': list,
+      'vector': vector,
       'node': node
     }
     self.__actor_lookup_table__.update({urn: location})
