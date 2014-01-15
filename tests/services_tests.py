@@ -31,5 +31,5 @@ class TimerServiceTests(TestCase):
 
   def test_one_timer(self):
     service = TimerService().start()
-    time.sleep(300.0)
+    time.sleep(60.0)
     service.stop()

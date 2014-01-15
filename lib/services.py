@@ -23,6 +23,9 @@ from threading import Thread
 
 import logging, time
 
+class ClockEvent(object):
+  pass
+
 class ReceiveTimeoutCommand(object):
   def __init__(self, sender, timeout, recurring = False):
     self.__sender__ = sender
@@ -48,17 +51,14 @@ class StopTimeoutCommand(object):
 class TimeoutEvent(object):
   pass
 
-class TimerEvent(object):
-  pass
-
 class MonotonicClock(Thread):
   def __init__(self, *args, **kwargs):
     super(MonotonicClock, self).__init__(group = None)
     self.__actor__ = args[0]
     self.__interval__ = args[1]
     self.__running__ = True
-    # Singleton instance of TimerEvent.
-    self.__event__ = TimerEvent()
+    # Singleton instance of ClockEvent.
+    self.__event__ = ClockEvent()
 
   def run(self):
     while self.__running__:
@@ -185,7 +185,7 @@ class TimerService(ThreadingActor):
       self.__schedule__(message)
     elif isinstance(message, StopTimeoutCommand):
       self.__unschedule__(message)
-    elif isinstance(message, TimerEvent):
+    elif isinstance(message, ClockEvent):
       self.__tick__()
 
   def on_start(self):
