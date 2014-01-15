@@ -19,8 +19,8 @@
 
 from conf.settings import *
 from lib.commands import *
+from lib.core import *
 from lib.esl import *
-from lib.events import *
 from lib.fsm import *
 from lib.services import *
 from pykka import ActorRegistry, ThreadingActor
