@@ -30,10 +30,15 @@ logging.basicConfig(
 )
 
 class WaitingSwitchlet(Switchlet):
+  def __init__(self, *args, **kwargs):
+    super(WaitingSwitchlet, self).__init__(*args, **kwargs)
+    self.__seconds__ = 0
+
   def on_receive(self, message):
     message = message.get('content')
     if isinstance(message, TimeoutEvent):
-      print time.time()
+      self.__seconds__ += 1
+      print self.__seconds__
 
 class TimerServiceTests(TestCase):
   @classmethod
@@ -43,7 +48,7 @@ class TimerServiceTests(TestCase):
   def test_one_timer(self):
     service = TimerService().start()
     consumer = WaitingSwitchlet().start()
-    command = ReceiveTimeoutCommand(consumer, 1000)
+    command = ReceiveTimeoutCommand(consumer, 1000, recurring = True)
     service.tell({'content': command})
-    time.sleep(60.0)
+    time.sleep(150.0)
     service.stop()

@@ -75,19 +75,21 @@ class TimerService(ThreadingActor):
   approach used in the Linux kernel. Please refer to the email thread
   by Ingo Molnar @ https://lkml.org/lkml/2005/10/19/46.
   '''
-  TICK_SIZE = 0.1             # Tick every 100 milliseconds.
+  TICK_SIZE  = 0.1             # Tick every 100 milliseconds.
 
   def __init__(self, *args, **kwargs):
     super(TimerService, self).__init__(*args, **kwargs)
     # Initialize the timing wheels. The finest possible
     self.__logger__ = logging.getLogger('freepy.lib.services.TimerService')
     # granularity is 100ms.
-    self.__timer_vector1__ = [dllist()] * 256
-    self.__timer_vector2__ = [dllist()] * 256
-    self.__timer_vector3__ = [dllist()] * 256
+    self.__timer_vector1__ = self.__create_vector__(256)
+    self.__timer_vector2__ = self.__create_vector__(256)
+    self.__timer_vector3__ = self.__create_vector__(256)
+    self.__timer_vector4__ = self.__create_vector__(256)
     # Initialize the timer vector indices.
     self.__timer_vector2_index__  = 0
     self.__timer_vector3_index__  = 0
+    self.__timer_vector4_index__  = 0
     # Initialize the tick counter.
     self.__current_tick__ = 0
     # Initialize the actor lookup table for O(1) timer removal.
@@ -97,50 +99,133 @@ class TimerService(ThreadingActor):
     # Monotonic clock.
     self.__clock__ = None
 
-  def __schedule__(self, timer):
-    timeout = timer.get_timeout()
-    if timeout <= 25600:
-      self.__vector1_insert__(timer)
-    elif timeout <= 6553600:
-      self.__vector2_insert__(timer)
-    elif timeout <= 1677721600:
-      self.__vector3_insert__(timer)
+  def __cascade_vector__(self, vector):
+    '''
+    Cascades all the timers inside a vector to a lower bucket.
+
+    Arguments: vector - The vector to cascade.
+    '''
+    for index in range(1, len(vector)):
+      bucket = vector[index]
+      previous_bucket = vector[index - 1]
+      while len(bucket) > 0:
+        timer = bucket.popleft()
+        previous_bucket.append(timer)
+
 
   def __cascade_vector_2__(self):
-    index = self.__timer_vector2_index__
-    timers = self.__timer_vector2__[index]
+    '''
+    Cascades timers from vector 2 into vector 1.
+    '''
+    tick = self.__current_tick__
+    timers = self.__timer_vector2__[0]
     for timer in timers:
+      expires = timer.get_expires() - 25600
+      timer.set_expires(expires)
       self.__vector1_insert__(timer)
     timers.clear()
+    self.__cascade_vector__(self.__timer_vector2__)
+    index = self.__timer_vector2_index__
     index = (index + 1) % 256
-    if index == 0:
+    self.__timer_vector2_index__ = index
+    if self.__timer_vector2_index__ == 0:
       self.__cascade_vector_3__()
 
   def __cascade_vector_3__(self):
-    index = self.__timer_vector3_index__
-    timers = self.__timer_vector3__[index]
+    '''
+    Cascades timers from vector 3 into vector 2.
+    '''
+    tick = self.__current_tick__
+    timers = self.__timer_vector3__[0]
     for timer in timers:
+      expires = timer.get_expires() - 6553600
+      timer.set_expires(expires)
       self.__vector2_insert__(timer)
     timers.clear()
+    self.__cascade_vector__(self.__timer_vector3__)
+    index = self.__timer_vector3_index__
     index = (index + 1) % 256
+    self.__timer_vector3_index__ = index
+    if self.__timer_vector3_index__ == 0:
+      self.__cascade_vector_4__()
+
+  def __cascade_vector_4__(self):
+    '''
+    Cascades timers from vector 4 into vector 3.
+    '''
+    tick = self.__current_tick__
+    timers = self.__timer_vector4__[0]
+    for timer in timers:
+      expires = timer.get_expires() - 1677721600
+      timer.set_expires(expires)
+      self.__vector3_insert__(timer)
+    timers.clear()
+    self.__cascade_vector__(self.__timer_vector4__)
+    index = self.__timer_vector4_index__
+    index = (index + 1) % 256
+    self.__timer_vector4_index__ = index
+
+  def __create_vector__(self, size):
+    '''
+    Creates a new vector and initializes it to a specified size.
+
+    Arguments: size - The size of the vector.
+    '''
+    vector = list()
+    for counter in range(size):
+      vector.append(dllist())
+    return vector
+
+  def __schedule__(self, timer):
+    '''
+    Schedules a timer for expiration.
+
+    Arguments: timer - The timer to be shceduled.
+    '''
+    tick = self.__current_tick__
+    timeout = timer.get_timeout()
+    expires = (tick % 256) * 100 + timeout
+    timer.set_expires(expires)
+    if expires <= 25600:
+      self.__vector1_insert__(timer)
+    elif expires <= 6553600:
+      self.__vector2_insert__(timer)
+    elif expires <= 1677721600:
+      self.__vector3_insert__(timer)
+    elif expires <= 429496729600:
+      self.__vector4_insert__(timer)
 
   def __tick__(self):
+    '''
+    Excutes one clock tick.
+    '''
     tick = self.__current_tick__
     timers = self.__timer_vector1__[tick % 256]
     recurring = list()
     while len(timers) > 0:
       timer = timers.popleft()
-      timer.get_sender().tell({'content': self.__timeout__})
-      if timer.is_recurring:
+      timer.get_observer().tell({'content': self.__timeout__})
+      if timer.is_recurring():
         recurring.append(timer)
+      else:
+        lookup_table = self.__actor_lookup_table__
+        urn = timer.get_observer.actor_urn
+        location = lookup_table.get(urn)
+        if location:
+          del lookup_table[location]
     for timer in recurring:
       self.__schedule__(timer)
     self.__current_tick__ = tick + 1
     if self.__current_tick__ % 256 == 0:
       self.__cascade_vector_2__()
 
-  def __unschedule__(self, timer):
-    urn = timer.get_sender().actor_urn
+  def __unschedule__(self, command):
+    '''
+    Unschedules a timer that has previously been scheduled for expiration.
+
+    Arguments: command - The StopTimeoutCommand.
+    '''
+    urn = command.get_sender().actor_urn
     location = self.__actor_lookup_table__.get(urn)
     if node:
       del self.__actor_lookup_table__[urn]
@@ -149,7 +234,10 @@ class TimerService(ThreadingActor):
       vector.remove(node)
 
   def __update_lookup_table__(self, vector, node):
-    urn = node.value.get_sender().actor_urn
+    '''
+    Updates a lookup table used for O(1) timer removal.
+    '''
+    urn = node.value.get_observer().actor_urn
     location = {
       'vector': vector,
       'node': node
@@ -157,27 +245,61 @@ class TimerService(ThreadingActor):
     self.__actor_lookup_table__.update({urn: location})
 
   def __vector1_insert__(self, timer):
+    '''
+    Inserts a timer into vector 1.
+
+    Arguments: timer - The timer to be inserted.
+    '''
     vector = self.__timer_vector1__
-    bucket = timer.get_timeout() / 100
+    bucket = timer.get_expires() / 100 - 1
     node = vector[bucket].append(timer)
     self.__update_lookup_table__(vector, node)
 
   def __vector2_insert__(self, timer):
+    '''
+    Inserts a timer into vector 2.
+
+    Arguments: timer - The timer to be inserted.
+    '''
     vector = self.__timer_vector2__
-    bucket = timer.get_timeout() / 25600
+    bucket = timer.get_expires() / 25600 - 1
     node = vector[bucket].append(timer)
     self.__update_lookup_table__(vector, node)
 
   def __vector3_insert__(self, timer):
+    '''
+    Inserts a timer into vector 3.
+
+    Arguments: timer - The timer to be inserted.
+    '''
     vector = self.__timer_vector3__
-    bucket = timer.get_timeout() / 6553600
+    bucket = timer.get_expires() / 6553600 - 1
+    node = vector[bucket].append(timer)
+    self.__update_lookup_table__(vector, node)
+
+  def __vector4_insert__(self, timer):
+    '''
+    Inserts a timer into vector 4.
+
+    Arguments: timer - The timer to be inserted.
+    '''
+    vector = self.__timer_vector4__
+    bucket = timer.get_expires() / 1677721600 - 1
     node = vector[bucket].append(timer)
     self.__update_lookup_table__(vector, node)
 
   def on_failure(self, exception_type, exception_value, traceback):
+    '''
+    Logs exceptions for the TimerService.
+    '''
     self.__logger__.error(exception_value)
 
   def on_receive(self, message):
+    '''
+    Handles incoming messages.
+
+    Arguments: message - The message to be processed.
+    '''
     # This is necessary because all Pykka messages
     # must be of type dict.
     message = message.get('content')
@@ -185,15 +307,47 @@ class TimerService(ThreadingActor):
       return
     # Handle the message.
     if isinstance(message, ReceiveTimeoutCommand):
-      self.__schedule__(message)
+      observer = message.get_sender()
+      timeout = message.get_timeout()
+      recurring = message.is_recurring()
+      timer = TimerService.Timer(observer, timeout, recurring)
+      self.__schedule__(timer)
     elif isinstance(message, StopTimeoutCommand):
       self.__unschedule__(message)
     elif isinstance(message, ClockEvent):
       self.__tick__()
 
   def on_start(self):
+    '''
+    Initialized the TimerService.
+    '''
     self.__clock__ = MonotonicClock(self.actor_ref, TimerService.TICK_SIZE)
     self.__clock__.start()
 
   def on_stop(self):
+    '''
+    Cleans up after TimerService.
+    '''
     self.__clock__.stop()
+
+  class Timer(object):
+    def __init__(self, observer, timeout, recurring = False):
+      self.__observer__ = observer
+      self.__recurring__ = recurring
+      self.__timeout__ = timeout
+      self.__expires__ = 0
+
+    def get_expires(self):
+      return self.__expires__
+
+    def get_observer(self):
+      return self.__observer__
+
+    def get_timeout(self):
+      return self.__timeout__
+
+    def is_recurring(self):
+      return self.__recurring__
+
+    def set_expires(self, expires):
+      self.__expires__ = expires
