@@ -44,7 +44,7 @@ class TimerServiceTestSwitchlet(Switchlet):
   def __init__(self, *args, **kwargs):
     super(TimerServiceTestSwitchlet, self).__init__(*args, **kwargs)
     self.__last_time__ = 0
-    self.__misses__ = 0
+    self.__misses__ = -1
     self.__timeout__ = 0
     self.__skew__ = 0
 

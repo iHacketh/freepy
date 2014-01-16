@@ -113,7 +113,6 @@ class TimerService(ThreadingActor):
         node = previous_bucket.append(timer)
         self.__update_lookup_table__(previous_bucket, node)
 
-
   def __cascade_vector_2__(self):
     '''
     Cascades timers from vector 2 into vector 1.
