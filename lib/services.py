@@ -227,7 +227,7 @@ class TimerService(ThreadingActor):
     '''
     urn = command.get_sender().actor_urn
     location = self.__actor_lookup_table__.get(urn)
-    if node:
+    if location:
       del self.__actor_lookup_table__[urn]
       vector = location.get('vector')
       node = location.get('node')

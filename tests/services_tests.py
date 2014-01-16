@@ -29,29 +29,28 @@ logging.basicConfig(
   level = logging.DEBUG
 )
 
-class TickSwitchlet(Switchlet):
-  def __init__(self, *args, **kwargs):
-    super(TickSwitchlet, self).__init__(*args, **kwargs)
-    self.__tick__ = 0
+class InitializeTestSwitchletEvent(object):
+  def __init__(self, timeout):
+    self.__timeout__ = timeout
 
-  def on_receive(self, message):
-    message = message.get('content')
-    if isinstance(message, TimeoutEvent):
-      self.__tick__ += 1
-      print self.__tick__
+  def get_timeout(self):
+    return self.__timeout__
 
-class SecondsSwitchlet(Switchlet):
+class TimerServiceTestSwitchlet(Switchlet):
   def __init__(self, *args, **kwargs):
-    super(SecondsSwitchlet, self).__init__(*args, **kwargs)
+    super(TimerServiceTestSwitchlet, self).__init__(*args, **kwargs)
     self.__last_time__ = 0
     self.__misses__ = 0
+    self.__timeout__ = 0
 
   def on_receive(self, message):
     message = message.get('content')
-    if isinstance(message, TimeoutEvent):
+    if isinstance(message, InitializeTestSwitchletEvent):
+      self.__timeout__ = message.get_timeout()
+    elif isinstance(message, TimeoutEvent):
       now = time.time()
       if self.__last_time__ > 0:
-        skew = 1000 - math.trunc((now - self.__last_time__) * 1000)
+        skew = self.__timeout__ - math.trunc((now - self.__last_time__) * 1000)
         if skew > 100:
           self.__misses__ += 1
         print 'last time: %f, now: %f, skew: %ims' % (self.__last_time__, now, skew)
@@ -66,14 +65,20 @@ class TimerServiceTests(TestCase):
     # Start the timer service.
     service = TimerService().start()
     # Start the seconds switchlet.
-    consumer = SecondsSwitchlet().start()
+    consumer = TimerServiceTestSwitchlet().start()
+    event = InitializeTestSwitchletEvent(1000)
+    consumer.tell({'content': event})
     # Tell the timer service to send timeout events to the seconds switchlet every second.
     command = ReceiveTimeoutCommand(consumer, 1000, recurring = True)
     service.tell({'content': command})
     # Wait for 1 minute worth of events to fire.
     time.sleep(60.0)
+    # Tell the timer service to stop timeout events.
+    command = StopTimeoutCommand(consumer)
+    service.tell({'content': command})
     # Make the timer service did not miss any deadlines.
     print 'misses: %i' % consumer._actor.__misses__
     self.assertTrue( consumer._actor.__misses__ == 0)
     # cleanup.
+    consumer.stop()
     service.stop()
