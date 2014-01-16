@@ -325,6 +325,8 @@ class TimerService(ThreadingActor):
         recurring = message.is_recurring()
         timer = TimerService.Timer(observer, timeout, recurring)
         self.__schedule__(timer)
+      else:
+        self.__logger__.warning('Can not schedule timeout requests for 200ms or less.')
     elif isinstance(message, StopTimeoutCommand):
       self.__unschedule__(message)
     elif isinstance(message, ClockEvent):
