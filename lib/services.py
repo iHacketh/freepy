@@ -99,17 +99,20 @@ class TimerService(ThreadingActor):
     # Monotonic clock.
     self.__clock__ = None
 
-  def __cascade_vector__(self, vector):
+  def __cascade_vector__(self, vector, elapsed):
     '''
     Cascades all the timers inside a vector to a lower bucket.
 
-    Arguments: vector - The vector to cascade.
+    Arguments: vector  - The vector to cascade.
+               elapsed - The amount of time elapsed in milliseconds.
     '''
     for index in range(1, len(vector)):
       bucket = vector[index]
       previous_bucket = vector[index - 1]
       while len(bucket) > 0:
         timer = bucket.popleft()
+        expires = timer.get_expires() - elapsed
+        timer.set_expires(expires)
         node = previous_bucket.append(timer)
         self.__update_lookup_table__(previous_bucket, node)
 
@@ -124,7 +127,7 @@ class TimerService(ThreadingActor):
       timer.set_expires(expires)
       self.__vector1_insert__(timer)
     timers.clear()
-    self.__cascade_vector__(self.__timer_vector2__)
+    self.__cascade_vector__(self.__timer_vector2__, 25600)
     index = self.__timer_vector2_index__
     index = (index + 1) % 256
     self.__timer_vector2_index__ = index
@@ -142,7 +145,7 @@ class TimerService(ThreadingActor):
       timer.set_expires(expires)
       self.__vector2_insert__(timer)
     timers.clear()
-    self.__cascade_vector__(self.__timer_vector3__)
+    self.__cascade_vector__(self.__timer_vector3__, 6553600)
     index = self.__timer_vector3_index__
     index = (index + 1) % 256
     self.__timer_vector3_index__ = index
@@ -160,7 +163,7 @@ class TimerService(ThreadingActor):
       timer.set_expires(expires)
       self.__vector3_insert__(timer)
     timers.clear()
-    self.__cascade_vector__(self.__timer_vector4__)
+    self.__cascade_vector__(self.__timer_vector4__, 1677721600)
     index = self.__timer_vector4_index__
     index = (index + 1) % 256
     self.__timer_vector4_index__ = index
