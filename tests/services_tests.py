@@ -30,8 +30,12 @@ logging.basicConfig(
 )
 
 class InitializeTestSwitchletEvent(object):
-  def __init__(self, timeout):
+  def __init__(self, timeout, skew):
     self.__timeout__ = timeout
+    self.__skew__ = skew
+
+  def get_skew(self):
+    return self.__skew__
 
   def get_timeout(self):
     return self.__timeout__
@@ -42,18 +46,22 @@ class TimerServiceTestSwitchlet(Switchlet):
     self.__last_time__ = 0
     self.__misses__ = 0
     self.__timeout__ = 0
+    self.__skew__ = 0
 
   def on_receive(self, message):
     message = message.get('content')
     if isinstance(message, InitializeTestSwitchletEvent):
       self.__timeout__ = message.get_timeout()
+      self.__skew__ = message.get_skew()
     elif isinstance(message, TimeoutEvent):
       now = time.time()
       if self.__last_time__ > 0:
         skew = self.__timeout__ - math.trunc((now - self.__last_time__) * 1000)
-        if skew > 100:
+        if skew > self.__skew__ or skew < -self.__skew__:
           self.__misses__ += 1
         print 'last time: %f, now: %f, skew: %ims' % (self.__last_time__, now, skew)
+      else:
+        print 'Initialized timer service test switchlet.'
       self.__last_time__ = now
 
 class TimerServiceTests(TestCase):
@@ -66,7 +74,7 @@ class TimerServiceTests(TestCase):
     service = TimerService().start()
     # Start the seconds switchlet.
     consumer = TimerServiceTestSwitchlet().start()
-    event = InitializeTestSwitchletEvent(1000)
+    event = InitializeTestSwitchletEvent(1000, 100)
     consumer.tell({'content': event})
     # Tell the timer service to send timeout events to the seconds switchlet every second.
     command = ReceiveTimeoutCommand(consumer, 1000, recurring = True)

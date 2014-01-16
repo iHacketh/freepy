@@ -110,7 +110,8 @@ class TimerService(ThreadingActor):
       previous_bucket = vector[index - 1]
       while len(bucket) > 0:
         timer = bucket.popleft()
-        previous_bucket.append(timer)
+        node = previous_bucket.append(timer)
+        self.__update_lookup_table__(previous_bucket, node)
 
 
   def __cascade_vector_2__(self):
@@ -253,7 +254,7 @@ class TimerService(ThreadingActor):
     vector = self.__timer_vector1__
     bucket = timer.get_expires() / 100 - 1
     node = vector[bucket].append(timer)
-    self.__update_lookup_table__(vector, node)
+    self.__update_lookup_table__(vector[bucket], node)
 
   def __vector2_insert__(self, timer):
     '''
@@ -264,7 +265,7 @@ class TimerService(ThreadingActor):
     vector = self.__timer_vector2__
     bucket = timer.get_expires() / 25600 - 1
     node = vector[bucket].append(timer)
-    self.__update_lookup_table__(vector, node)
+    self.__update_lookup_table__(vector[bucket], node)
 
   def __vector3_insert__(self, timer):
     '''
@@ -275,7 +276,7 @@ class TimerService(ThreadingActor):
     vector = self.__timer_vector3__
     bucket = timer.get_expires() / 6553600 - 1
     node = vector[bucket].append(timer)
-    self.__update_lookup_table__(vector, node)
+    self.__update_lookup_table__(vector[bucket], node)
 
   def __vector4_insert__(self, timer):
     '''
@@ -286,7 +287,7 @@ class TimerService(ThreadingActor):
     vector = self.__timer_vector4__
     bucket = timer.get_expires() / 1677721600 - 1
     node = vector[bucket].append(timer)
-    self.__update_lookup_table__(vector, node)
+    self.__update_lookup_table__(vector[bucket], node)
 
   def on_failure(self, exception_type, exception_value, traceback):
     '''
