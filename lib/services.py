@@ -176,6 +176,15 @@ class TimerService(ThreadingActor):
       vector.append(dllist())
     return vector
 
+  def __round__(self, timeout):
+    remainder = timeout % 100
+    if remainder == 0:
+      return timeout
+    elif remainder <= 49:
+      return  timeout - remainder
+    else:
+      return timeout + 100 - remainder
+
   def __schedule__(self, timer):
     '''
     Schedules a timer for expiration.
@@ -184,7 +193,7 @@ class TimerService(ThreadingActor):
     '''
     tick = self.__current_tick__
     timeout = timer.get_timeout()
-    expires = (tick % 256) * 100 + timeout
+    expires = (tick % 256) * 100 + self.__round__(timeout)
     timer.set_expires(expires)
     if expires <= 25600:
       self.__vector1_insert__(timer)
@@ -307,11 +316,12 @@ class TimerService(ThreadingActor):
       return
     # Handle the message.
     if isinstance(message, ReceiveTimeoutCommand):
-      observer = message.get_sender()
       timeout = message.get_timeout()
-      recurring = message.is_recurring()
-      timer = TimerService.Timer(observer, timeout, recurring)
-      self.__schedule__(timer)
+      if timeout >= 200:
+        observer = message.get_sender()
+        recurring = message.is_recurring()
+        timer = TimerService.Timer(observer, timeout, recurring)
+        self.__schedule__(timer)
     elif isinstance(message, StopTimeoutCommand):
       self.__unschedule__(message)
     elif isinstance(message, ClockEvent):
