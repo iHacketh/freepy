@@ -305,6 +305,9 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
+  def on_failure(self, exception_type, exception_value, traceback):
+    self.__logger__.error(exception_value)
+
   def on_receive(self, message):
     # This is necessary because all Pykka messages
     # must be of type dict.
