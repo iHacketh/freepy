@@ -43,7 +43,7 @@ class BackgroundCommand(object):
 class UUIDCommand(BackgroundCommand):
   def __init__(self, *args, **kwargs):
     super(UUIDCommand, self).__init__(*args, **kwargs)
-    self.__uuid__ = kwargs.get('uuid')
+    self.__uuid__ = args[1]
     if not self.__uuid__:
       raise ValueError('The value of uuid must be a valid UUID.')
 
