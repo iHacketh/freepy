@@ -180,6 +180,11 @@ class TimerService(ThreadingActor):
     return vector
 
   def __round__(self, timeout):
+    '''
+    Rounds a timeout to the nearest multiple of the tick size.
+
+    Arguments: timeout - The timeout to be rounded.
+    '''
     remainder = timeout % 100
     if remainder == 0:
       return timeout
@@ -319,14 +324,16 @@ class TimerService(ThreadingActor):
       return
     # Handle the message.
     if isinstance(message, ReceiveTimeoutCommand):
-      timeout = message.get_timeout()
-      if timeout >= 200:
+      uuid = message.get_sender().actor_urn
+      if not self.__actor_lookup_table__.has_key(uuid):
+        timeout = message.get_timeout()
         observer = message.get_sender()
         recurring = message.is_recurring()
         timer = TimerService.Timer(observer, timeout, recurring)
         self.__schedule__(timer)
       else:
-        self.__logger__.warning('Can not schedule timeout requests for 200ms or less.')
+        self.__logger__.warning('Actor %s is requesting too many simultaneous timers.'
+          % uuid)
     elif isinstance(message, StopTimeoutCommand):
       self.__unschedule__(message)
     elif isinstance(message, ClockEvent):
