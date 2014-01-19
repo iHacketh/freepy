@@ -1070,7 +1070,7 @@ class ReceiveDTMFCommand(UUIDCommand):
       return 'bgapi uuid_recv_dtmf %s %s\nJob-UUID: %s\n\n' % (self.__uuid__,
         self.__digits__, self.__job_uuid__)
     else:
-      return 'bgapi uuid_recv_dtmf %s %s@%i\nJob-UUID: %s\n\n' % (self.__uuid__,
+      return 'bgapi uuid_recv_dtmf %s %s@%s\nJob-UUID: %s\n\n' % (self.__uuid__,
         self.__digits__, self.__duration__, self.__job_uuid__)
 
 class ReclaimMemoryCommand(BackgroundCommand):
