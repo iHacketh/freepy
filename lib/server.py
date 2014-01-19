@@ -92,9 +92,7 @@ class ApplicationFactory(object):
     self.__uninit_event__ = UninitializeSwitchletEvent()
 
   def __contains_name__(self, name):
-    if self.__classes__.has_key(name) or self.__singletons__.has_key(name):
-      return True
-    return False
+    return self.__classes__.has_key(name) or self.__singletons__.has_key(name)
 
   def __get_klass__(self, name):
     module = sys.modules.get(name)

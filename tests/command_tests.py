@@ -262,320 +262,320 @@ class UnloadModuleCommandTests(TestCase):
 
 class AnswerCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = AnswerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = AnswerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_answer 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class BreakCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = BreakCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = BreakCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_break 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class BridgeCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = BridgeCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', other_uuid = '21516b8e-5a0b-485a-9e53-933e42947666')
+		command = BridgeCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', other_uuid = '21516b8e-5a0b-485a-9e53-933e42947666')
 		desired_output = 'bgapi uuid_bridge 21516b8e-5a0b-485a-9e53-933e42947079 21516b8e-5a0b-485a-9e53-933e42947666\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_no_variable_other_uuid(self):
-		self.assertRaises(ValueError, BridgeCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', other_uuid = None)
+		self.assertRaises(ValueError, BridgeCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', other_uuid = None)
 
 class BroadcastCommandTests(TestCase):
 	def test_success_scenario_withPath(self):
-		command = BroadcastCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'aleg', path = 'testPath', app_name = None, app_args = 'app_args')
+		command = BroadcastCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'aleg', path = 'testPath', app_name = None, app_args = 'app_args')
 		desired_output = 'bgapi uuid_broadcast 21516b8e-5a0b-485a-9e53-933e42947079 testPath aleg\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_success_scenario_withAppName(self):
-		command = BroadcastCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'aleg', path = None, app_name = 'testApp', app_args = 'app_args')
+		command = BroadcastCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'aleg', path = None, app_name = 'testApp', app_args = 'app_args')
 		desired_output = 'bgapi uuid_broadcast 21516b8e-5a0b-485a-9e53-933e42947079 testApp::app_args aleg\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_success_scenario_variable_leg_value_aleg(self):
-		command = BroadcastCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'aleg', path = 'testPath', app_name = None, app_args = 'app_args')
+		command = BroadcastCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'aleg', path = 'testPath', app_name = None, app_args = 'app_args')
 		desired_output = 'bgapi uuid_broadcast 21516b8e-5a0b-485a-9e53-933e42947079 testPath aleg\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_success_scenario_variable_leg_value_bleg(self):
-		command = BroadcastCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'bleg', path = 'testPath', app_name = None, app_args = 'app_args')
+		command = BroadcastCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'bleg', path = 'testPath', app_name = None, app_args = 'app_args')
 		desired_output = 'bgapi uuid_broadcast 21516b8e-5a0b-485a-9e53-933e42947079 testPath bleg\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_success_scenario_variable_leg_value_both(self):
-		command = BroadcastCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'both', path = 'testPath', app_name = None, app_args = 'app_args')
+		command = BroadcastCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'both', path = 'testPath', app_name = None, app_args = 'app_args')
 		desired_output = 'bgapi uuid_broadcast 21516b8e-5a0b-485a-9e53-933e42947079 testPath both\nJob-UUID: %s\n\n'  % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_no_variable_leg(self):
-		self.assertRaises(ValueError, BroadcastCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = None, path = 'testPath', app_name = None, app_args = 'app_args')
+		self.assertRaises(ValueError, BroadcastCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = None, path = 'testPath', app_name = None, app_args = 'app_args')
 
 	def test_failed_scenario_runtime(self):
-		self.assertRaises(RuntimeError, BroadcastCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'bleg', path = 'testPath', app_name = 'testApp', app_args = 'app_args')
+		self.assertRaises(RuntimeError, BroadcastCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'bleg', path = 'testPath', app_name = 'testApp', app_args = 'app_args')
 
 class ChatCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = ChatCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', text = None)
+		command = ChatCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', text = None)
 		desired_output = 'bgapi uuid_chat 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)    
 
 class DeflectCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = DeflectCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', url = 'testURL')
+		command = DeflectCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', url = 'testURL')
 		desired_output = 'bgapi uuid_deflect 21516b8e-5a0b-485a-9e53-933e42947079 testURL\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)    
 
 class DisableMediaCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = DisableMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = DisableMediaCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_media off 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)    
 
 class DisplayCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = DisplayCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', display = 'MessageBox.Show()')
+		command = DisplayCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', display = 'MessageBox.Show()')
 		desired_output = 'bgapi uuid_display 21516b8e-5a0b-485a-9e53-933e42947079 MessageBox.Show()\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)    
 
 class DualTransferCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = DualTransferCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', extension_a = '0', extension_b = '1', dialplan_a = 'plana', dialplan_b = 'planb', context_a = 'contxa', context_b = 'contxb')
+		command = DualTransferCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', extension_a = '0', extension_b = '1', dialplan_a = 'plana', dialplan_b = 'planb', context_a = 'contxa', context_b = 'contxb')
 		desired_output = 'bgapi uuid_dual_transfer 21516b8e-5a0b-485a-9e53-933e42947079 0/plana/contxa 1/planb/contxb\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_without_variable(self):
-		self.assertRaises(RuntimeError, DualTransferCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', extension_a = None, extension_b = None)    
+		self.assertRaises(RuntimeError, DualTransferCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', extension_a = None, extension_b = None)    
 
 class DumpCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = DumpCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', format = None)
+		command = DumpCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', format = None)
 		desired_output = 'bgapi uuid_dump 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)    
 
 class EarlyOkayCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = EarlyOkayCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = EarlyOkayCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_early_ok 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class EnableMediaCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = EnableMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = EnableMediaCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_media 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class EnableSessionHeartbeatCommandTests(TestCase):
 	def test_success_scenario_with_variable(self):
-		command = EnableSessionHeartbeatCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', start_time = 60)
+		command = EnableSessionHeartbeatCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', start_time = 60)
 		desired_output = 'bgapi uuid_session_heartbeat 21516b8e-5a0b-485a-9e53-933e42947079 sched 60\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_success_scenario_without_variable(self):
-		command = EnableSessionHeartbeatCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = EnableSessionHeartbeatCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_session_heartbeat 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class FileManagerCommandTests(TestCase):
   def test_success_scenario_with_variable_speed(self):
-    command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'speed')
+    command = FileManagerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = 'speed')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 speed\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
   def test_success_scenario_with_variable_pause(self):
-    command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'pause')
+    command = FileManagerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = 'pause')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 pause\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
   def test_success_scenario_with_variable_truncate(self):
-    command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'truncate')
+    command = FileManagerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = 'truncate')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 truncate\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
   def test_success_scenario_with_variable_volume(self):
-    command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'volume')
+    command = FileManagerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = 'volume')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 volume\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
   def test_success_scenario_with_variable_restart(self):
-    command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'restart')
+    command = FileManagerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = 'restart')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 restart\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
   def test_success_scenario_with_variable_seek(self):
-    command = FileManagerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = 'seek')
+    command = FileManagerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = 'seek')
     desired_output = 'bgapi uuid_fileman 21516b8e-5a0b-485a-9e53-933e42947079 seek\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
   def test_failed_scenario_without_variable(self):
-    self.assertRaises(ValueError, FileManagerCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', command = None)
+    self.assertRaises(ValueError, FileManagerCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', command = None)
 
 class FlushDTMFCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = FlushDTMFCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = FlushDTMFCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_flush_dtmf 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class GetAudioLevelCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = GetAudioLevelCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = GetAudioLevelCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_audio 21516b8e-5a0b-485a-9e53-933e42947079 start read level\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class GetBugListCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = GetBugListCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = GetBugListCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_buglist 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class GetVariableCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = GetVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName')
+		command = GetVariableCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName')
 		desired_output = 'bgapi uuid_getvar 21516b8e-5a0b-485a-9e53-933e42947079 testName\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_without_variable(self):
-		self.assertRaises(ValueError, GetVariableCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = None)
+		self.assertRaises(ValueError, GetVariableCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', name = None)
 
 class HoldCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = HoldCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = HoldCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_hold 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class KillCommandTests(TestCase):
 	def test_success_scenario_with_variable(self):
-		command = KillCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', cause = 'fake cause')
+		command = KillCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', cause = 'fake cause')
 		desired_output = 'bgapi uuid_kill 21516b8e-5a0b-485a-9e53-933e42947079 fake cause\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_success_scenario_without_variable(self):
-		command = KillCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = KillCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_kill 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class LimitCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = LimitCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', backend = 'backend', realm = 'realm', resource='resource', max_calls = 2, interval = 20, number = 15, dialplan = 'c', context='unknown')
+		command = LimitCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', backend = 'backend', realm = 'realm', resource='resource', max_calls = 2, interval = 20, number = 15, dialplan = 'c', context='unknown')
 		desired_output = 'bgapi uuid_limit 21516b8e-5a0b-485a-9e53-933e42947079 backend realm resource 2/20 15 c unknown\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
    
 class ParkCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = ParkCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = ParkCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_park 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class PauseCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = PauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = PauseCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 on\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class PreProcessCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = PreProcessCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = PreProcessCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_preprocess 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class PreAnswerCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = PreAnswerCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = PreAnswerCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_preanswer 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class ReceiveDTMFCommandTests(TestCase):
   def test_success_scenario(self):
-    command = ReceiveDTMFCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+    command = ReceiveDTMFCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
     desired_output = 'bgapi uuid_recv_dtmf 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class RenegotiateMediaCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = RenegotiateMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', codec = 'test_codex94')
+		command = RenegotiateMediaCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', codec = 'test_codex94')
 		desired_output = 'bgapi uuid_media_reneg 21516b8e-5a0b-485a-9e53-933e42947079 =test_codex94\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class SendDTMFCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = SendDTMFCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = SendDTMFCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_send_dtmf 21516b8e-5a0b-485a-9e53-933e42947079 None\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class SendInfoCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = SendInfoCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+		command = SendInfoCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
 		desired_output = 'bgapi uuid_send_info 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class SetAudioLevelCommandTests(TestCase):
 	def test_success_scenario_with_variable(self):
-		command = SetAudioLevelCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', level = 3.3)
+		command = SetAudioLevelCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', level = 3.3)
 		desired_output = 'bgapi uuid_audio 21516b8e-5a0b-485a-9e53-933e42947079 start write level 3.300000\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 	def test_failed_scenario_with_invalid_variable_high(self):
-		self.assertRaises(ValueError, SetAudioLevelCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', level = 4.1)
+		self.assertRaises(ValueError, SetAudioLevelCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', level = 4.1)
 
 	def test_failed_scenario_with_invalid_variable_low(self):
-		self.assertRaises(ValueError, SetAudioLevelCommand, object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', level = -4.1)
+		self.assertRaises(ValueError, SetAudioLevelCommand, object(), '21516b8e-5a0b-485a-9e53-933e42947079', level = -4.1)
 
 class SetMultipleVariableCommandTests(TestCase):
 	def test_success_scenario(self):
-		command = SetMultipleVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', variables = dict([('49','55')]))
+		command = SetMultipleVariableCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', variables = dict([('49','55')]))
 		desired_output = 'bgapi uuid_setvar_multi 21516b8e-5a0b-485a-9e53-933e42947079 4=9\nJob-UUID: %s\n\n' % command.__job_uuid__
 		self.assertTrue(str(command) == desired_output)
 
 class SetVariableCommandTests(TestCase):
   def test_success_scenario(self):
-    command = SetVariableCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
+    command = SetVariableCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
     desired_output = 'bgapi uuid_setvar 21516b8e-5a0b-485a-9e53-933e42947079 testName testValue\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class SimplifyCommandTests(TestCase):
   def test_success_scenario(self):
-    command = SimplifyCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
+    command = SimplifyCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', name = 'testName', value = 'testValue')   	
     desired_output = 'bgapi uuid_simplify 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
  
 class StartDebugMediaCommandTests(TestCase):
   def test_success_scenario(self):
-    command = StartDebugMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', option = 'testOption')   	
+    command = StartDebugMediaCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', option = 'testOption')   	
     desired_output = 'bgapi uuid_debug_media 21516b8e-5a0b-485a-9e53-933e42947079 testOption on\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
  
 class StartDisplaceCommandTests(TestCase):
   def test_success_scenario(self):
-    command = StartDisplaceCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', path = 'testPath', limit = 450, mux='testMux')   	
+    command = StartDisplaceCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', path = 'testPath', limit = 450, mux='testMux')   	
     desired_output = 'bgapi uuid_displace 21516b8e-5a0b-485a-9e53-933e42947079 start testPath 450 mux\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
  
 class StopDebugMediaCommandTests(TestCase):
   def test_success_scenario(self):
-    command = StopDebugMediaCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+    command = StopDebugMediaCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
     desired_output = 'bgapi uuid_debug_media 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class StopDisplaceCommandTests(TestCase):
   def test_success_scenario(self):
-    command = StopDisplaceCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')
+    command = StopDisplaceCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')
     desired_output = 'bgapi uuid_displace 21516b8e-5a0b-485a-9e53-933e42947079 stop\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class TransferCommandTests(TestCase):
   def test_success_scenario(self):
-    command = TransferCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'legTest', extension = '384', dialplan = '44', context = 'contextTest')
+    command = TransferCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079', leg = 'legTest', extension = '384', dialplan = '44', context = 'contextTest')
     desired_output = 'bgapi uuid_transfer 21516b8e-5a0b-485a-9e53-933e42947079 legTest 384 44 contextTest\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
 
 class UnholdCommandTests(TestCase):
   def test_success_scenario(self):
-    command = UnholdCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
+    command = UnholdCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')   	
     desired_output = 'bgapi uuid_hold off 21516b8e-5a0b-485a-9e53-933e42947079\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
  
 class UnpauseCommandTests(TestCase):
   def test_success_scenario(self):
-    command = UnpauseCommand(object(), uuid = '21516b8e-5a0b-485a-9e53-933e42947079')   	
+    command = UnpauseCommand(object(), '21516b8e-5a0b-485a-9e53-933e42947079')   	
     desired_output = 'bgapi pause 21516b8e-5a0b-485a-9e53-933e42947079 off\nJob-UUID: %s\n\n' % command.__job_uuid__
     self.assertTrue(str(command) == desired_output)
  
