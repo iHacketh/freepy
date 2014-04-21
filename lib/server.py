@@ -199,6 +199,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     if message:
       if isinstance(message, BackgroundCommand):
         self.__dispatch_command__(message)
+      elif isinstance(message, ServiceRequest):
+        self.__dispatch_service_request__(message)
       elif isinstance(message, RegisterJobObserverCommand):
         observer = message.get_observer()
         uuid = message.get_job_uuid()
@@ -262,6 +264,13 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       del self.__transactions__[uuid]
       recipient.tell({'content': message})
 
+  def __dispatch_service_request__(self, message):
+    name = message.__class__.__name__
+    target = self.__events__.get(name)
+    if target:
+      service = self.__apps__.get_instance(target)
+      service.tell({ 'content': messsage })
+
   @Action(state = 'initializing')
   def __initialize__(self, message):
     if 'BACKGROUND_JOB' not in dispatch_events:
@@ -310,11 +319,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       self.transition(to = 'dispatching', event = message)
 
   def __on_service_request__(self, message):
-    name = message.__class__.__name__
-    target = self.__events__.get(name)
-    if target:
-      service = self.__apps__.get_instance(target)
-      service.tell({ 'content': messsage })
+    if self.state() == 'dispatching':
+      self.transition(to = 'dispatching', event = message)
 
   def on_failure(self, exception_type, exception_value, traceback):
     self.__logger__.error(exception_value)
