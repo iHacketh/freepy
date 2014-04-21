@@ -87,6 +87,31 @@ class UnregisterJobObserverCommand(object):
   def get_job_uuid(self):
     return self.__job_uuid__
 
+class UnwatchEventCommand(object):
+  def __init__(self, name = None, value = None, pattern = None):
+    if not name or pattern and value:
+      raise ValueError('Please specify a name and a pattern or a value but not both.')
+    self.__name__ = name
+    self.__pattern__ = pattern
+    self.__value__ = value
+
+  def get_name(self):
+    return self.__name__
+
+  def get_pattern(self):
+    return self.__pattern__
+
+  def get_value(self):
+    return self.__value__
+
+class WatchEventCommand(UnwatchEventCommand):
+  def __init__(self, *args, **kwargs):
+    super(WatchEventCommand, self).__init__(*args, **kwargs)
+    self.__observer__ = args[0]
+
+  def get_observer(self):
+    return self.__observer__
+
 # The Core server components.
 class ApplicationFactory(object):
   def __init__(self, dispatcher):
@@ -182,6 +207,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     self.__logger__ = logging.getLogger('freepy.lib.server.dispatcher')
     self.__observers__ = dict()
     self.__transactions__ = dict()
+    self.__watches__ = list()
 
   @Action(state = 'authenticating')
   def __authenticate__(self, message):
@@ -210,6 +236,19 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         uuid = message.get_job_uuid()
         if self.__observers__.has_key(uuid):
           del self.__observers__[uuid]
+      elif isinstance(message, WatchEventCommand):
+        self.__watches__.append(message)
+      elif isinstance(message, UnwatchEventCommand):
+        name = message.get_name()
+        value = message.get_value()
+        if not value:
+          value = message.get_pattern()
+        match = None
+        for watch in self.__watches__:
+          if name == watch.get_name() and value == watch.get_value() or \
+             value == watch.get_pattern:
+            match = watch
+        self.__watches__.remove(match)
       else:
         headers = message.get_headers()
         content_type = headers.get('Content-Type')
@@ -233,7 +272,14 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     self.__client__.send(message)
 
   def __dispatch_incoming__(self, message):
+    if not self.__dispatch_incoming_using_dispatch_rules__(message) and \
+       not self.__dispatch_incoming_using_watches__(message):
+      self.__logger__.info('No route was defined for the following message.\n \
+      %s\n%s', str(message.get_headers()), str(message.get_body()))
+
+  def __dispatch_incoming_using_dispatch_rules__(self, message):
     headers = message.get_headers()
+    # Dispatch based on the pre-defined dispatch rules.
     for rule in dispatch_rules:
       target = rule.get('target')
       name = rule.get('header_name')
@@ -243,15 +289,34 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       value = rule.get('header_value')
       if value and header == value:
         self.__apps__.get_instance(target).tell({'content': message})
-        return
+        return True
       pattern = rule.get('header_pattern')
       if pattern:
         match = re.search(pattern, header)
         if match:
           self.__apps__.get_intance(target).tell({'content': message})
-          return
-    self.__logger__.info('No route was defined for the following message.\n \
-    %s\n%s', str(message.get_headers()), str(message.get_body()))
+          return True
+    return False
+
+  def __dispatch_incoming_using_watches__(self, message):
+    headers = message.get_headers()
+    # Dispatch based on runtime watches defined by switchlets.
+    for watch in self.__watches__:
+      name = watch.get_name()
+      header = headers.get(name)
+      if not header:
+        continue
+      value = watch.get_value()
+      if value and header == value:
+        watch.get_observer().tell({'content': message})
+        return True
+      pattern = watch.get_pattern()
+      if pattern:
+        match = re.search(pattern, header)
+        if match:
+          watch.get_observer().tell({'content': message})
+          return True
+    return False
 
   def __dispatch_observer_event__(self, uuid, message):
     recipient = self.__observers__.get(uuid)
