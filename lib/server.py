@@ -51,15 +51,19 @@ class EventsCommand(object):
 
 # Events used only between the Dispatcher and the Dispatcher Proxy.
 class InitializeDispatcherEvent(object):
-  def __init__(self, apps, client):
+  def __init__(self, apps, client, events):
     self.__apps__ = apps
     self.__client__ = client
+    self.__events__ = events
 
   def get_apps(self):
     return self.__apps__
 
   def get_client(self):
     return self.__client__
+
+  def get_events(self):
+    return self.__events__
 
 class KillDispatcherEvent(object):
   pass
@@ -144,15 +148,16 @@ class ApplicationFactory(object):
       self.unregister(name) 
 
 class DispatcherProxy(IEventSocketClientObserver):
-  def __init__(self, apps, dispatcher):
+  def __init__(self, apps, dispatcher, events):
     self.__apps__ = apps
     self.__dispatcher__ = dispatcher
+    self.__events__ = events
 
   def on_event(self, event):
     self.__dispatcher__.tell({'content': event})
 
   def on_start(self, client):
-    event = InitializeDispatcherEvent(self.__apps__, client)
+    event = InitializeDispatcherEvent(self.__apps__, client, self.__events__)
     self.__dispatcher__.tell({'content': event})
 
   def on_stop(self):
@@ -294,6 +299,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
   def __on_init__(self, message):
     self.__apps__ = message.get_apps()
     self.__client__ = message.get_client()
+    self.__events__ = message.get_events()
 
   def __on_kill__(self, message):
     if self.state() == 'dispatching':
@@ -302,6 +308,13 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
   def __on_observer__(self, message):
     if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
+
+  def __on_service_request__(self, message):
+    name = message.__class__.__name__
+    target = self.__events__.get(name)
+    if target:
+      service = self.__apps__.get_instance(target)
+      service.tell({ 'content': messsage })
 
   def on_failure(self, exception_type, exception_value, traceback):
     self.__logger__.error(exception_value)
@@ -323,6 +336,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         self.__on_event__(message)
     elif isinstance(message, BackgroundCommand):
       self.__on_command__(message)
+    elif isinstance(message, ServiceRequest):
+      self.__on_service_request__(message)
     elif isinstance(message, RegisterJobObserverCommand):
       self.__on_observer__(message)
     elif isinstance(message, UnregisterJobObserverCommand):
@@ -333,6 +348,14 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       self.__on_kill__(message)
 
 class FreepyServer(object):
+  def __generate_event_lookup_table__(self):
+    lookup_table = dict()
+    for service in dispatcher_services:
+      events = service.get('events')
+      for event in events:
+        lookup_table.update({ event: service.get('target') })
+    return lookup_table
+
   def __init__(self, *args, **kwargs):
     self.__logger__ = logging.getLogger('freepy.lib.server.freepyserver')
 
@@ -346,6 +369,10 @@ class FreepyServer(object):
       else:
         factory.register(target, type = 'singleton')
     return factory
+
+  def __load_services__(self, factory):
+    for service in dispatcher_services:
+      factory.register(service.get('target'), type = 'singleton')
 
   def __validate_rule__(self, rule):
     name = rule.get('header_name')
@@ -371,8 +398,12 @@ class FreepyServer(object):
     dispatcher = Dispatcher().start()
     # Load all the apps.
     apps = self.__load_apps_factory__(dispatcher)
+    # Load the dispatcher services.
+    self.__load_services__(apps)
+    # Generate an event lookup table.
+    events = self.__generate_event_lookup_table__()
     # Create the proxy between the event socket client and the dispatcher.
-    dispatcher_proxy = DispatcherProxy(apps, dispatcher)
+    dispatcher_proxy = DispatcherProxy(apps, dispatcher, events)
     # Create an event socket client factory and start the reactor.
     address = freeswitch_host.get('address')
     port = freeswitch_host.get('port')

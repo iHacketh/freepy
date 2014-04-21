@@ -23,10 +23,10 @@ from threading import Thread
 
 import logging, time
 
-class ClockEvent(object):
+class ServiceRequest(object):
   pass
 
-class ReceiveTimeoutCommand(object):
+class ReceiveTimeoutCommand(ServiceRequest):
   def __init__(self, sender, timeout, recurring = False):
     self.__sender__ = sender
     self.__timeout__ = timeout
@@ -41,12 +41,15 @@ class ReceiveTimeoutCommand(object):
   def is_recurring(self):
     return self.__recurring__
 
-class StopTimeoutCommand(object):
+class StopTimeoutCommand(ServiceRequest):
   def __init__(self, sender):
     self.__sender__ = sender
 
   def get_sender(self):
     return self.__sender__
+
+class ClockEvent(object):
+  pass
 
 class TimeoutEvent(object):
   pass

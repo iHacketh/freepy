@@ -33,7 +33,7 @@ logging_filename = None # '/usr/lib/freepy/log/freepy.log'
 # The Event Socket configuration used to connect to FreeSWITCH.
 freeswitch_host = {
     'name':     'FreeSwITCH Test VM',
-    'address':  '192.168.1.106',
+    'address':  '127.0.0.1',
     'port':      8021,
     'password': 'ClueCon'
 }
@@ -43,10 +43,10 @@ dispatcher_services = [
   {
     'name': 'Timer Service',                # The service name.
     'events': [                             # A list of events to forward to the service.
-      'lib.services.ReceiveTimeoutCommand', # The path to the ReceiveTimeoutCommand.
-      'lib.services.StopTimeoutCommand'     # The path to the StopTimeoutCommand.
+      'ReceiveTimeoutCommand',
+      'StopTimeoutCommand'
     ],
-    'service': 'lib.services.TimerService'  # The path to the service.
+    'target': 'lib.services.TimerService'  # The path to the service.
   }
 ]
 
