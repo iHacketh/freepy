@@ -88,12 +88,12 @@ class UnregisterJobObserverCommand(object):
     return self.__job_uuid__
 
 class UnwatchEventCommand(object):
-  def __init__(self, name = None, value = None, pattern = None):
-    if not name or pattern and value:
+  def __init__(self, *args, **kwargs):
+    self.__name__ = kwargs.get('name', None)
+    self.__pattern__ = kwargs.get('pattern', None)
+    self.__value__ = kwargs.get('value', None)
+    if not self.__name__ or self.__pattern__ and self.__value__:
       raise ValueError('Please specify a name and a pattern or a value but not both.')
-    self.__name__ = name
-    self.__pattern__ = pattern
-    self.__value__ = value
 
   def get_name(self):
     return self.__name__
@@ -387,6 +387,10 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
+  def __on_watch__(self, message):
+    if self.state() == 'dispatching':
+      self.transition(to = 'dispatching', event = message)
+
   def on_failure(self, exception_type, exception_value, traceback):
     self.__logger__.error(exception_value)
 
@@ -417,6 +421,10 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       self.__on_init__(message)
     elif isinstance(message, KillDispatcherEvent):
       self.__on_kill__(message)
+    elif isinstance(message, UnwatchEventCommand):
+      self.__on_watch__(message)
+    elif isinstance(message, WatchEventCommand):
+      self.__on_watch__(message)
 
 class FreepyServer(object):
   def __generate_event_lookup_table__(self):
