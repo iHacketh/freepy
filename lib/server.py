@@ -29,6 +29,7 @@ from twisted.internet import reactor
 import logging
 import re
 import sys
+import urllib
 
 # Commands used only by the Freepy server.
 class AuthCommand(object):
@@ -236,19 +237,6 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         uuid = message.get_job_uuid()
         if self.__observers__.has_key(uuid):
           del self.__observers__[uuid]
-      elif isinstance(message, WatchEventCommand):
-        self.__watches__.append(message)
-      elif isinstance(message, UnwatchEventCommand):
-        name = message.get_name()
-        value = message.get_value()
-        if not value:
-          value = message.get_pattern()
-        match = None
-        for watch in self.__watches__:
-          if name == watch.get_name() and value == watch.get_value() or \
-             value == watch.get_pattern:
-            match = watch
-        self.__watches__.remove(match)
       else:
         headers = message.get_headers()
         content_type = headers.get('Content-Type')
@@ -286,6 +274,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       header = headers.get(name)
       if not header:
         continue
+      header = urllib.unquote_plus(header)
       value = rule.get('header_value')
       if value and header == value:
         self.__apps__.get_instance(target).tell({'content': message})
@@ -306,6 +295,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       header = headers.get(name)
       if not header:
         continue
+      header = urllib.unquote_plus(header)
       value = watch.get_value()
       if value and header == value:
         watch.get_observer().tell({'content': message})
@@ -389,9 +379,23 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     if self.state() == 'dispatching':
       self.transition(to = 'dispatching', event = message)
 
+  # Watches are not handled as a state change because singleton switchlets
+  # may add watches during initialization at which point the dispatcher's
+  # FSM is still not ready.
   def __on_watch__(self, message):
-    if self.state() == 'dispatching':
-      self.transition(to = 'dispatching', event = message)
+    if isinstance(message, WatchEventCommand):
+      self.__watches__.append(message)
+    elif isinstance(message, UnwatchEventCommand):
+      name = message.get_name()
+      value = message.get_value()
+      if not value:
+        value = message.get_pattern()
+      match = None
+      for watch in self.__watches__:
+        if name == watch.get_name() and value == watch.get_value() or \
+           value == watch.get_pattern:
+          match = watch
+      self.__watches__.remove(match)
 
   def on_failure(self, exception_type, exception_value, traceback):
     self.__logger__.error(exception_value)
