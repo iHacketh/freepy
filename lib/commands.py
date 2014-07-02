@@ -958,8 +958,10 @@ class OriginateCommand(BackgroundCommand):
     if self.__extension__:
       buffer.write('%s' % self.__extension__)
     else:
-      buffer.write('&%s(%s)' % (self.__app_name__,
-        ' '.join(self.__app_args__)))
+      if self.__app_args__:
+        buffer.write('\'&%s(%s)\'' % (self.__app_name__, ' '.join(self.__app_args__)))
+      else:
+        buffer.write('&%s()' % self.__app_name__)
     buffer.write('\nJob-UUID: %s\n\n' % self.__job_uuid__)
     try:
       return buffer.getvalue()
@@ -1304,7 +1306,7 @@ class SetMultipleVariableCommand(UUIDCommand):
     if not isinstance(self.__variables__, dict):
       raise TypeError('The variables parameter must be of type dict.')
     variable_list = list()
-    for key, value in self.__variables__:
+    for key, value in self.__variables__.iteritems():
       variable_list.append('%s=%s' % (key, value))
     self.__variables_string__ = ';'.join(variable_list)
 

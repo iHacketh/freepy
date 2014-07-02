@@ -339,7 +339,9 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
   @Action(state = 'initializing')
   def __initialize__(self, message):
     if 'BACKGROUND_JOB' not in dispatch_events:
-      dispatch_events.append('BACKGROUND_JOB')
+      # The BACKGROUND_JOB events must be added at the front of the
+      # list in case the list ends with CUSTOM events.
+      dispatch_events.insert(0, 'BACKGROUND_JOB')
     events_command = EventsCommand(dispatch_events)
     self.__client__.send(events_command)
 
