@@ -14,8 +14,25 @@ Installing Using RPMs
 ---------------------
 Thankfully, Iskren Hadzhinedev has been kind enough to contribute [RPMS for CentOS 6.5 64-bit](https://drive.google.com/folderview?id=0B6jtlloOxsC9dXVUbnQ5QWxTRlE&usp=sharing).
 
-Installing Using Source Code
-----------------------------
+
+Installing Using PyPi
+---------------------
+```
+$] pip install freepy
+```
+
+Next, edit the file located @ lib/python2.7/site-packages/freepy/conf/settings.py so freeswitch_host has the correct information to connect to your FreeSWITCH instance.
+
+Finally, run the server.
+
+```
+$] freepy-server
+```
+
+*To configure how messages get routed to switchlets please edit the file located @ lib/python2.7/site-packages/freepy/conf/rules.py.*
+
+Installing From Github
+----------------------
 To get started with freepy we must first install the dependencies. This can be done either system wide or in a virtual environment. In this getting started guide we will create a virtual environment in which to run freepy.
 
 ```
@@ -28,8 +45,6 @@ $] pip install -r ./requirements.txt
 
 Next, edit the file located @ ./conf/settings.py so freeswitch_host has the correct information to connect to your FreeSWITCH instance.
 
-*The FreeSWITCH event socket module only listens on IP address 127.0.0.1 by default. Please make sure if FreeSWITCH is on a different machine that you bind the event socket module to the LAN IP.*
-
 Once everything is configured we are ready to take freepy for a run.
 
 ```
@@ -40,7 +55,10 @@ $] python run.py
 
 More documentation is on the way soon but for now an example heartbeat monitor [switchlet](https://github.com/thomasquintana/freepy/blob/master/switchlets/heartbeat/example.py) is provided.
 
-That's all there is to it!
+Notes
+-----
+
+*The FreeSWITCH event socket module only listens on IP address 127.0.0.1 by default. Please make sure if FreeSWITCH is on a different machine that you bind the event socket module to the LAN IP.*
 
 Contributions
 -------------
