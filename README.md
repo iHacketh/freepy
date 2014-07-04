@@ -6,8 +6,16 @@ A Python Actor based application server powered by FreeSWITCH. Freepy enables Py
 Getting Started
 ---------------
 
-Before we start working with freepy it is a good idea to have a working installtion of FreeSWITCH. If you need help please follow the instructions provided on the [FreeSWITCH wiki page](http://wiki.freeswitch.org/wiki/Download_%26_Installation_Guide). For the impatient, I have written a FreeSWITCH installation script in Python for Ubuntu following the latest stable release on the 14.x branch that may be helpful and can be located @ [FreeSWITCH Installer](https://github.com/thomasquintana/freeswitch-installer).
+Before we start working with freepy it is a good idea to have a working installtion of FreeSWITCH. If you need help please follow the instructions provided on the [FreeSWITCH wiki page](http://wiki.freeswitch.org/wiki/Download_%26_Installation_Guide).
 
+For the impatient, I have written a FreeSWITCH installation script in Python for Ubuntu following the latest stable release on the 14.x branch that may be helpful and can be located @ [FreeSWITCH Installer](https://github.com/thomasquintana/freeswitch-installer).
+
+Installing Using RPMs
+---------------------
+Thankfully, Iskren Hadzhinedev has been kind enough to contribute [RPMS for CentOS 6.5 64-bit](https://drive.google.com/folderview?id=0B6jtlloOxsC9dXVUbnQ5QWxTRlE&usp=sharing).
+
+Installing Using Source Code
+----------------------------
 To get started with freepy we must first install the dependencies. This can be done either system wide or in a virtual environment. In this getting started guide we will create a virtual environment in which to run freepy.
 
 ```
@@ -33,3 +41,14 @@ $] python run.py
 More documentation is on the way soon but for now an example heartbeat monitor [switchlet](https://github.com/thomasquintana/freepy/blob/master/switchlets/heartbeat/example.py) is provided.
 
 That's all there is to it!
+
+Contributions
+-------------
+
+In this section we extends our appreciation for community members who have helped improve the project and in turn have made it better for everyone.
+
+**A special thanks too:**
+
+*Cristian Groza* - Wrote documented & unit tests for the commands.py file.
+
+*Iskren Hadzhinedev* - Contributed PyPi script/instructions, RPM spec files, and RPMs.
