@@ -6,7 +6,7 @@ A Python Actor based application server powered by FreeSWITCH. Freepy enables Py
 Getting Started
 ---------------
 
-Before we start working with freepy it is a good idea to have a working installtion of FreeSWITCH. If you need help please follow the instructions provided on the [FreeSWITCH wiki page](http://wiki.freeswitch.org/wiki/Download_%26_Installation_Guide).
+Before we start working with freepy it is a good idea to have a working installation of FreeSWITCH. If you need help please follow the instructions provided on the [FreeSWITCH wiki page](http://wiki.freeswitch.org/wiki/Download_%26_Installation_Guide).
 
 For the impatient, I have written a FreeSWITCH installation script in Python for Ubuntu following the latest stable release on the 14.x branch that may be helpful and can be located @ [FreeSWITCH Installer](https://github.com/thomasquintana/freeswitch-installer).
 
@@ -17,6 +17,8 @@ Thankfully, Iskren Hadzhinedev has been kind enough to contribute [RPMS for Cent
 
 Installing Using PyPi
 ---------------------
+Iskren Hadzhinedev was also kind enough to provide a PyPi patch, script, and instructions.
+
 ```
 $] pip install freepy
 ```
