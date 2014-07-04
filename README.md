@@ -49,6 +49,6 @@ In this section we extends our appreciation for community members who have helpe
 
 **A special thanks too:**
 
-*Cristian Groza* - Wrote documented & unit tests for the commands.py file.
+*Cristian Groza* - Wrote documentation & unit tests for the commands.py file.
 
 *Iskren Hadzhinedev* - Contributed PyPi script/instructions, RPM spec files, and RPMs.
