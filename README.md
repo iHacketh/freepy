@@ -62,6 +62,8 @@ Notes
 
 *The FreeSWITCH event socket module only listens on IP address 127.0.0.1 by default. Please make sure if FreeSWITCH is on a different machine that you bind the event socket module to the LAN IP.*
 
+*Information on the state machines used by FreePy can be found @ [Declarative FSMs](https://github.com/thomasquintana/declarative-fsm)*
+
 Contributions
 -------------
 
