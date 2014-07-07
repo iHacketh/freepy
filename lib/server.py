@@ -395,7 +395,8 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
         if name == watch.get_name() and value == watch.get_value() or \
            value == watch.get_pattern:
           match = watch
-      self.__watches__.remove(match)
+      if match:
+        self.__watches__.remove(match)
 
   def on_failure(self, exception_type, exception_value, traceback):
     self.__logger__.error(exception_value)
