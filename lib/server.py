@@ -290,6 +290,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
   def __dispatch_incoming_using_watches__(self, message):
     headers = message.get_headers()
     # Dispatch based on runtime watches defined by switchlets.
+    result = None
     for watch in self.__watches__:
       name = watch.get_name()
       header = headers.get(name)
@@ -298,26 +299,35 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       header = urllib.unquote_plus(header)
       value = watch.get_value()
       if value and header == value:
-        watch.get_observer().tell({'content': message})
-        return True
+        result = watch
       pattern = watch.get_pattern()
       if pattern:
         match = re.search(pattern, header)
         if match:
-          watch.get_observer().tell({'content': message})
-          return True
+          result = watch
+    if result:
+      observer = result.get_observer()
+      if observer.is_alive():
+        observer.tell({'content': message})
+        return True
+      else:
+        self.__watches__.remove(result)
     return False
 
   def __dispatch_observer_event__(self, uuid, message):
     recipient = self.__observers__.get(uuid)
     if recipient:
-      recipient.tell({'content': message})
+      if recipient.is_alive():
+        recipient.tell({'content': message})
+      else:
+        del self.__observers__[uuid]
 
   def __dispatch_response__(self, uuid, message):
     recipient = self.__transactions__.get(uuid)
     if recipient:
       del self.__transactions__[uuid]
-      recipient.tell({'content': message})
+      if recipient.is_alive():
+        recipient.tell({'content': message})
 
   def __dispatch_service_request__(self, message):
     name = message.__class__.__name__
