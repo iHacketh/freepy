@@ -162,9 +162,10 @@ class ApplicationFactory(object):
       del self.__classes__[name]
     else:
       singleton = self.__singletons__.get(name)
-      singleton.tell({'content': self.__uninit_event__})
       if singleton:
-        singleton.stop()
+        if singleton.is_alive():
+          singleton.tell({'content': self.__uninit_event__})
+          singleton.stop()
         del self.__singletons__[name]
 
   def shutdown(self):
