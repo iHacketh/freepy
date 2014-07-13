@@ -16,7 +16,6 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
-
 from os import SEEK_END
 from twisted.internet.protocol import Protocol, ReconnectingClientFactory
 
@@ -27,6 +26,7 @@ except:
   from StringIO import StringIO
 
 import logging
+import urllib
 
 class IEventSocketClientObserver(object):
   def on_event(self, event):
@@ -128,6 +128,8 @@ class EventSocketClient(Protocol):
         tokens = line.split(':', 1)
         name = tokens[0].strip()
         value = tokens[1].strip()
+        if value and not len(value) == 0:
+          value = urllib.unquote(value)
         headers.update({name: value})
     return headers
 

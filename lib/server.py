@@ -29,7 +29,6 @@ from twisted.internet import reactor
 import logging
 import re
 import sys
-import urllib
 
 # Commands used only by the Freepy server.
 class AuthCommand(object):
@@ -275,7 +274,6 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       header = headers.get(name)
       if not header:
         continue
-      header = urllib.unquote_plus(header)
       value = rule.get('header_value')
       if value and header == value:
         self.__apps__.get_instance(target).tell({'content': message})
@@ -297,7 +295,6 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
       header = headers.get(name)
       if not header:
         continue
-      header = urllib.unquote_plus(header)
       value = watch.get_value()
       if value and header == value:
         result = watch
