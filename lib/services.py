@@ -68,6 +68,8 @@ class MonotonicClock(Thread):
       time.sleep(self.__interval__)
       if self.__running__:
         self.__actor__.tell({'content': self.__event__})
+      else:
+        break
 
   def stop(self):
     self.__running__ = False
@@ -229,10 +231,10 @@ class TimerService(ThreadingActor):
         recurring.append(timer)
       else:
         lookup_table = self.__actor_lookup_table__
-        urn = timer.get_observer.actor_urn
+        urn = timer.get_observer().actor_urn
         location = lookup_table.get(urn)
         if location:
-          del lookup_table[location]
+          del lookup_table[urn]
     for timer in recurring:
       self.__schedule__(timer)
     self.__current_tick__ = tick + 1

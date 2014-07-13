@@ -332,7 +332,7 @@ class Dispatcher(FiniteStateMachine, ThreadingActor):
     target = self.__events__.get(name)
     if target:
       service = self.__apps__.get_instance(target)
-      service.tell({ 'content': messsage })
+      service.tell({ 'content': message })
 
   @Action(state = 'initializing')
   def __initialize__(self, message):
