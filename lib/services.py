@@ -190,6 +190,8 @@ class TimerService(ThreadingActor):
 
     Arguments: timeout - The timeout to be rounded.
     '''
+    if timeout < 100:
+      return 100
     remainder = timeout % 100
     if remainder == 0:
       return timeout

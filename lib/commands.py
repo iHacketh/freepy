@@ -107,7 +107,7 @@ class BreakCommand(UUIDCommand):
   '''
   def __init__(self, *args, **kwargs):
     super(BreakCommand, self).__init__(*args, **kwargs)
-    self.__stop_all__ = kwargs.get('all', False)
+    self.__stop_all__ = kwargs.get('stop_all', False)
 
   def stop_all(self):
     return self.__stop_all__
@@ -891,6 +891,25 @@ class LoadModuleCommand(BackgroundCommand):
     return 'bgapi load %s\nJob-UUID: %s\n\n' % (self.__name__,
       self.__job_uuid__)
 
+class MaskRecordingCommand(UUIDCommand):
+  '''
+  Mask the audio associated with the given UUID into a file.
+
+  Arguments: sender - The freepy actor sending this command.
+             uuid - universal unique identifier.
+             path - The path where the recording should be stored.
+  '''  
+
+  def __init__(self, *args, **kwargs):
+    super(MaskRecordingCommand, self).__init__(*args, **kwargs)
+    self.__path__ = kwargs.get('path', None)
+    if not self.__path__:
+      raise ValueError('A valid path parameter must be specified.')
+
+  def __str__(self):
+    return 'bgapi uuid_record %s mask %s\nJob-UUID: %s\n\n' % (self.__uuid__, self.__path__, \
+      self.__job_uuid__)
+
 class OriginateCommand(BackgroundCommand):
   '''
   Originate a new call. 
@@ -1465,6 +1484,31 @@ class StartDisplaceCommand(UUIDCommand):
     finally:
       buffer.close()
 
+class StartRecordingCommand(UUIDCommand):
+  '''
+  Record the audio associated with the given UUID into a file.
+
+  Arguments: sender - The freepy actor sending this command.
+             uuid - universal unique identifier.
+             path - The path where the recording should be stored.
+             max_length - The max recording length in seconds.
+  '''  
+
+  def __init__(self, *args, **kwargs):
+    super(StartRecordingCommand, self).__init__(*args, **kwargs)
+    self.__path__ = kwargs.get('path', None)
+    self.__max_length__ = kwargs.get('max_length', None)
+    if not self.__path__:
+      raise ValueError('A valid path parameter must be specified.')
+
+  def __str__(self):
+    if self.__max_length__:
+      return 'bgapi uuid_record %s start %s %i\nJob-UUID: %s\n\n' % (self.__uuid__, self.__path__, \
+        self.__max_length__, self.__job_uuid__)
+    else:  
+      return 'bgapi uuid_record %s start %s\nJob-UUID: %s\n\n' % (self.__uuid__, self.__path__, \
+        self.__job_uuid__)
+
 class StatusCommand(BackgroundCommand):
   '''
   Show current status 
@@ -1503,6 +1547,25 @@ class StopDisplaceCommand(UUIDCommand):
 
   def __str__(self):
     return 'bgapi uuid_displace %s stop\nJob-UUID: %s\n\n' % (self.__uuid__,
+      self.__job_uuid__)
+
+class StopRecordingCommand(UUIDCommand):
+  '''
+  Stop recording the audio associated with the given UUID into a file.
+
+  Arguments: sender - The freepy actor sending this command.
+             uuid - universal unique identifier.
+             path - The path where the recording should be stored.
+  '''  
+
+  def __init__(self, *args, **kwargs):
+    super(StopRecordingCommand, self).__init__(*args, **kwargs)
+    self.__path__ = kwargs.get('path', None)
+    if not self.__path__:
+      raise ValueError('A valid path parameter must be specified.')
+
+  def __str__(self):
+    return 'bgapi uuid_record %s stop %s\nJob-UUID: %s\n\n' % (self.__uuid__, self.__path__, \
       self.__job_uuid__)
 
 class SyncClockCommand(BackgroundCommand):
@@ -1624,6 +1687,25 @@ class UnloadModuleCommand(BackgroundCommand):
     else:
       return 'bgapi unload -f %s\nJob-UUID: %s\n\n' % (self.__name__,
         self.__job_uuid__)
+
+class UnmaskRecordingCommand(UUIDCommand):
+  '''
+  Unmask the audio associated with the given UUID into a file.
+
+  Arguments: sender - The freepy actor sending this command.
+             uuid - universal unique identifier.
+             path - The path where the recording should be stored.
+  '''  
+
+  def __init__(self, *args, **kwargs):
+    super(UnmaskRecordingCommand, self).__init__(*args, **kwargs)
+    self.__path__ = kwargs.get('path', None)
+    if not self.__path__:
+      raise ValueError('A valid path parameter must be specified.')
+
+  def __str__(self):
+    return 'bgapi uuid_record %s unmask %s\nJob-UUID: %s\n\n' % (self.__uuid__, self.__path__, \
+      self.__job_uuid__)
 
 class UnpauseCommand(UUIDCommand):
   '''
