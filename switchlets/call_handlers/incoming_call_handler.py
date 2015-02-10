@@ -22,7 +22,7 @@
 from lib.core import InitializeSwitchletEvent, Switchlet
 from lib.fsm import Action, FiniteStateMachine
 from lib.esl import Event
-from switchlets.call_handlers.data_connector import DataConnector, DataStoreContext, QueryError, QuerySuccess
+from switchlets.data_connector import DataConnector, QueryContext, QueryResult
 
 
 import logging
@@ -34,13 +34,14 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
   initial_state = 'not ready'
 
   transitions = [
-    ('not ready', 'ready') ,
-    ('ready',  'waiting for incoming call'),
-    ('waiting for incoming call', 'call started. fetching logic'),
-    ('call started. fetching logic', 'got logic. executing logic'),
-    ('call started. fetching logic', 'failed getting logic. stopping call'),
+    ('not ready', 'waiting for incoming call'),
+    ('waiting for incoming call', 'call started. fetching app'),
+    ('call started. fetching app', 'failed query. stopping call'),
+    ('call started. fetching app', 'fetching execution logic'),
+    ('fetching execution logic', 'failed query. stopping call'),
+    ('fetching execution logic', 'got logic. executing logic'),
+    ('failed query. stopping call', 'waiting for incoming call'),
     ('got logic. executing logic', 'waiting for incoming call'),
-    ('failed getting logic. stopping call', 'waiting for incoming call')
   ]
 
   def __init__(self, *args, **kwargs):
@@ -63,20 +64,35 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
     call_context['uuid'] = message.get_header('Channel-Call-UUID')
     call_context['from'] = message.get_header('Caller-Caller-ID-Number') # This can vary depending on the kind of call
     call_context['to'] = message.get_header('Caller-Destination-Number') # This can vary depending on the kind of call
+    #TODO: Make the call contexts more general for multiple kinds of calls like
+    # 1. SIP
+    # 2. PSTN
+    # 3. WebRTC
     self.__call_context__ = call_context
 
-  @Action(state = 'ready')
-  def initialize(self, message):
-    self.__dispatcher__ = message.get_dispatcher()
-    call_wait = StartWaitingForCall()
-    self.actor_ref.tell({'content': call_wait})
-
-  @Action(state = 'call started. fetching logic')
-  def find_call_specific_logic(self, message):
+  @Action(state = 'call started. fetching app')
+  def fetch_app(self, message):
     self.collect_call_context(message)
     self.__data_connector__ = DataConnector.start()
-    data_store_context = DataStoreContext(self.actor_ref, self.__call_context__)
-    self.__data_connector__.tell({'content': data_store_context})
+    query_data = {'caller_ref': self.actor_ref,
+                  'model': 'number_mappings',
+                  'key': self.__call_context__.get('to'),
+                  'failure_destination_state': 'failed query. stopping call',
+                  'success_destination_state': 'fetching execution logic'
+                  }
+    query_context = QueryContext(**query_data)
+    self.__data_connector__.tell({'content': query_context})
+
+  @Action(state = 'fetching execution logic')
+  def find_call_execution_logic(self, message):
+    query_data = {'caller_ref': self.actor_ref,
+                  'model': 'app_data',
+                  'key': message.get_query_result(),
+                  'failure_destination_state': 'failed query. stopping call', 
+                  'success_destination_state': 'got logic. executing logic'
+                  }
+    query_context = QueryContext(**query_data)
+    self.__data_connector__.tell({'content': query_context})
 
   @Action(state = 'got logic. executing logic')
   def call_execution(self, message):
@@ -84,21 +100,17 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
     self.__data_connector__.stop()
     pass
 
-  @Action(state = 'failed getting logic. stopping call')
+  @Action(state = 'failed query. stopping call')
   def call_rejection(self, message):
     self.__data_connector__.stop()
-    pass
+    self.transition(to = 'waiting for incoming call')
 
   def on_receive(self, message):
     message = message.get('content')
     if isinstance(message, InitializeSwitchletEvent):
-      self.transition(to = 'ready', event = message)
-    elif isinstance(message, StartWaitingForCall):
-      self.transition(to = 'waiting for incoming call')
-    elif isinstance(message, QuerySuccess):
-      self.transition(to = 'got logic. executing logic', event = message)  
-    elif isinstance(message, QueryError):
-      self.transition(to = 'failed getting logic. stopping call', event = message)  
+      self.transition(to = 'waiting for incoming call', event = message)
+    elif isinstance(message, QueryResult):
+      self.transition(to = message.get_destination_state(), event = message)
     elif isinstance(message, Event):
       content_type = message.get_header('Content-Type')
 
