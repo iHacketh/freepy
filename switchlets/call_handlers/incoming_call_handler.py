@@ -104,6 +104,7 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
 
       if content_type == 'text/event-plain':
         name = message.get_header('Event-Name')
-        if name == 'CHANNEL_CREATE':
-          self.transition(to = 'call started. fetching logic', event = message)
+        call_direction = message.get_header('Caller-Direction')
+        if name == 'CHANNEL_CREATE' and call_direction == 'inbound':
+          self.transition(to = 'call started. fetching app', event = message)
 
