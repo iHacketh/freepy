@@ -1049,7 +1049,7 @@ class PreAnswerCommand(UUIDCommand):
     super(PreAnswerCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):
-    return 'bgapi uuid_pre_answer %s\nJob-UUID: %s\n\n' % (self.__uuid__,
+    return 'bgapi uuid_preanswer %s\nJob-UUID: %s\n\n' % (self.__uuid__,
       self.__job_uuid__)
 
 class PreProcessCommand(UUIDCommand):

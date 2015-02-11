@@ -57,6 +57,15 @@ $] python run.py
 
 More documentation is on the way soon but for now an example heartbeat monitor [switchlet](https://github.com/thomasquintana/freepy/blob/master/switchlets/heartbeat/example.py) is provided.
 
+Running Tests
+-------------
+
+Run tests with a single command
+
+```
+$] python -m unittest tests
+```
+
 Notes
 -----
 
