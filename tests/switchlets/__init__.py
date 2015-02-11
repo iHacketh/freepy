@@ -18,6 +18,3 @@
 # Thomas Quintana <quintana.thomas@gmail.com>
 #
 # Nishad Musthafa  <nishadmusthafa@gmail.com>
-
-from command_tests import *
-from switchlets.call_utilities import *
