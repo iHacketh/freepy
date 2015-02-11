@@ -29,7 +29,7 @@ class QueryContext(object):
   def __init__(self, **kwargs):
     self.__logger__ = logging.getLogger('call_handlers.data_connector.QueryContext')
     try:
-      self.__caller_ref__ = kwargs['caller_ref']
+      self.__sender__ = kwargs['sender']
       self.__model__ = kwargs['model']
       self.__key__ = kwargs['key']
       self.__failure_destination_state__ = kwargs['failure_destination_state']
@@ -38,8 +38,8 @@ class QueryContext(object):
       self.__logger__.error('Query Context initialized without mandatory parameter %s' % e)
       raise e
 
-  def get_caller_ref(self):
-    return self.__caller_ref__
+  def get_sender(self):
+    return self.__sender__
 
   def get_model(self):
     return self.__model__
@@ -101,7 +101,7 @@ class DataConnector(FiniteStateMachine, Switchlet):
 
   @Action(state = 'querying')
   def run_query(self, message):
-    caller_ref = message.get_caller_ref()
+    sender = message.get_sender()
     model = message.get_model()
     key = message.get_key()
     try:
@@ -119,7 +119,7 @@ class DataConnector(FiniteStateMachine, Switchlet):
       self.__logger__.error(message)
 
     query_result = QueryResult(result, result_message, destination_state)
-    caller_ref.tell({ 'content': query_result})
+    sender.tell({ 'content': query_result})
     query_done = QueryDone()
     self.actor_ref.tell({ 'content': query_done})
 
