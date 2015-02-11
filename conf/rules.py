@@ -17,7 +17,7 @@
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
 
-dispatch_events = ['HEARTBEAT', 'CHANNEL_CREATE']
+dispatch_events = ['HEARTBEAT', 'CHANNEL_CREATE', 'PLAYBACK_STOP']
 dispatch_rules = [
   {
     'header_name': 'Event-Name',

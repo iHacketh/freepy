@@ -19,10 +19,13 @@
 #
 # Nishad Musthafa  <nishadmusthafa@gmail.com>
 
+from lib.commands import AnswerCommand, KillCommand
 from lib.core import InitializeSwitchletEvent, Switchlet
-from lib.fsm import Action, FiniteStateMachine
 from lib.esl import Event
+from lib.fsm import Action, FiniteStateMachine
+from lib.server import RegisterJobObserverCommand, UnregisterJobObserverCommand
 from switchlets.data_connector import DataConnector, QueryContext, QueryResult
+from switchlets.call_utilities import ActionExecutor, StartExecution, ExecutionComplete
 
 
 import logging
@@ -39,17 +42,21 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
     ('call started. fetching app', 'failed query. stopping call'),
     ('call started. fetching app', 'fetching execution logic'),
     ('fetching execution logic', 'failed query. stopping call'),
-    ('fetching execution logic', 'got logic. executing logic'),
-    ('failed query. stopping call', 'waiting for incoming call'),
-    ('got logic. executing logic', 'waiting for incoming call'),
+    ('fetching execution logic', 'got logic. answering call'),
+    ('got logic. answering call', 'executing call logic'),
+    ('failed query. stopping call', 'terminate call'),
+    ('executing call logic', 'terminate call'),
+    ('terminate call', 'call terminated'),
   ]
 
   def __init__(self, *args, **kwargs):
     super(IncomingCallHandler, self).__init__(*args, **kwargs)
-    self.__logger__ = logging.getLogger('heartbeat.monitor')
+    self.__logger__ = logging.getLogger('switchlets.call_handlers.incoming_call_handler')
     self.__dispatcher__ = None
     self.__call_context__ = {}
     self.__data_connector__ = None
+    self.__action_executor__ = None
+    self.__execution_actions__ = None
 
   def collect_call_context(self, message):
     call_context = {}
@@ -64,17 +71,23 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
     call_context['uuid'] = message.get_header('Channel-Call-UUID')
     call_context['from'] = message.get_header('Caller-Caller-ID-Number') # This can vary depending on the kind of call
     call_context['to'] = message.get_header('Caller-Destination-Number') # This can vary depending on the kind of call
-    #TODO: Make the call contexts more general for multiple kinds of calls like
+    #TODO: Make the call contexts more general considering multiple kinds of calls like
     # 1. SIP
     # 2. PSTN
     # 3. WebRTC
     self.__call_context__ = call_context
 
+  def get_call_uuid(self):
+    return self.__call_context__.get('uuid')
+
+  def initialize(self, message):
+    self.__dispatcher__ = message.get_dispatcher()
+
   @Action(state = 'call started. fetching app')
   def fetch_app(self, message):
     self.collect_call_context(message)
     self.__data_connector__ = DataConnector.start()
-    query_data = {'caller_ref': self.actor_ref,
+    query_data = {'sender': self.actor_ref,
                   'model': 'number_mappings',
                   'key': self.__call_context__.get('to'),
                   'failure_destination_state': 'failed query. stopping call',
@@ -85,30 +98,70 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
 
   @Action(state = 'fetching execution logic')
   def find_call_execution_logic(self, message):
-    query_data = {'caller_ref': self.actor_ref,
+    query_data = {'sender': self.actor_ref,
                   'model': 'app_data',
                   'key': message.get_query_result(),
                   'failure_destination_state': 'failed query. stopping call', 
-                  'success_destination_state': 'got logic. executing logic'
+                  'success_destination_state': 'got logic. answering call'
                   }
     query_context = QueryContext(**query_data)
     self.__data_connector__.tell({'content': query_context})
 
-  @Action(state = 'got logic. executing logic')
-  def call_execution(self, message):
-    self.__logger__.info('Logic to be executed is %s' % message.get_query_result())
+  @Action(state = 'got logic. answering call')
+  def call_answer(self, message):
+    self.__execution_actions__ = message.get_query_result()
     self.__data_connector__.stop()
-    pass
+    answer_command = AnswerCommand(self.actor_ref, self.get_call_uuid())
+    register_observer = RegisterJobObserverCommand(self.actor_ref, answer_command.get_job_uuid())
+    self.__dispatcher__.tell({'content': register_observer})
+    self.__dispatcher__.tell({'content': answer_command})
+
+
+  @Action(state = 'executing call logic')
+  def call_execution(self, message):
+    execution_actions = self.__execution_actions__
+    self.__logger__.info('Logic to be executed is for %s is %s' % 
+                        (self.get_call_uuid(),
+                         execution_actions))
+    self.__action_executor__ = ActionExecutor.start()
+    execution_params = {
+                        'context': execution_actions,
+                        'dispatcher': self.__dispatcher__,
+                        'sender': self.actor_ref,
+                        'call_uuid': self.get_call_uuid()
+                        }
+    start_execution = StartExecution(**execution_params)
+    self.__action_executor__.tell({'content': start_execution})
 
   @Action(state = 'failed query. stopping call')
   def call_rejection(self, message):
     self.__data_connector__.stop()
-    self.transition(to = 'waiting for incoming call')
+    call_wait = StartWaitingForCall()
+    self.actor_ref.tell({'content': call_wait})
+
+  @Action(state = 'terminate call')
+  def clean_up_call(self, message):
+    kill_command = KillCommand(self.actor_ref, self.get_call_uuid())
+    register_observer = RegisterJobObserverCommand(self.actor_ref, kill_command.get_job_uuid())
+    self.__dispatcher__.tell({'content': register_observer})
+    self.__dispatcher__.tell({'content': kill_command})
+
+
+  @Action(state = 'call terminated')
+  def end_call(self, message):
+    self.__action_executor__.stop()
+    # self.actor_ref.stop()
 
   def on_receive(self, message):
     message = message.get('content')
+
     if isinstance(message, InitializeSwitchletEvent):
-      self.transition(to = 'waiting for incoming call', event = message)
+      self.initialize(message)
+      self.transition(to = 'waiting for incoming call')
+    elif isinstance(message, StartWaitingForCall):
+      self.transition(to = 'waiting for incoming call')
+    elif isinstance(message, ExecutionComplete):
+      self.transition(to = 'terminate call')
     elif isinstance(message, QueryResult):
       self.transition(to = message.get_destination_state(), event = message)
     elif isinstance(message, Event):
@@ -117,6 +170,18 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
       if content_type == 'text/event-plain':
         name = message.get_header('Event-Name')
         call_direction = message.get_header('Caller-Direction')
+        
         if name == 'CHANNEL_CREATE' and call_direction == 'inbound':
           self.transition(to = 'call started. fetching app', event = message)
 
+        job_uuid = message.get_header('Job-Command-Arg')
+        job_command = message.get_header('Job-Command')
+        
+        if name == 'BACKGROUND_JOB' and job_uuid == self.get_call_uuid() and job_command == 'uuid_answer':
+          unregister_observer = UnregisterJobObserverCommand(job_uuid)
+          self.__dispatcher__.tell({'content': unregister_observer})
+          self.transition(to = 'executing call logic', event = message)
+        if name == 'BACKGROUND_JOB' and job_uuid == self.get_call_uuid() and job_command == 'uuid_kill':
+          unregister_observer = UnregisterJobObserverCommand(job_uuid)
+          self.__dispatcher__.tell({'content': unregister_observer})
+          self.transition(to = 'call terminated', event = message)
