@@ -20,4 +20,12 @@
 # Nishad Musthafa  <nishadmusthafa@gmail.com>
 
 from command_tests import *
+from conf.settings import *
+from switchlets.call_handlers import *
 from switchlets.call_utilities import *
+import logging
+
+logging.basicConfig(filename = logging_filename, format = logging_format,
+      level = 'CRITICAL')
+
+

@@ -16,24 +16,18 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
+#
+# Nishad Musthafa  <nishadmusthafa@gmail.com>
 
-dispatch_events = ['HEARTBEAT', 'CHANNEL_CREATE', 'PLAYBACK_STOP', 'CHANNEL_EXECUTE_COMPLETE']
-dispatch_rules = [
-  {
-    'header_name': 'Event-Name',
-    'header_value': 'HEARTBEAT',
-    'persistent': True,
-    'target': 'switchlets.heartbeat.example.Monitor'
-  },
-  {
-    'header_name': 'Event-Name',
-    'header_value': 'CHANNEL_CREATE',
-    'persistent': False,
-    'target': 'switchlets.call_handlers.IncomingCallHandler'
-  }
-  #,{
-  #  'header_name': 'FreeSWITCH-Hostname',
-  #  'header_pattern': 'Freeswitch.*',
-  #  'target': 'other.application.actor'
-  #}
-]
+from lib.esl import Event
+from lib.server import Dispatcher, WatchEventCommand, UnwatchEventCommand
+from switchlets.call_utilities.utils import SendMessageCommand, StartExecution
+import mock, time
+from unittest import TestCase
+
+
+class SendMessageCommandTest(TestCase):
+  def test_success_scenario(self):
+    command = SendMessageCommand(object(), 'sample_call_uuid', app_name='playback')
+    desired_output = 'sendmsg sample_call_uuid\ncall-command: execute\nexecute-app-name: playback\n'
+    self.assertTrue(str(command) == desired_output)

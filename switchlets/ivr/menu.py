@@ -50,4 +50,6 @@ class AbstractIVRMenu(FiniteStateMachine, Switchlet):
     self.__dispatcher__ = None
 
 class IVRMenu(FiniteStateMachine, Switchlet):
-  pass
+  def on_receive(self, message):
+    # TODO
+    pass

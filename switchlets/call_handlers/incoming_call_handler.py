@@ -33,6 +33,9 @@ import logging
 class StartWaitingForCall(object):
   pass
 
+class EndCall(object):
+  pass
+
 class IncomingCallHandler(FiniteStateMachine, Switchlet):
   initial_state = 'not ready'
 
@@ -136,8 +139,7 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
   @Action(state = 'failed query. stopping call')
   def call_rejection(self, message):
     self.__data_connector__.stop()
-    call_wait = StartWaitingForCall()
-    self.actor_ref.tell({'content': call_wait})
+    self.actor_ref.tell({'content': EndCall()})
 
   @Action(state = 'terminate call')
   def clean_up_call(self, message):
@@ -149,7 +151,8 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
 
   @Action(state = 'call terminated')
   def end_call(self, message):
-    self.__action_executor__.stop()
+    if self.__action_executor__:
+      self.__action_executor__.stop()
     # self.actor_ref.stop()
 
   def on_receive(self, message):
@@ -158,9 +161,7 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
     if isinstance(message, InitializeSwitchletEvent):
       self.initialize(message)
       self.transition(to = 'waiting for incoming call')
-    elif isinstance(message, StartWaitingForCall):
-      self.transition(to = 'waiting for incoming call')
-    elif isinstance(message, ExecutionComplete):
+    elif isinstance(message, EndCall) or isinstance(message, ExecutionComplete):
       self.transition(to = 'terminate call')
     elif isinstance(message, QueryResult):
       self.transition(to = message.get_destination_state(), event = message)
@@ -174,14 +175,14 @@ class IncomingCallHandler(FiniteStateMachine, Switchlet):
         if name == 'CHANNEL_CREATE' and call_direction == 'inbound':
           self.transition(to = 'call started. fetching app', event = message)
 
-        job_uuid = message.get_header('Job-Command-Arg')
+        job_command_arg = message.get_header('Job-Command-Arg')
         job_command = message.get_header('Job-Command')
         
-        if name == 'BACKGROUND_JOB' and job_uuid == self.get_call_uuid() and job_command == 'uuid_answer':
-          unregister_observer = UnregisterJobObserverCommand(job_uuid)
+        if name == 'BACKGROUND_JOB' and job_command_arg == self.get_call_uuid() and job_command == 'uuid_answer':
+          unregister_observer = UnregisterJobObserverCommand(job_command_arg)
           self.__dispatcher__.tell({'content': unregister_observer})
           self.transition(to = 'executing call logic', event = message)
-        if name == 'BACKGROUND_JOB' and job_uuid == self.get_call_uuid() and job_command == 'uuid_kill':
-          unregister_observer = UnregisterJobObserverCommand(job_uuid)
+        if name == 'BACKGROUND_JOB' and job_command_arg == self.get_call_uuid() and job_command == 'uuid_kill':
+          unregister_observer = UnregisterJobObserverCommand(job_command_arg)
           self.__dispatcher__.tell({'content': unregister_observer})
           self.transition(to = 'call terminated', event = message)

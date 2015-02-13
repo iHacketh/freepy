@@ -50,6 +50,7 @@ class ExecutionComplete(object):
 
 class SendMessageCommand(UUIDCommand):
   def __init__(self, *args, **kwargs):
+    self.__app_name__ = kwargs['app_name']
     super(SendMessageCommand, self).__init__(*args, **kwargs)
 
   def __str__(self):

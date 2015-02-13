@@ -7,7 +7,7 @@ from utils import ExecutionComplete, SendMessageCommand, StartExecution
 
 class PlayCommand(SendMessageCommand):
   def __init__(self, *args, **kwargs):
-    self.__app_name__ = 'playback'
+    kwargs.update({'app_name': 'playback'})
     self.__path__ = kwargs.get('path')
     super(PlayCommand, self).__init__(*args, **kwargs)
 
@@ -36,7 +36,7 @@ class Play(FiniteStateMachine, Switchlet):
     self.__dispatcher__ = None
     self.__sender__ = None
     self.__call_uuid__ = None
-    self.__logger__ = logging.getLogger('switchlets.call_utilities.play.Play')
+    self.__logger__ = logging.getLogger('call_utilities.play')
     self.transition(to = 'ready')
 
   def get_call_uuid(self):
@@ -52,6 +52,12 @@ class Play(FiniteStateMachine, Switchlet):
   def send_play_command(self, message):
     play_command = PlayCommand(self.__sender__, self.__call_uuid__, path = self.__playback_path__)
     watch_command = WatchEventCommand(self.actor_ref, name="Event-Name", value="PLAYBACK_STOP")
+    self.__dispatcher__.tell({'content': watch_command})
+    watch_command = WatchEventCommand(self.actor_ref, name="Event-Name", value="CHANNEL_EXECUTE_COMPLETE")
+    
+
+
+
     self.__dispatcher__.tell({'content': watch_command})
     self.__dispatcher__.tell({'content': play_command})
 
@@ -74,4 +80,18 @@ class Play(FiniteStateMachine, Switchlet):
         if name == 'PLAYBACK_STOP' and call_uuid == self.get_call_uuid():
           unwatch_command = UnwatchEventCommand(name="Event-Name", value="PLAYBACK_STOP")
           self.__dispatcher__.tell({'content': unwatch_command})
+          unwatch_command = UnwatchEventCommand(name="Event-Name", value="CHANNEL_EXECUTE_COMPLETE")
+          self.__dispatcher__.tell({'content': unwatch_command})
           self.transition(to = 'complete')
+
+        if name == 'CHANNEL_EXECUTE_COMPLETE' and call_uuid == self.get_call_uuid():
+          application = message.get_header('Application')
+          application_data = message.get_header('Application-Data')
+          application_response = message.get_header('Application-Response')
+          if application == 'playback' and application_data == self.__playback_path__ and application_response == 'FILE NOT FOUND':
+            unwatch_command = UnwatchEventCommand(name="Event-Name", value="PLAYBACK_STOP")
+            self.__dispatcher__.tell({'content': unwatch_command})
+            unwatch_command = UnwatchEventCommand(name="Event-Name", value="CHANNEL_EXECUTE_COMPLETE")
+            self.__dispatcher__.tell({'content': unwatch_command})
+            self.__logger__.error("Playback failed for call %s and playback with argument %s" % (self.__call_uuid__, self.__playback_path__))
+            self.transition(to = 'complete')
