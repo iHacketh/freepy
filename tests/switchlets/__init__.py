@@ -16,24 +16,5 @@
 # under the License.
 #
 # Thomas Quintana <quintana.thomas@gmail.com>
-
-dispatch_events = ['HEARTBEAT', 'CHANNEL_CREATE', 'PLAYBACK_STOP', 'CHANNEL_EXECUTE_COMPLETE']
-dispatch_rules = [
-  {
-    'header_name': 'Event-Name',
-    'header_value': 'HEARTBEAT',
-    'persistent': True,
-    'target': 'switchlets.heartbeat.example.Monitor'
-  },
-  {
-    'header_name': 'Event-Name',
-    'header_value': 'CHANNEL_CREATE',
-    'persistent': False,
-    'target': 'switchlets.call_handlers.IncomingCallHandler'
-  }
-  #,{
-  #  'header_name': 'FreeSWITCH-Hostname',
-  #  'header_pattern': 'Freeswitch.*',
-  #  'target': 'other.application.actor'
-  #}
-]
+#
+# Nishad Musthafa  <nishadmusthafa@gmail.com>

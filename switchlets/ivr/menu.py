@@ -48,4 +48,8 @@ class AbstractIVRMenu(FiniteStateMachine, Switchlet):
     super(Monitor, self).__init__(*args, **kwargs)
     self.__logger__ = logging.getLogger('ivr.menu.AbstractIVRMenu')
     self.__dispatcher__ = None
-    
+
+class IVRMenu(FiniteStateMachine, Switchlet):
+  def on_receive(self, message):
+    # TODO
+    pass
